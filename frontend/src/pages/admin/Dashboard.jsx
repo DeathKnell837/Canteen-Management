@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { LayoutDashboard, ShoppingBag, UtensilsCrossed, AlertTriangle, TrendingUp, Users, Clock } from 'lucide-react';
+import { LayoutDashboard, ShoppingBag, UtensilsCrossed, AlertTriangle, Clock, TrendingUp } from 'lucide-react';
 import api from '../../api/axios';
 
 export default function Dashboard() {
@@ -48,74 +48,103 @@ export default function Dashboard() {
   }, []);
 
   const cards = [
-    { label: 'Total Orders', value: stats.totalOrders, icon: ShoppingBag, color: 'bg-blue-500', bg: 'bg-blue-50' },
-    { label: 'Pending Orders', value: stats.pendingOrders, icon: Clock, color: 'bg-yellow-500', bg: 'bg-yellow-50' },
-    { label: 'Revenue', value: `₱${stats.totalRevenue.toFixed(0)}`, icon: ShoppingBag, color: 'bg-green-500', bg: 'bg-green-50' },
-    { label: 'Menu Items', value: stats.menuItems, icon: UtensilsCrossed, color: 'bg-brand-500', bg: 'bg-brand-50' },
-    { label: 'Low Stock', value: stats.lowStock, icon: AlertTriangle, color: stats.lowStock > 0 ? 'bg-red-500' : 'bg-gray-400', bg: stats.lowStock > 0 ? 'bg-red-50' : 'bg-gray-50' },
+    { label: 'Total Orders', value: stats.totalOrders, icon: ShoppingBag, gradient: 'from-blue-500 to-blue-600', light: 'bg-blue-50 text-blue-600', ring: 'ring-blue-200' },
+    { label: 'Pending', value: stats.pendingOrders, icon: Clock, gradient: 'from-amber-500 to-amber-600', light: 'bg-amber-50 text-amber-600', ring: 'ring-amber-200', pulse: stats.pendingOrders > 0 },
+    { label: 'Revenue', value: `₱${stats.totalRevenue.toFixed(0)}`, icon: TrendingUp, gradient: 'from-emerald-500 to-emerald-600', light: 'bg-emerald-50 text-emerald-600', ring: 'ring-emerald-200' },
+    { label: 'Menu Items', value: stats.menuItems, icon: UtensilsCrossed, gradient: 'from-brand-500 to-brand-600', light: 'bg-brand-50 text-brand-600', ring: 'ring-brand-200' },
+    { label: 'Low Stock', value: stats.lowStock, icon: AlertTriangle, gradient: stats.lowStock > 0 ? 'from-red-500 to-red-600' : 'from-gray-400 to-gray-500', light: stats.lowStock > 0 ? 'bg-red-50 text-red-600' : 'bg-gray-50 text-gray-500', ring: stats.lowStock > 0 ? 'ring-red-200' : 'ring-gray-200', pulse: stats.lowStock > 0 },
   ];
 
   const statusColor = {
-    PENDING: 'bg-yellow-100 text-yellow-700',
-    CONFIRMED: 'bg-blue-100 text-blue-700',
-    PREPARING: 'bg-brand-100 text-brand-700',
-    READY: 'bg-green-100 text-green-700',
-    PICKED_UP: 'bg-green-100 text-green-700',
-    DELIVERED: 'bg-green-100 text-green-700',
-    CANCELLED: 'bg-red-100 text-red-700',
+    PENDING: 'bg-yellow-100 text-yellow-700 border border-yellow-200',
+    CONFIRMED: 'bg-blue-100 text-blue-700 border border-blue-200',
+    PREPARING: 'bg-orange-100 text-orange-700 border border-orange-200',
+    READY: 'bg-green-100 text-green-700 border border-green-200',
+    PICKED_UP: 'bg-green-100 text-green-700 border border-green-200',
+    DELIVERED: 'bg-emerald-100 text-emerald-700 border border-emerald-200',
+    CANCELLED: 'bg-red-100 text-red-700 border border-red-200',
   };
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="w-8 h-8 border-4 border-brand-500 border-t-transparent rounded-full animate-spin" />
+      <div className="space-y-6">
+        <div className="h-8 w-48 skeleton rounded-lg" />
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+          {[...Array(5)].map((_, i) => (
+            <div key={i} className="skeleton rounded-2xl h-32" />
+          ))}
+        </div>
+        <div className="skeleton rounded-2xl h-64" />
       </div>
     );
   }
 
   return (
     <div>
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-          <LayoutDashboard className="w-6 h-6 text-brand-500" /> Dashboard
+      <div className="mb-6 animate-fade-in">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 flex items-center gap-3">
+          <div className="w-10 h-10 bg-gradient-to-br from-brand-500 to-brand-600 rounded-xl flex items-center justify-center shadow-lg shadow-brand-500/20">
+            <LayoutDashboard className="w-5 h-5 text-white" />
+          </div>
+          Dashboard
         </h1>
         <p className="text-gray-500 text-sm mt-1">Overview of your canteen operations</p>
       </div>
 
       {/* Stats grid */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
-        {cards.map((c) => (
-          <div key={c.label} className={`${c.bg} rounded-xl p-4 border border-gray-100`}>
-            <div className={`w-9 h-9 ${c.color} rounded-lg flex items-center justify-center mb-3`}>
-              <c.icon className="w-4 h-4 text-white" />
+        {cards.map((c, idx) => (
+          <div
+            key={c.label}
+            className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm card-hover animate-fade-in-up relative overflow-hidden"
+            style={{ animationDelay: `${idx * 0.07}s`, animationFillMode: 'both' }}
+          >
+            {c.pulse && (
+              <div className="absolute top-3 right-3">
+                <span className="flex h-2.5 w-2.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500" />
+                </span>
+              </div>
+            )}
+            <div className={`w-10 h-10 bg-gradient-to-br ${c.gradient} rounded-xl flex items-center justify-center mb-3 shadow-sm`}>
+              <c.icon className="w-5 h-5 text-white" />
             </div>
-            <p className="text-2xl font-bold text-gray-900">{c.value}</p>
-            <p className="text-xs text-gray-500 mt-0.5">{c.label}</p>
+            <p className="text-2xl font-bold text-gray-900 number-pop">{c.value}</p>
+            <p className="text-xs text-gray-500 mt-1 font-medium">{c.label}</p>
           </div>
         ))}
       </div>
 
       {/* Recent orders */}
-      <div className="bg-white rounded-xl border border-gray-200">
-        <div className="p-4 border-b border-gray-100">
-          <h2 className="font-semibold text-gray-900">Recent Orders</h2>
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden animate-fade-in-up" style={{ animationDelay: '0.35s', animationFillMode: 'both' }}>
+        <div className="p-5 border-b border-gray-50 flex items-center justify-between">
+          <h2 className="font-bold text-gray-900 text-lg">Recent Orders</h2>
+          <span className="text-xs text-gray-400 font-medium">Last 5</span>
         </div>
         {recentOrders.length === 0 ? (
-          <div className="p-8 text-center text-gray-400 text-sm">No orders yet</div>
+          <div className="p-12 text-center">
+            <div className="text-4xl mb-3">📋</div>
+            <p className="text-gray-400 text-sm">No orders yet</p>
+          </div>
         ) : (
-          <div className="divide-y divide-gray-100">
-            {recentOrders.map((o) => (
-              <div key={o.order_id} className="p-4 flex items-center gap-4">
-                <div className="w-9 h-9 bg-gray-100 rounded-lg flex items-center justify-center text-xs font-bold text-gray-500">
+          <div className="divide-y divide-gray-50">
+            {recentOrders.map((o, idx) => (
+              <div
+                key={o.order_id}
+                className="p-4 flex items-center gap-4 hover:bg-gray-50/50 transition-colors"
+                style={{ animationDelay: `${0.4 + idx * 0.05}s` }}
+              >
+                <div className="w-10 h-10 bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl flex items-center justify-center text-xs font-bold text-gray-500">
                   #{o.order_id}
                 </div>
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-900">
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-gray-900">
                     Order #{o.order_id}
-                    {o.user_id && <span className="text-gray-400 ml-2">by User #{o.user_id}</span>}
+                    {o.user_id && <span className="text-gray-400 font-normal ml-2">User #{o.user_id}</span>}
                   </p>
-                  <p className="text-xs text-gray-400">
-                    {new Date(o.created_at).toLocaleDateString('en-IN', {
+                  <p className="text-xs text-gray-400 mt-0.5">
+                    {new Date(o.created_at).toLocaleDateString('en-PH', {
                       day: 'numeric',
                       month: 'short',
                       hour: '2-digit',
@@ -123,10 +152,10 @@ export default function Dashboard() {
                     })}
                   </p>
                 </div>
-                <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${statusColor[o.status] || 'bg-gray-100 text-gray-600'}`}>
+                <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${statusColor[o.status] || 'bg-gray-100 text-gray-600'}`}>
                   {o.status}
                 </span>
-                <span className="text-sm font-semibold text-gray-900">₱{parseFloat(o.total_amount).toFixed(2)}</span>
+                <span className="text-sm font-bold text-gray-900">₱{(parseFloat(o.total_amount) || 0).toFixed(2)}</span>
               </div>
             ))}
           </div>

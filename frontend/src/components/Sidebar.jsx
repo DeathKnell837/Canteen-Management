@@ -13,8 +13,10 @@ import {
   User,
   ChevronLeft,
   ChevronRight,
+  Menu,
+  X,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const customerNav = [
   { to: '/menu', label: 'Menu', icon: UtensilsCrossed },
@@ -35,6 +37,7 @@ export default function Sidebar() {
   const { itemCount } = useCart();
   const navigate = useNavigate();
   const [collapsed, setCollapsed] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   const isAdmin = user?.role === 'ADMIN' || user?.role === 'STAFF';
   const navItems = isAdmin ? [...adminNav, ...customerNav] : customerNav;
@@ -44,115 +47,155 @@ export default function Sidebar() {
     navigate('/login');
   };
 
+  // Close mobile sidebar on route change
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [navigate]);
+
   return (
-    <aside
-      className={`fixed left-0 top-0 h-screen bg-white border-r border-gray-200 flex flex-col z-30 transition-all duration-200 ${
-        collapsed ? 'w-[68px]' : 'w-60'
-      }`}
-    >
-      {/* Logo */}
-      <div className="h-16 flex items-center gap-3 px-4 border-b border-gray-100 shrink-0">
-        <div className="w-9 h-9 rounded-lg bg-brand-500 flex items-center justify-center shrink-0">
-          <UtensilsCrossed className="w-5 h-5 text-white" />
-        </div>
-        {!collapsed && (
-          <span className="font-bold text-gray-900 text-sm leading-tight">
-            Canteen<br />Management
-          </span>
-        )}
-      </div>
-
-      {/* Navigation */}
-      <nav className="flex-1 py-4 px-3 space-y-1 overflow-y-auto scrollbar-hide">
-        {isAdmin && !collapsed && (
-          <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider px-3 mb-2">
-            Admin
-          </p>
-        )}
-        {navItems.map((item) => {
-          if (item === customerNav[0] && isAdmin && !collapsed) {
-            return (
-              <div key="divider">
-                <div className="border-t border-gray-100 my-3" />
-                <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider px-3 mb-2">
-                  Customer
-                </p>
-                <SidebarLink item={item} collapsed={collapsed} badge={item.badge ? itemCount : 0} />
-              </div>
-            );
-          }
-          return (
-            <SidebarLink
-              key={item.to}
-              item={item}
-              collapsed={collapsed}
-              badge={item.badge ? itemCount : 0}
-            />
-          );
-        })}
-      </nav>
-
-      {/* User section */}
-      <div className="border-t border-gray-100 p-3 space-y-2 shrink-0">
-        {!collapsed && (
-          <div className="flex items-center gap-3 px-3 py-2">
-            <div className="w-8 h-8 rounded-full bg-brand-100 flex items-center justify-center">
-              <User className="w-4 h-4 text-brand-600" />
-            </div>
-            <div className="min-w-0">
-              <p className="text-sm font-medium text-gray-900 truncate">{user?.full_name}</p>
-              <p className="text-xs text-gray-500 truncate">{user?.role}</p>
-            </div>
-          </div>
-        )}
-        <button
-          onClick={handleLogout}
-          className={`flex items-center gap-3 w-full rounded-lg text-sm text-gray-600 hover:bg-red-50 hover:text-red-600 transition-colors ${
-            collapsed ? 'justify-center py-2.5' : 'px-3 py-2.5'
-          }`}
-        >
-          <LogOut className="w-[18px] h-[18px] shrink-0" />
-          {!collapsed && 'Log out'}
-        </button>
-      </div>
-
-      {/* Collapse toggle */}
+    <>
+      {/* Mobile hamburger */}
       <button
-        onClick={() => setCollapsed(!collapsed)}
-        className="absolute -right-3 top-20 w-6 h-6 rounded-full bg-white border border-gray-200 flex items-center justify-center shadow-sm hover:bg-gray-50"
+        onClick={() => setMobileOpen(true)}
+        className="fixed top-4 left-4 z-40 lg:hidden w-10 h-10 rounded-xl bg-white border border-gray-200 shadow-sm flex items-center justify-center hover:bg-gray-50 transition-colors"
       >
-        {collapsed ? (
-          <ChevronRight className="w-3.5 h-3.5 text-gray-500" />
-        ) : (
-          <ChevronLeft className="w-3.5 h-3.5 text-gray-500" />
-        )}
+        <Menu className="w-5 h-5 text-gray-700" />
       </button>
-    </aside>
+
+      {/* Mobile overlay */}
+      {mobileOpen && (
+        <div
+          className="fixed inset-0 bg-black/30 z-40 lg:hidden animate-overlay-in"
+          onClick={() => setMobileOpen(false)}
+        />
+      )}
+
+      <aside
+        className={`fixed left-0 top-0 h-screen bg-white/95 glass border-r border-gray-200/80 flex flex-col z-50 transition-all duration-300 ease-in-out
+          ${collapsed ? 'lg:w-[72px]' : 'lg:w-64'}
+          ${mobileOpen ? 'w-64 translate-x-0' : '-translate-x-full lg:translate-x-0'}
+        `}
+      >
+        {/* Logo */}
+        <div className="h-16 flex items-center gap-3 px-4 border-b border-gray-100 shrink-0">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-500 to-brand-600 flex items-center justify-center shrink-0 shadow-lg shadow-brand-500/20">
+            <UtensilsCrossed className="w-5 h-5 text-white" />
+          </div>
+          {!collapsed && (
+            <span className="font-bold text-gray-900 text-sm leading-tight animate-fade-in">
+              Canteen<br />Management
+            </span>
+          )}
+          {/* Mobile close */}
+          <button
+            onClick={() => setMobileOpen(false)}
+            className="lg:hidden ml-auto text-gray-400 hover:text-gray-600"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Navigation */}
+        <nav className="flex-1 py-4 px-3 space-y-1 overflow-y-auto scrollbar-hide">
+          {isAdmin && !collapsed && (
+            <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider px-3 mb-2 animate-fade-in">
+              Admin
+            </p>
+          )}
+          {navItems.map((item, idx) => {
+            if (item === customerNav[0] && isAdmin && !collapsed) {
+              return (
+                <div key="divider">
+                  <div className="border-t border-gray-100 my-3" />
+                  <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider px-3 mb-2 animate-fade-in">
+                    Customer
+                  </p>
+                  <SidebarLink item={item} collapsed={collapsed} badge={item.badge ? itemCount : 0} onClick={() => setMobileOpen(false)} />
+                </div>
+              );
+            }
+            return (
+              <SidebarLink
+                key={item.to}
+                item={item}
+                collapsed={collapsed}
+                badge={item.badge ? itemCount : 0}
+                onClick={() => setMobileOpen(false)}
+              />
+            );
+          })}
+        </nav>
+
+        {/* User section */}
+        <div className="border-t border-gray-100 p-3 space-y-2 shrink-0">
+          {!collapsed && (
+            <div className="flex items-center gap-3 px-3 py-2 animate-fade-in">
+              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-brand-100 to-brand-200 flex items-center justify-center ring-2 ring-brand-100">
+                <User className="w-4 h-4 text-brand-600" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-gray-900 truncate">{user?.full_name}</p>
+                <p className="text-xs text-gray-400 truncate capitalize">{user?.role?.toLowerCase()}</p>
+              </div>
+            </div>
+          )}
+          <button
+            onClick={handleLogout}
+            className={`flex items-center gap-3 w-full rounded-xl text-sm text-gray-500 hover:bg-red-50 hover:text-red-600 transition-all duration-200 ${
+              collapsed ? 'justify-center py-2.5' : 'px-3 py-2.5'
+            }`}
+          >
+            <LogOut className="w-[18px] h-[18px] shrink-0" />
+            {!collapsed && 'Log out'}
+          </button>
+        </div>
+
+        {/* Collapse toggle - desktop only */}
+        <button
+          onClick={() => setCollapsed(!collapsed)}
+          className="hidden lg:flex absolute -right-3.5 top-20 w-7 h-7 rounded-full bg-white border border-gray-200 items-center justify-center shadow-md hover:bg-gray-50 hover:shadow-lg transition-all duration-200"
+        >
+          {collapsed ? (
+            <ChevronRight className="w-3.5 h-3.5 text-gray-500" />
+          ) : (
+            <ChevronLeft className="w-3.5 h-3.5 text-gray-500" />
+          )}
+        </button>
+      </aside>
+    </>
   );
 }
 
-function SidebarLink({ item, collapsed, badge }) {
+function SidebarLink({ item, collapsed, badge, onClick }) {
   const Icon = item.icon;
   return (
     <NavLink
       to={item.to}
       end={item.to === '/admin'}
+      onClick={onClick}
       className={({ isActive }) =>
-        `flex items-center gap-3 rounded-lg text-sm font-medium transition-colors relative ${
+        `flex items-center gap-3 rounded-xl text-sm font-medium transition-all duration-200 relative group ${
           collapsed ? 'justify-center py-2.5' : 'px-3 py-2.5'
         } ${
           isActive
-            ? 'bg-brand-50 text-brand-700'
-            : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+            ? 'bg-gradient-to-r from-brand-50 to-brand-100/50 text-brand-700 shadow-sm shadow-brand-100'
+            : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'
         }`
       }
     >
-      <Icon className="w-[18px] h-[18px] shrink-0" />
-      {!collapsed && item.label}
-      {badge > 0 && (
-        <span className={`absolute ${collapsed ? '-top-1 -right-1' : 'right-3'} min-w-[18px] h-[18px] rounded-full bg-brand-500 text-white text-[10px] font-bold flex items-center justify-center px-1`}>
-          {badge}
-        </span>
+      {({ isActive }) => (
+        <>
+          {isActive && (
+            <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-brand-500 rounded-r-full" />
+          )}
+          <Icon className={`w-[18px] h-[18px] shrink-0 transition-transform duration-200 group-hover:scale-110 ${isActive ? 'text-brand-600' : ''}`} />
+          {!collapsed && <span>{item.label}</span>}
+          {badge > 0 && (
+            <span className={`absolute ${collapsed ? '-top-1 -right-1' : 'right-3'} min-w-[20px] h-[20px] rounded-full bg-brand-500 text-white text-[10px] font-bold flex items-center justify-center px-1 shadow-sm shadow-brand-500/30 animate-scale-in`}>
+              {badge}
+            </span>
+          )}
+        </>
       )}
     </NavLink>
   );

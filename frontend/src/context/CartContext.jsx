@@ -33,7 +33,7 @@ export function CartProvider({ children }) {
 
   const clearCart = () => setItems([]);
 
-  const total = items.reduce((sum, i) => sum + parseFloat(i.base_price) * i.quantity, 0);
+  const total = items.reduce((sum, i) => sum + (parseFloat(i.price) || 0) * i.quantity, 0);
   const itemCount = items.reduce((sum, i) => sum + i.quantity, 0);
 
   return (
