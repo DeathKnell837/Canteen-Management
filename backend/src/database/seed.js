@@ -45,11 +45,11 @@ async function seedDatabase() {
 
     // 3. Create Menu Categories
     const categoriesData = [
-      { name: 'Breakfast', description: 'Morning items', order: 1 },
-      { name: 'Lunch', description: 'Lunch items', order: 2 },
-      { name: 'Dinner', description: 'Dinner items', order: 3 },
-      { name: 'Snacks', description: 'Light snacks', order: 4 },
-      { name: 'Beverages', description: 'Drinks', order: 5 }
+      { name: 'Rice Meals', description: 'Classic Filipino rice meals', order: 1 },
+      { name: 'Merienda', description: 'Snacks and light meals', order: 2 },
+      { name: 'Soup & Sabaw', description: 'Warm soups and stews', order: 3 },
+      { name: 'Silog Meals', description: 'Breakfast silog combos', order: 4 },
+      { name: 'Beverages', description: 'Drinks and refreshments', order: 5 }
     ];
 
     const categories = {};
@@ -66,30 +66,37 @@ async function seedDatabase() {
 
     // 4. Create Menu Items
     const itemsData = [
-      // Breakfast
-      { name: 'Pancakes', category: 'Breakfast', price: 150, veg: true, prep: 10 },
-      { name: 'Omelette', category: 'Breakfast', price: 120, veg: false, prep: 8 },
-      { name: 'Toast & Butter', category: 'Breakfast', price: 50, veg: true, prep: 5 },
-      
-      // Lunch
-      { name: 'Chicken Biryani', category: 'Lunch', price: 250, veg: false, prep: 20 },
-      { name: 'Vegetable Pulao', category: 'Lunch', price: 180, veg: true, prep: 15 },
-      { name: 'Dal Rice', category: 'Lunch', price: 120, veg: true, prep: 10 },
-      
-      // Dinner
-      { name: 'Grilled Fish', category: 'Dinner', price: 300, veg: false, prep: 25 },
-      { name: 'Paneer Curry', category: 'Dinner', price: 220, veg: true, prep: 15 },
-      { name: 'Vegetable Stir Fry', category: 'Dinner', price: 150, veg: true, prep: 12 },
-      
-      // Snacks
-      { name: 'Samosa', category: 'Snacks', price: 30, veg: true, prep: 5 },
-      { name: 'Spring Roll', category: 'Snacks', price: 50, veg: false, prep: 5 },
-      { name: 'Sandwich', category: 'Snacks', price: 80, veg: true, prep: 8 },
-      
+      // Rice Meals
+      { name: 'Chicken Adobo', desc: 'Braised chicken in soy sauce, vinegar, garlic, and bay leaves served with steamed rice', category: 'Rice Meals', price: 85, veg: false, prep: 15 },
+      { name: 'Pork Sinigang', desc: 'Sour tamarind pork soup with vegetables served with rice', category: 'Rice Meals', price: 90, veg: false, prep: 20 },
+      { name: 'Beef Caldereta', desc: 'Rich tomato-based beef stew with potatoes, carrots, and bell peppers', category: 'Rice Meals', price: 110, veg: false, prep: 25 },
+      { name: 'Pinakbet', desc: 'Mixed vegetables with shrimp paste — squash, eggplant, okra, and bitter melon', category: 'Rice Meals', price: 65, veg: true, prep: 15 },
+      { name: 'Ginataang Kalabasa', desc: 'Squash and string beans simmered in coconut milk', category: 'Rice Meals', price: 60, veg: true, prep: 15 },
+
+      // Merienda
+      { name: 'Lumpiang Shanghai', desc: 'Crispy fried spring rolls filled with ground pork and vegetables (6 pcs)', category: 'Merienda', price: 50, veg: false, prep: 10 },
+      { name: 'Banana Cue', desc: 'Deep-fried saba banana coated in caramelized brown sugar (3 pcs)', category: 'Merienda', price: 25, veg: true, prep: 5 },
+      { name: 'Turon', desc: 'Sweet banana and jackfruit spring roll (3 pcs)', category: 'Merienda', price: 30, veg: true, prep: 5 },
+      { name: 'Puto', desc: 'Steamed rice cakes, soft and fluffy (4 pcs)', category: 'Merienda', price: 20, veg: true, prep: 5 },
+      { name: 'Kwek-Kwek', desc: 'Deep-fried quail eggs in orange batter with vinegar dipping sauce (6 pcs)', category: 'Merienda', price: 30, veg: false, prep: 8 },
+
+      // Soup & Sabaw
+      { name: 'Bulalo', desc: 'Beef shank and bone marrow soup with corn and vegetables', category: 'Soup & Sabaw', price: 120, veg: false, prep: 30 },
+      { name: 'Tinolang Manok', desc: 'Chicken ginger soup with green papaya and chili leaves', category: 'Soup & Sabaw', price: 85, veg: false, prep: 20 },
+      { name: 'Munggo Soup', desc: 'Mung bean soup with spinach, tomato, and shrimp', category: 'Soup & Sabaw', price: 55, veg: false, prep: 20 },
+
+      // Silog Meals
+      { name: 'Tapsilog', desc: 'Beef tapa, sinangag (garlic fried rice), and itlog (fried egg)', category: 'Silog Meals', price: 80, veg: false, prep: 10 },
+      { name: 'Longsilog', desc: 'Sweet longganisa sausage, garlic fried rice, and fried egg', category: 'Silog Meals', price: 70, veg: false, prep: 10 },
+      { name: 'Bangsilog', desc: 'Fried bangus (milkfish), garlic fried rice, and fried egg', category: 'Silog Meals', price: 85, veg: false, prep: 12 },
+      { name: 'Tocilog', desc: 'Sweet cured pork tocino, garlic fried rice, and fried egg', category: 'Silog Meals', price: 70, veg: false, prep: 10 },
+
       // Beverages
-      { name: 'Coffee', category: 'Beverages', price: 40, veg: true, prep: 3 },
-      { name: 'Tea', category: 'Beverages', price: 30, veg: true, prep: 3 },
-      { name: 'Fresh Juice', category: 'Beverages', price: 60, veg: true, prep: 5 }
+      { name: 'Sago\'t Gulaman', desc: 'Sweet brown sugar drink with tapioca pearls and agar jelly', category: 'Beverages', price: 25, veg: true, prep: 3 },
+      { name: 'Calamansi Juice', desc: 'Fresh Philippine lime juice over ice', category: 'Beverages', price: 20, veg: true, prep: 3 },
+      { name: 'Buko Juice', desc: 'Fresh young coconut water with coconut meat', category: 'Beverages', price: 30, veg: true, prep: 3 },
+      { name: 'Iced Coffee', desc: 'Cold brewed coffee with milk and sugar', category: 'Beverages', price: 35, veg: true, prep: 3 },
+      { name: 'Royal (Orange)', desc: 'Chilled Royal orange soda 330ml', category: 'Beverages', price: 20, veg: true, prep: 1 }
     ];
 
     const items = [];
@@ -101,7 +108,7 @@ async function seedDatabase() {
         [
           categories[item.category],
           item.name,
-          `Delicious ${item.name}`,
+          item.desc,
           item.price,
           item.veg,
           item.prep
@@ -109,7 +116,7 @@ async function seedDatabase() {
       );
       items.push(result.rows[0].item_id);
     }
-    console.log('✅ Created 15 menu items');
+    console.log(`✅ Created ${itemsData.length} menu items`);
 
     // 5. Add Inventory
     const inventoryResult = await pool.query(`

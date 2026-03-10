@@ -112,10 +112,10 @@ export default function MenuManagement() {
                     </div>
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-600">{getCatName(item.category_id)}</td>
-                  <td className="px-4 py-3 text-sm font-medium text-gray-900">₹{parseFloat(item.price).toFixed(2)}</td>
+                  <td className="px-4 py-3 text-sm font-medium text-gray-900">₱{parseFloat(item.base_price).toFixed(2)}</td>
                   <td className="px-4 py-3">
-                    <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${item.is_available ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                      {item.is_available ? 'Yes' : 'No'}
+                    <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${item.is_active !== false ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                      {item.is_active !== false ? 'Yes' : 'No'}
                     </span>
                   </td>
                   <td className="px-4 py-3">
@@ -169,11 +169,10 @@ function ItemModal({ item, categories, onClose, onSaved }) {
   const [form, setForm] = useState({
     name: item?.name || '',
     description: item?.description || '',
-    price: item ? String(parseFloat(item.price)) : '',
+    price: item ? String(parseFloat(item.base_price)) : '',
     category_id: item?.category_id || (categories[0]?.category_id || ''),
     is_vegetarian: item?.is_vegetarian ?? true,
-    is_available: item?.is_available ?? true,
-    preparation_time: item?.preparation_time || 10,
+    preparation_time: item?.prep_time_minutes || 10,
   });
   const [saving, setSaving] = useState(false);
 
@@ -187,10 +186,12 @@ function ItemModal({ item, categories, onClose, onSaved }) {
     setSaving(true);
     try {
       const payload = {
-        ...form,
+        categoryId: parseInt(form.category_id),
+        name: form.name,
+        description: form.description,
         price: parseFloat(form.price),
-        category_id: parseInt(form.category_id),
-        preparation_time: parseInt(form.preparation_time),
+        isVegetarian: form.is_vegetarian,
+        prepTime: parseInt(form.preparation_time),
       };
       if (isEdit) {
         await api.put(`/menu/items/${item.item_id}`, payload);
@@ -231,7 +232,7 @@ function ItemModal({ item, categories, onClose, onSaved }) {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Price (₹)</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Price (₱)</label>
               <input type="number" value={form.price} onChange={set('price')} required min="0" step="0.01"
                 className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500" />
             </div>
@@ -255,11 +256,6 @@ function ItemModal({ item, categories, onClose, onSaved }) {
               <input type="checkbox" checked={form.is_vegetarian} onChange={set('is_vegetarian')}
                 className="rounded border-gray-300 text-brand-500 focus:ring-brand-500" />
               Vegetarian
-            </label>
-            <label className="flex items-center gap-2 text-sm text-gray-700">
-              <input type="checkbox" checked={form.is_available} onChange={set('is_available')}
-                className="rounded border-gray-300 text-brand-500 focus:ring-brand-500" />
-              Available
             </label>
           </div>
           <div className="flex gap-3 pt-2">

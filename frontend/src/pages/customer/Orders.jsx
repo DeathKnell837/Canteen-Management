@@ -4,12 +4,13 @@ import api from '../../api/axios';
 import toast from 'react-hot-toast';
 
 const STATUS_MAP = {
-  pending: { label: 'Pending', color: 'bg-yellow-100 text-yellow-700', icon: Clock },
-  confirmed: { label: 'Confirmed', color: 'bg-blue-100 text-blue-700', icon: CheckCircle2 },
-  preparing: { label: 'Preparing', color: 'bg-brand-100 text-brand-700', icon: Package },
-  ready: { label: 'Ready', color: 'bg-green-100 text-green-700', icon: CheckCircle2 },
-  delivered: { label: 'Delivered', color: 'bg-green-100 text-green-700', icon: CheckCircle2 },
-  cancelled: { label: 'Cancelled', color: 'bg-red-100 text-red-700', icon: XCircle },
+  PENDING: { label: 'Pending', color: 'bg-yellow-100 text-yellow-700', icon: Clock },
+  CONFIRMED: { label: 'Confirmed', color: 'bg-blue-100 text-blue-700', icon: CheckCircle2 },
+  PREPARING: { label: 'Preparing', color: 'bg-brand-100 text-brand-700', icon: Package },
+  READY: { label: 'Ready', color: 'bg-green-100 text-green-700', icon: CheckCircle2 },
+  PICKED_UP: { label: 'Picked Up', color: 'bg-green-100 text-green-700', icon: CheckCircle2 },
+  DELIVERED: { label: 'Delivered', color: 'bg-green-100 text-green-700', icon: CheckCircle2 },
+  CANCELLED: { label: 'Cancelled', color: 'bg-red-100 text-red-700', icon: XCircle },
 };
 
 export default function Orders() {
@@ -66,7 +67,7 @@ export default function Orders() {
       ) : (
         <div className="space-y-4">
           {orders.map((order) => {
-            const s = STATUS_MAP[order.status] || STATUS_MAP.pending;
+            const s = STATUS_MAP[order.status] || STATUS_MAP.PENDING;
             const StatusIcon = s.icon;
             const isExpanded = expanded === order.order_id;
 
@@ -100,10 +101,10 @@ export default function Orders() {
                         minute: '2-digit',
                       })}
                       {' · '}
-                      {order.order_type === 'dine_in' ? 'Dine In' : 'Takeaway'}
+                      {order.delivery_type === 'PICKUP' ? 'Pickup' : 'Delivery'}
                     </p>
                   </div>
-                  <span className="font-bold text-gray-900">₹{parseFloat(order.total_amount).toFixed(2)}</span>
+                  <span className="font-bold text-gray-900">₱{parseFloat(order.total_amount).toFixed(2)}</span>
                   {isExpanded ? (
                     <ChevronUp className="w-4 h-4 text-gray-400" />
                   ) : (
@@ -115,7 +116,7 @@ export default function Orders() {
                 {isExpanded && (
                   <div className="border-t border-gray-100 p-4">
                     <OrderItems orderId={order.order_id} />
-                    {(order.status === 'pending' || order.status === 'confirmed') && (
+                    {(order.status === 'PENDING' || order.status === 'CONFIRMED') && (
                       <div className="mt-4 pt-3 border-t border-gray-100">
                         <button
                           onClick={() => handleCancel(order.order_id)}
@@ -163,7 +164,7 @@ function OrderItems({ orderId }) {
             <span className="text-gray-900">{item.item_name || item.name || `Item #${item.item_id}`}</span>
             <span className="text-gray-400">x{item.quantity}</span>
           </div>
-          <span className="text-gray-600">₹{parseFloat(item.subtotal || item.price_at_time * item.quantity).toFixed(2)}</span>
+          <span className="text-gray-600">₱{parseFloat(item.subtotal || item.price_at_time * item.quantity).toFixed(2)}</span>
         </div>
       ))}
     </div>

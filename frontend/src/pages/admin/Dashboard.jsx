@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { LayoutDashboard, ShoppingBag, IndianRupee, UtensilsCrossed, AlertTriangle, TrendingUp, Users, Clock } from 'lucide-react';
+import { LayoutDashboard, ShoppingBag, UtensilsCrossed, AlertTriangle, TrendingUp, Users, Clock } from 'lucide-react';
 import api from '../../api/axios';
 
 export default function Dashboard() {
@@ -27,7 +27,7 @@ export default function Dashboard() {
         const inventory = inventoryRes.data.data || inventoryRes.data || [];
 
         const revenue = orders.reduce((s, o) => s + parseFloat(o.total_amount || 0), 0);
-        const pending = orders.filter((o) => o.status === 'pending' || o.status === 'confirmed').length;
+        const pending = orders.filter((o) => o.status === 'PENDING' || o.status === 'CONFIRMED').length;
         const low = inventory.filter((inv) => parseFloat(inv.quantity) < 10).length;
 
         setStats({
@@ -50,18 +50,19 @@ export default function Dashboard() {
   const cards = [
     { label: 'Total Orders', value: stats.totalOrders, icon: ShoppingBag, color: 'bg-blue-500', bg: 'bg-blue-50' },
     { label: 'Pending Orders', value: stats.pendingOrders, icon: Clock, color: 'bg-yellow-500', bg: 'bg-yellow-50' },
-    { label: 'Revenue', value: `₹${stats.totalRevenue.toFixed(0)}`, icon: IndianRupee, color: 'bg-green-500', bg: 'bg-green-50' },
+    { label: 'Revenue', value: `₱${stats.totalRevenue.toFixed(0)}`, icon: ShoppingBag, color: 'bg-green-500', bg: 'bg-green-50' },
     { label: 'Menu Items', value: stats.menuItems, icon: UtensilsCrossed, color: 'bg-brand-500', bg: 'bg-brand-50' },
     { label: 'Low Stock', value: stats.lowStock, icon: AlertTriangle, color: stats.lowStock > 0 ? 'bg-red-500' : 'bg-gray-400', bg: stats.lowStock > 0 ? 'bg-red-50' : 'bg-gray-50' },
   ];
 
   const statusColor = {
-    pending: 'bg-yellow-100 text-yellow-700',
-    confirmed: 'bg-blue-100 text-blue-700',
-    preparing: 'bg-brand-100 text-brand-700',
-    ready: 'bg-green-100 text-green-700',
-    delivered: 'bg-green-100 text-green-700',
-    cancelled: 'bg-red-100 text-red-700',
+    PENDING: 'bg-yellow-100 text-yellow-700',
+    CONFIRMED: 'bg-blue-100 text-blue-700',
+    PREPARING: 'bg-brand-100 text-brand-700',
+    READY: 'bg-green-100 text-green-700',
+    PICKED_UP: 'bg-green-100 text-green-700',
+    DELIVERED: 'bg-green-100 text-green-700',
+    CANCELLED: 'bg-red-100 text-red-700',
   };
 
   if (loading) {
@@ -125,7 +126,7 @@ export default function Dashboard() {
                 <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${statusColor[o.status] || 'bg-gray-100 text-gray-600'}`}>
                   {o.status}
                 </span>
-                <span className="text-sm font-semibold text-gray-900">₹{parseFloat(o.total_amount).toFixed(2)}</span>
+                <span className="text-sm font-semibold text-gray-900">₱{parseFloat(o.total_amount).toFixed(2)}</span>
               </div>
             ))}
           </div>

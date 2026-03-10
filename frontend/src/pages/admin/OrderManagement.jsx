@@ -3,15 +3,16 @@ import { ClipboardList, ChevronDown, RefreshCw, Search } from 'lucide-react';
 import api from '../../api/axios';
 import toast from 'react-hot-toast';
 
-const STATUSES = ['pending', 'confirmed', 'preparing', 'ready', 'delivered', 'cancelled'];
+const STATUSES = ['PENDING', 'CONFIRMED', 'PREPARING', 'READY', 'PICKED_UP', 'DELIVERED', 'CANCELLED'];
 
 const statusColor = {
-  pending: 'bg-yellow-100 text-yellow-700',
-  confirmed: 'bg-blue-100 text-blue-700',
-  preparing: 'bg-orange-100 text-orange-700',
-  ready: 'bg-green-100 text-green-700',
-  delivered: 'bg-green-100 text-green-700',
-  cancelled: 'bg-red-100 text-red-700',
+  PENDING: 'bg-yellow-100 text-yellow-700',
+  CONFIRMED: 'bg-blue-100 text-blue-700',
+  PREPARING: 'bg-orange-100 text-orange-700',
+  READY: 'bg-green-100 text-green-700',
+  PICKED_UP: 'bg-green-100 text-green-700',
+  DELIVERED: 'bg-green-100 text-green-700',
+  CANCELLED: 'bg-red-100 text-red-700',
 };
 
 export default function OrderManagement() {
@@ -128,9 +129,9 @@ export default function OrderManagement() {
                   <td className="px-4 py-3 text-sm font-semibold text-gray-900">#{o.order_id}</td>
                   <td className="px-4 py-3 text-sm text-gray-600">User #{o.user_id}</td>
                   <td className="px-4 py-3 text-sm text-gray-600 capitalize">
-                    {(o.order_type || '').replace('_', ' ')}
+                    {(o.delivery_type || '').replace('_', ' ')}
                   </td>
-                  <td className="px-4 py-3 text-sm font-medium text-gray-900">₹{parseFloat(o.total_amount).toFixed(2)}</td>
+                  <td className="px-4 py-3 text-sm font-medium text-gray-900">₱{parseFloat(o.total_amount).toFixed(2)}</td>
                   <td className="px-4 py-3 text-xs text-gray-500">
                     {new Date(o.created_at).toLocaleDateString('en-IN', {
                       day: 'numeric',
@@ -145,7 +146,7 @@ export default function OrderManagement() {
                     </span>
                   </td>
                   <td className="px-4 py-3">
-                    {o.status !== 'delivered' && o.status !== 'cancelled' ? (
+                    {o.status !== 'DELIVERED' && o.status !== 'CANCELLED' ? (
                       <div className="relative">
                         <select
                           value={o.status}

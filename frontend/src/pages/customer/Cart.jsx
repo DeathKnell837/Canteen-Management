@@ -8,7 +8,7 @@ import { Link } from 'react-router-dom';
 
 export default function Cart() {
   const { items, removeItem, updateQuantity, clearCart, total, itemCount } = useCart();
-  const [orderType, setOrderType] = useState('dine_in');
+  const [deliveryType, setDeliveryType] = useState('PICKUP');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -22,7 +22,7 @@ export default function Cart() {
     try {
       // 1. Create the order
       const orderRes = await api.post('/orders', {
-        order_type: orderType,
+        deliveryType,
         items: items.map((i) => ({ item_id: i.item_id, quantity: i.quantity })),
       });
       const order = orderRes.data.data || orderRes.data;
@@ -80,15 +80,11 @@ export default function Cart() {
               className="bg-white rounded-xl border border-gray-200 p-4 flex items-center gap-4"
             >
               <div className="w-16 h-16 bg-brand-50 rounded-lg flex items-center justify-center flex-shrink-0">
-                {item.image_url ? (
-                  <img src={item.image_url} alt={item.name} className="w-full h-full object-cover rounded-lg" />
-                ) : (
-                  <ShoppingBag className="w-6 h-6 text-brand-300" />
-                )}
+                <ShoppingBag className="w-6 h-6 text-brand-300" />
               </div>
               <div className="flex-1 min-w-0">
                 <h3 className="font-medium text-gray-900 truncate">{item.name}</h3>
-                <p className="text-brand-600 font-semibold text-sm">₹{item.price.toFixed(2)}</p>
+                <p className="text-brand-600 font-semibold text-sm">₱{item.price.toFixed(2)}</p>
               </div>
               <div className="flex items-center gap-2">
                 <button
@@ -106,7 +102,7 @@ export default function Cart() {
                 </button>
               </div>
               <span className="w-20 text-right font-semibold text-gray-900">
-                ₹{(item.price * item.quantity).toFixed(2)}
+                ₱{(item.price * item.quantity).toFixed(2)}
               </span>
               <button
                 onClick={() => removeItem(item.item_id)}
@@ -125,17 +121,17 @@ export default function Cart() {
 
             {/* Order type */}
             <div className="mb-4">
-              <label className="block text-sm text-gray-600 mb-2">Order Type</label>
+              <label className="block text-sm text-gray-600 mb-2">Delivery Type</label>
               <div className="grid grid-cols-2 gap-2">
                 {[
-                  { value: 'dine_in', label: 'Dine In' },
-                  { value: 'takeaway', label: 'Takeaway' },
+                  { value: 'PICKUP', label: 'Pickup' },
+                  { value: 'DELIVERY', label: 'Delivery' },
                 ].map((opt) => (
                   <button
                     key={opt.value}
-                    onClick={() => setOrderType(opt.value)}
+                    onClick={() => setDeliveryType(opt.value)}
                     className={`py-2 rounded-lg text-sm font-medium border transition-colors ${
-                      orderType === opt.value
+                      deliveryType === opt.value
                         ? 'border-brand-500 bg-brand-50 text-brand-600'
                         : 'border-gray-200 text-gray-600 hover:border-gray-300'
                     }`}
@@ -149,15 +145,15 @@ export default function Cart() {
             <div className="space-y-2 border-t border-gray-100 pt-4">
               <div className="flex justify-between text-sm text-gray-600">
                 <span>Subtotal</span>
-                <span>₹{total.toFixed(2)}</span>
+                <span>₱{total.toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-sm text-gray-600">
                 <span>Tax (5%)</span>
-                <span>₹{tax.toFixed(2)}</span>
+                <span>₱{tax.toFixed(2)}</span>
               </div>
               <div className="flex justify-between font-bold text-gray-900 border-t border-gray-100 pt-2 mt-2">
                 <span>Total</span>
-                <span>₹{grandTotal.toFixed(2)}</span>
+                <span>₱{grandTotal.toFixed(2)}</span>
               </div>
             </div>
 
@@ -166,7 +162,7 @@ export default function Cart() {
               disabled={loading}
               className="w-full mt-5 py-3 bg-brand-500 text-white rounded-lg font-semibold hover:bg-brand-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
-              {loading ? 'Placing order...' : `Pay ₹${grandTotal.toFixed(2)} with Wallet`}
+              {loading ? 'Placing order...' : `Pay ₱${grandTotal.toFixed(2)} with Wallet`}
             </button>
 
             <button

@@ -32,7 +32,6 @@ export default function Menu() {
 
   const filtered = useMemo(() => {
     return items.filter((item) => {
-      if (!item.is_available) return false;
       if (activeCat !== 'all' && String(item.category_id) !== String(activeCat)) return false;
       if (search && !item.name.toLowerCase().includes(search.toLowerCase())) return false;
       return true;
@@ -48,8 +47,7 @@ export default function Menu() {
     addItem({
       item_id: item.item_id,
       name: item.name,
-      price: parseFloat(item.price),
-      image_url: item.image_url,
+      price: parseFloat(item.base_price),
     });
     toast.success(`${item.name} added to cart`, { duration: 1500 });
   };
@@ -142,19 +140,11 @@ export default function Menu() {
                 key={item.item_id}
                 className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-md transition-shadow"
               >
-                {/* Image or placeholder */}
+                {/* Placeholder */}
                 <div className="h-40 bg-gradient-to-br from-brand-50 to-brand-100 flex items-center justify-center relative">
-                  {item.image_url ? (
-                    <img
-                      src={item.image_url}
-                      alt={item.name}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="text-brand-300">
-                      <ShoppingCart className="w-12 h-12" />
-                    </div>
-                  )}
+                  <div className="text-brand-300">
+                    <ShoppingCart className="w-12 h-12" />
+                  </div>
                   {/* Veg/Non-veg badge */}
                   <div className="absolute top-2 left-2">
                     {item.is_vegetarian ? (
@@ -180,7 +170,7 @@ export default function Menu() {
                   )}
                   <div className="flex items-center justify-between mt-3">
                     <span className="text-lg font-bold text-brand-600">
-                      ₹{parseFloat(item.price).toFixed(2)}
+                      ₱{parseFloat(item.base_price).toFixed(2)}
                     </span>
                     <button
                       onClick={() => handleAdd(item)}

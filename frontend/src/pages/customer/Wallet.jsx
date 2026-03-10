@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Wallet as WalletIcon, ArrowUpRight, ArrowDownRight, Plus, IndianRupee } from 'lucide-react';
+import { Wallet as WalletIcon, ArrowUpRight, ArrowDownRight, Plus } from 'lucide-react';
 import api from '../../api/axios';
 import toast from 'react-hot-toast';
 
@@ -36,7 +36,7 @@ export default function Wallet() {
     setLoading(true);
     try {
       await api.post('/payments/wallet/topup', { amount: val });
-      toast.success(`₹${val.toFixed(2)} added to wallet`);
+      toast.success(`₱${val.toFixed(2)} added to wallet`);
       setAmount('');
       loadBalance();
     } catch (err) {
@@ -69,7 +69,7 @@ export default function Wallet() {
               <div className="h-10 w-32 bg-white/20 rounded animate-pulse mt-2" />
             ) : (
               <div className="flex items-baseline mt-2">
-                <IndianRupee className="w-7 h-7" />
+                <span className="text-3xl font-bold">₱</span>
                 <span className="text-4xl font-bold ml-1">{balance.toFixed(2)}</span>
               </div>
             )}
@@ -84,7 +84,7 @@ export default function Wallet() {
           </h2>
           <form onSubmit={handleTopup}>
             <div className="relative mb-3">
-              <IndianRupee className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-medium">₱</span>
               <input
                 type="number"
                 value={amount}
@@ -107,7 +107,7 @@ export default function Wallet() {
                       : 'border-gray-200 text-gray-600 hover:border-gray-300'
                   }`}
                 >
-                  ₹{qa}
+                  ₱{qa}
                 </button>
               ))}
             </div>
