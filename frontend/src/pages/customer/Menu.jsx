@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Search, ShoppingCart, Plus, Leaf, Flame, ChevronDown, Clock, Check } from 'lucide-react';
+import { createPortal } from 'react-dom';
+import { Search, ShoppingCart, Plus, Leaf, Flame, ChevronDown, Clock, Check, X, Minus } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import api from '../../api/axios';
 import toast from 'react-hot-toast';
@@ -25,6 +26,7 @@ export default function Menu() {
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
   const [addedId, setAddedId] = useState(null);
+  const [selectedItem, setSelectedItem] = useState(null);
   const { addItem, items: cartItems } = useCart();
 
   useEffect(() => {
@@ -158,8 +160,9 @@ export default function Menu() {
             return (
               <div
                 key={item.item_id}
-                className={`bg-white rounded-2xl border border-gray-100 overflow-hidden card-hover group animate-fade-in-up`}
+                className={`bg-white rounded-2xl border border-gray-100 overflow-hidden card-hover group animate-fade-in-up cursor-pointer`}
                 style={{ animationDelay: `${Math.min(idx * 0.05, 0.4)}s`, animationFillMode: 'both' }}
+                onClick={() => setSelectedItem(item)}
               >
                 {/* Image / Placeholder */}
                 <div className="h-44 bg-gradient-to-br from-brand-50 via-orange-50 to-amber-50 flex items-center justify-center relative overflow-hidden">
@@ -202,7 +205,7 @@ export default function Menu() {
                       </span>
                     </div>
                     <button
-                      onClick={() => handleAdd(item)}
+                      onClick={(e) => { e.stopPropagation(); handleAdd(item); }}
                       className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-300 active:scale-95 ${
                         isAdding
                           ? 'bg-green-500 text-white shadow-lg shadow-green-500/30'
@@ -226,6 +229,147 @@ export default function Menu() {
           })}
         </div>
       )}
+
+      {/* Item Detail Modal */}
+      {selectedItem && createPortal(
+        <ItemDetailModal
+          item={selectedItem}
+          cartQty={getCartQty(selectedItem.item_id)}
+          onAdd={handleAdd}
+          onClose={() => setSelectedItem(null)}
+          getFoodEmoji={getFoodEmoji}
+        />,
+        document.body
+      )}
+    </div>
+  );
+}
+
+function ItemDetailModal({ item, cartQty, onAdd, onClose, getFoodEmoji }) {
+  const { updateQuantity, removeItem } = useCart();
+  const [added, setAdded] = useState(false);
+
+  const handleAdd = () => {
+    onAdd(item);
+    setAdded(true);
+    setTimeout(() => setAdded(false), 800);
+  };
+
+  return (
+    <div
+      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 animate-overlay-in"
+      onClick={onClose}
+    >
+      <div
+        className="bg-white rounded-3xl w-full max-w-md max-h-[90vh] overflow-hidden shadow-2xl animate-modal-in"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Image */}
+        <div className="relative h-56 sm:h-64 bg-gradient-to-br from-brand-50 via-orange-50 to-amber-50 flex items-center justify-center overflow-hidden">
+          {item.image_url ? (
+            <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
+          ) : (
+            <span className="text-8xl">{getFoodEmoji(item.name)}</span>
+          )}
+          <button
+            onClick={onClose}
+            className="absolute top-3 right-3 w-9 h-9 bg-black/30 hover:bg-black/50 text-white rounded-full flex items-center justify-center transition-colors glass"
+          >
+            <X className="w-5 h-5" />
+          </button>
+          {/* Badges */}
+          <div className="absolute top-3 left-3 flex gap-1.5">
+            {item.is_vegetarian ? (
+              <span className="inline-flex items-center gap-1 bg-green-500/90 text-white text-xs font-medium px-2.5 py-1 rounded-full glass">
+                <Leaf className="w-3 h-3" /> Vegetarian
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1 bg-red-500/90 text-white text-xs font-medium px-2.5 py-1 rounded-full glass">
+                <Flame className="w-3 h-3" /> Non-veg
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Details */}
+        <div className="p-5 sm:p-6">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <h2 className="text-xl font-bold text-gray-900">{item.name}</h2>
+              <p className="text-sm text-gray-400 mt-0.5">{item.category_name}</p>
+            </div>
+            <span className="text-2xl font-bold text-brand-600 whitespace-nowrap">
+              ₱{parseFloat(item.base_price).toFixed(2)}
+            </span>
+          </div>
+
+          {item.description && (
+            <p className="text-gray-500 text-sm mt-3 leading-relaxed">{item.description}</p>
+          )}
+
+          {/* Info chips */}
+          <div className="flex flex-wrap gap-2 mt-4">
+            <div className="inline-flex items-center gap-1.5 bg-gray-100 text-gray-600 text-xs font-medium px-3 py-1.5 rounded-full">
+              <Clock className="w-3.5 h-3.5" /> {item.prep_time_minutes} min prep
+            </div>
+            {item.quantity_available != null && (
+              <div className={`inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full ${
+                parseFloat(item.quantity_available) > 10
+                  ? 'bg-green-50 text-green-700'
+                  : parseFloat(item.quantity_available) > 0
+                    ? 'bg-yellow-50 text-yellow-700'
+                    : 'bg-red-50 text-red-700'
+              }`}>
+                {parseFloat(item.quantity_available) > 10 ? 'In Stock' : parseFloat(item.quantity_available) > 0 ? 'Low Stock' : 'Out of Stock'}
+              </div>
+            )}
+          </div>
+
+          {/* Cart controls */}
+          <div className="mt-5 pt-4 border-t border-gray-100">
+            {cartQty > 0 ? (
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => {
+                      if (cartQty <= 1) removeItem(item.item_id);
+                      else updateQuantity(item.item_id, cartQty - 1);
+                    }}
+                    className="w-10 h-10 rounded-xl border-2 border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-50 hover:border-gray-300 transition-all active:scale-90"
+                  >
+                    <Minus className="w-4 h-4" />
+                  </button>
+                  <span className="w-10 text-center text-lg font-bold text-gray-900">{cartQty}</span>
+                  <button
+                    onClick={() => updateQuantity(item.item_id, cartQty + 1)}
+                    className="w-10 h-10 rounded-xl border-2 border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-50 hover:border-gray-300 transition-all active:scale-90"
+                  >
+                    <Plus className="w-4 h-4" />
+                  </button>
+                </div>
+                <span className="text-lg font-bold text-brand-600">
+                  ₱{(parseFloat(item.base_price) * cartQty).toFixed(2)}
+                </span>
+              </div>
+            ) : (
+              <button
+                onClick={handleAdd}
+                className={`w-full py-3.5 rounded-xl text-sm font-bold transition-all duration-300 active:scale-[0.98] flex items-center justify-center gap-2 ${
+                  added
+                    ? 'bg-green-500 text-white shadow-lg shadow-green-500/30'
+                    : 'bg-gradient-to-r from-brand-500 to-brand-600 text-white shadow-lg shadow-brand-500/25 hover:shadow-xl hover:shadow-brand-500/30'
+                }`}
+              >
+                {added ? (
+                  <><Check className="w-4 h-4" /> Added to Cart!</>
+                ) : (
+                  <><Plus className="w-4 h-4" /> Add to Cart — ₱{parseFloat(item.base_price).toFixed(2)}</>
+                )}
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

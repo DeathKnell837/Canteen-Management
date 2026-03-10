@@ -26,8 +26,9 @@ export default function Cart() {
       const order = orderRes.data.data || orderRes.data;
 
       await api.post('/payments/process', {
-        order_id: order.order_id,
-        payment_method: 'wallet',
+        orderId: order.order_id,
+        paymentMethod: 'WALLET',
+        amount: parseFloat(order.total_amount),
       });
 
       clearCart();
