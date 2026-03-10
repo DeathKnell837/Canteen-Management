@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Package, AlertTriangle, Plus, Minus, RefreshCw, X, Loader2 } from 'lucide-react';
 import api from '../../api/axios';
 import toast from 'react-hot-toast';
@@ -163,7 +164,7 @@ export default function Inventory() {
       </div>
 
       {/* Stock modal */}
-      {stockModal && (
+      {stockModal && createPortal(
         <StockModal
           item={stockModal.item}
           type={stockModal.type}
@@ -172,7 +173,8 @@ export default function Inventory() {
             setStockModal(null);
             loadInventory();
           }}
-        />
+        />,
+        document.body
       )}
     </div>
   );

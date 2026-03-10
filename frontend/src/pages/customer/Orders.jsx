@@ -7,9 +7,8 @@ const STATUS_MAP = {
   PENDING: { label: 'Pending', color: 'bg-yellow-100 text-yellow-700 border-yellow-200', icon: Clock, active: true },
   CONFIRMED: { label: 'Confirmed', color: 'bg-blue-100 text-blue-700 border-blue-200', icon: CheckCircle2, active: true },
   PREPARING: { label: 'Preparing', color: 'bg-orange-100 text-orange-700 border-orange-200', icon: Package, active: true },
-  READY: { label: 'Ready', color: 'bg-green-100 text-green-700 border-green-200', icon: CheckCircle2, active: true },
+  READY: { label: 'Ready for Pickup', color: 'bg-green-100 text-green-700 border-green-200', icon: CheckCircle2, active: true },
   PICKED_UP: { label: 'Picked Up', color: 'bg-emerald-100 text-emerald-700 border-emerald-200', icon: CheckCircle2 },
-  DELIVERED: { label: 'Delivered', color: 'bg-emerald-100 text-emerald-700 border-emerald-200', icon: CheckCircle2 },
   CANCELLED: { label: 'Cancelled', color: 'bg-red-100 text-red-700 border-red-200', icon: XCircle },
 };
 
@@ -118,8 +117,6 @@ export default function Orders() {
                         hour: '2-digit',
                         minute: '2-digit',
                       })}
-                      <span className="mx-1.5">·</span>
-                      {order.delivery_type === 'PICKUP' ? '📍 Pickup' : '🛵 Delivery'}
                     </p>
                   </div>
                   <span className="font-bold text-brand-600 text-lg hidden sm:block">₱{parseFloat(order.total_amount).toFixed(2)}</span>

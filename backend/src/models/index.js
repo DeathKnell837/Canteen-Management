@@ -321,7 +321,7 @@ const Inventory = {
 
   async getLowStock(threshold = 10) {
     const result = await pool.query(
-      `SELECT i.inventory_id, i.item_id, m.name, i.quantity_available, i.reorder_level
+      `SELECT i.inventory_id, i.item_id, m.name AS item_name, i.quantity_available AS quantity, i.reorder_level, i.updated_at AS last_updated
        FROM inventory i
        JOIN menu_items m ON i.item_id = m.item_id
        WHERE i.quantity_available <= $1

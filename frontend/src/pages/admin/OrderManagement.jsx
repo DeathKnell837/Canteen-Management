@@ -3,7 +3,7 @@ import { ClipboardList, ChevronDown, RefreshCw, Search, Loader2 } from 'lucide-r
 import api from '../../api/axios';
 import toast from 'react-hot-toast';
 
-const STATUSES = ['PENDING', 'CONFIRMED', 'PREPARING', 'READY', 'PICKED_UP', 'DELIVERED', 'CANCELLED'];
+const STATUSES = ['PENDING', 'CONFIRMED', 'PREPARING', 'READY', 'PICKED_UP', 'CANCELLED'];
 
 const statusColor = {
   PENDING: 'bg-yellow-100 text-yellow-700 border border-yellow-200',
@@ -11,7 +11,6 @@ const statusColor = {
   PREPARING: 'bg-orange-100 text-orange-700 border border-orange-200',
   READY: 'bg-green-100 text-green-700 border border-green-200',
   PICKED_UP: 'bg-emerald-100 text-emerald-700 border border-emerald-200',
-  DELIVERED: 'bg-emerald-100 text-emerald-700 border border-emerald-200',
   CANCELLED: 'bg-red-100 text-red-700 border border-red-200',
 };
 
@@ -21,7 +20,6 @@ const statusEmoji = {
   PREPARING: '🍳',
   READY: '📦',
   PICKED_UP: '🚶',
-  DELIVERED: '✨',
   CANCELLED: '❌',
 };
 
@@ -137,7 +135,6 @@ export default function OrderManagement() {
               <tr className="bg-gray-50/80">
                 <th className="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase text-left">Order</th>
                 <th className="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase text-left">User</th>
-                <th className="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase text-left">Type</th>
                 <th className="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase text-left">Total</th>
                 <th className="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase text-left">Date</th>
                 <th className="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase text-left">Status</th>
@@ -151,9 +148,6 @@ export default function OrderManagement() {
                     <span className="text-sm font-bold text-gray-900 bg-gray-100 px-2.5 py-1 rounded-lg">#{o.order_id}</span>
                   </td>
                   <td className="px-5 py-3.5 text-sm text-gray-600">User #{o.user_id}</td>
-                  <td className="px-5 py-3.5 text-sm text-gray-600">
-                    {(o.delivery_type || '').toLowerCase() === 'delivery' ? '🛵 Delivery' : '📍 Pickup'}
-                  </td>
                   <td className="px-5 py-3.5 text-sm font-bold text-gray-900">₱{(parseFloat(o.total_amount) || 0).toFixed(2)}</td>
                   <td className="px-5 py-3.5 text-xs text-gray-500">
                     {new Date(o.created_at).toLocaleDateString('en-PH', {
@@ -169,7 +163,7 @@ export default function OrderManagement() {
                     </span>
                   </td>
                   <td className="px-5 py-3.5">
-                    {o.status !== 'DELIVERED' && o.status !== 'CANCELLED' ? (
+                    {o.status !== 'PICKED_UP' && o.status !== 'CANCELLED' ? (
                       <div className="relative">
                         <select
                           value={o.status}
@@ -190,7 +184,7 @@ export default function OrderManagement() {
               ))}
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="px-5 py-12 text-center">
+                  <td colSpan={6} className="px-5 py-12 text-center">
                     <div className="text-3xl mb-2">📋</div>
                     <p className="text-gray-400 text-sm">No orders found</p>
                   </td>

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { Plus, Pencil, Trash2, X, Save, UtensilsCrossed, Search, Loader2, ImagePlus, Camera } from 'lucide-react';
 import api from '../../api/axios';
 import toast from 'react-hot-toast';
@@ -167,7 +168,7 @@ export default function MenuManagement() {
       </div>
 
       {/* Modal */}
-      {modal !== null && (
+      {modal !== null && createPortal(
         <ItemModal
           item={modal === 'add' ? null : modal}
           categories={categories}
@@ -176,7 +177,8 @@ export default function MenuManagement() {
             setModal(null);
             loadData();
           }}
-        />
+        />,
+        document.body
       )}
     </div>
   );

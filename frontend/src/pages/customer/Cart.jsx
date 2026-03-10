@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Trash2, Plus, Minus, ShoppingBag, ArrowLeft, MapPin, Bike, CreditCard, ShieldCheck } from 'lucide-react';
+import { Trash2, Plus, Minus, ShoppingBag, ArrowLeft, CreditCard, ShieldCheck } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import api from '../../api/axios';
 import toast from 'react-hot-toast';
@@ -8,7 +8,6 @@ import { Link } from 'react-router-dom';
 
 export default function Cart() {
   const { items, removeItem, updateQuantity, clearCart, total, itemCount } = useCart();
-  const [deliveryType, setDeliveryType] = useState('PICKUP');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -21,7 +20,7 @@ export default function Cart() {
     setLoading(true);
     try {
       const orderRes = await api.post('/orders', {
-        deliveryType,
+        deliveryType: 'PICKUP',
         items: items.map((i) => ({ item_id: i.item_id, quantity: i.quantity })),
       });
       const order = orderRes.data.data || orderRes.data;
@@ -118,35 +117,8 @@ export default function Cart() {
           <div className="bg-white rounded-2xl border border-gray-100 p-6 sticky top-6 shadow-sm animate-slide-in-right">
             <h2 className="font-bold text-gray-900 text-lg mb-5">Order Summary</h2>
 
-            {/* Delivery type */}
-            <div className="mb-5">
-              <label className="block text-sm font-medium text-gray-600 mb-2.5">Delivery Type</label>
-              <div className="grid grid-cols-2 gap-2">
-                {[
-                  { value: 'PICKUP', label: 'Pickup', icon: MapPin },
-                  { value: 'DELIVERY', label: 'Delivery', icon: Bike },
-                ].map((opt) => {
-                  const Icon = opt.icon;
-                  return (
-                    <button
-                      key={opt.value}
-                      onClick={() => setDeliveryType(opt.value)}
-                      className={`py-2.5 rounded-xl text-sm font-medium border-2 transition-all flex items-center justify-center gap-2 ${
-                        deliveryType === opt.value
-                          ? 'border-brand-500 bg-brand-50 text-brand-600 shadow-sm shadow-brand-100'
-                          : 'border-gray-100 text-gray-500 hover:border-gray-200'
-                      }`}
-                    >
-                      <Icon className="w-4 h-4" />
-                      {opt.label}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
             {/* Price breakdown */}
-            <div className="space-y-3 border-t border-gray-100 pt-4">
+            <div className="space-y-3 pt-1">
               <div className="flex justify-between text-sm text-gray-500">
                 <span>Subtotal</span>
                 <span>₱{total.toFixed(2)}</span>
