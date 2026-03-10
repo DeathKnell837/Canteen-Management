@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Plus, Pencil, Trash2, X, Save, UtensilsCrossed, Search, Loader2 } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Plus, Pencil, Trash2, X, Save, UtensilsCrossed, Search, Loader2, ImagePlus, Camera } from 'lucide-react';
 import api from '../../api/axios';
 import toast from 'react-hot-toast';
 
@@ -105,9 +105,17 @@ export default function MenuManagement() {
                 <tr key={item.item_id} className="hover:bg-brand-50/30 transition-colors group">
                   <td className="px-5 py-3.5">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-gradient-to-br from-brand-50 to-brand-100 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
-                        <UtensilsCrossed className="w-4 h-4 text-brand-500" />
-                      </div>
+                      {item.image_url ? (
+                        <img
+                          src={item.image_url}
+                          alt={item.name}
+                          className="w-10 h-10 rounded-xl object-cover flex-shrink-0 group-hover:scale-105 transition-transform"
+                        />
+                      ) : (
+                        <div className="w-10 h-10 bg-gradient-to-br from-brand-50 to-brand-100 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
+                          <UtensilsCrossed className="w-4 h-4 text-brand-500" />
+                        </div>
+                      )}
                       <div>
                         <p className="text-sm font-semibold text-gray-900">{item.name}</p>
                         {item.description && (
@@ -185,10 +193,25 @@ function ItemModal({ item, categories, onClose, onSaved }) {
     preparation_time: item?.prep_time_minutes || 10,
   });
   const [saving, setSaving] = useState(false);
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(item?.image_url || null);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef(null);
 
   const set = (field) => (e) => {
     const val = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
     setForm({ ...form, [field]: val });
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image must be less than 5MB');
+      return;
+    }
+    setImageFile(file);
+    setImagePreview(URL.createObjectURL(file));
   };
 
   const inputClass = 'w-full px-4 py-3 border-2 border-gray-100 rounded-xl text-sm focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all hover:border-gray-200';
@@ -205,18 +228,33 @@ function ItemModal({ item, categories, onClose, onSaved }) {
         isVegetarian: form.is_vegetarian,
         prepTime: parseInt(form.preparation_time),
       };
+
+      let savedItem;
       if (isEdit) {
-        await api.put(`/menu/items/${item.item_id}`, payload);
-        toast.success('Item updated');
+        const res = await api.put(`/menu/items/${item.item_id}`, payload);
+        savedItem = res.data.data || res.data;
       } else {
-        await api.post('/menu/items', payload);
-        toast.success('Item created');
+        const res = await api.post('/menu/items', payload);
+        savedItem = res.data.data || res.data;
       }
+
+      // Upload image if selected
+      if (imageFile && savedItem?.item_id) {
+        setUploading(true);
+        const formData = new FormData();
+        formData.append('image', imageFile);
+        await api.post(`/menu/items/${savedItem.item_id}/image`, formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+      }
+
+      toast.success(isEdit ? 'Item updated' : 'Item created');
       onSaved();
     } catch (err) {
       toast.error(err.response?.data?.error?.message || 'Save failed');
     } finally {
       setSaving(false);
+      setUploading(false);
     }
   };
 
@@ -232,6 +270,39 @@ function ItemModal({ item, categories, onClose, onSaved }) {
           </button>
         </div>
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          {/* Image upload */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-1.5">Food Image</label>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              onChange={handleImageChange}
+              className="hidden"
+            />
+            <div
+              onClick={() => fileInputRef.current?.click()}
+              className="relative cursor-pointer group border-2 border-dashed border-gray-200 rounded-2xl overflow-hidden hover:border-brand-400 transition-all"
+            >
+              {imagePreview ? (
+                <div className="relative">
+                  <img src={imagePreview} alt="Preview" className="w-full h-40 object-cover" />
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all flex items-center justify-center">
+                    <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 rounded-xl px-4 py-2 flex items-center gap-2 text-sm font-semibold text-gray-700">
+                      <Camera className="w-4 h-4" /> Change Photo
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="h-32 flex flex-col items-center justify-center text-gray-400 group-hover:text-brand-500 transition-colors">
+                  <ImagePlus className="w-8 h-8 mb-2" />
+                  <p className="text-sm font-medium">Click to upload image</p>
+                  <p className="text-xs text-gray-300 mt-0.5">JPG, PNG, WebP &middot; Max 5MB</p>
+                </div>
+              )}
+            </div>
+          </div>
+
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-1.5">Name</label>
             <input value={form.name} onChange={set('name')} required minLength={2} className={inputClass} />
@@ -277,7 +348,7 @@ function ItemModal({ item, categories, onClose, onSaved }) {
               ) : (
                 <Save className="w-4 h-4" />
               )}
-              {saving ? 'Saving...' : isEdit ? 'Update' : 'Create'}
+              {uploading ? 'Uploading image...' : saving ? 'Saving...' : isEdit ? 'Update' : 'Create'}
             </button>
           </div>
         </form>

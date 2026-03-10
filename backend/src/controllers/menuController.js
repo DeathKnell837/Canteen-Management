@@ -84,6 +84,23 @@ const menuController = {
       success: true,
       message: 'Item deleted successfully'
     });
+  }),
+
+  uploadImage: asyncHandler(async (req, res) => {
+    const { itemId } = req.params;
+
+    if (!req.file) {
+      return res.status(400).json({ success: false, error: { message: 'No image file provided' } });
+    }
+
+    const imageUrl = `/uploads/menu/${req.file.filename}`;
+    const item = await menuService.updateItem(parseInt(itemId), { image_url: imageUrl });
+
+    res.status(200).json({
+      success: true,
+      message: 'Image uploaded successfully',
+      data: item
+    });
   })
 };
 

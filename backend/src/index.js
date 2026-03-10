@@ -14,6 +14,7 @@ const menuRoutes = require('./routes/menu');
 const orderRoutes = require('./routes/orders');
 const paymentRoutes = require('./routes/payments');
 const inventoryRoutes = require('./routes/inventory');
+const path = require('path');
 
 const app = express();
 
@@ -58,6 +59,9 @@ app.get('/health', asyncHandler(async (req, res) => {
     });
   }
 }));
+
+// ===== STATIC FILES (uploaded images) =====
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // ===== API ROUTES =====
 app.use('/api/auth', authRoutes);

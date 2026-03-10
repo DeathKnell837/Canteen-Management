@@ -73,7 +73,7 @@ const Menu = {
   },
 
   async getItems(categoryId = null) {
-    let query = `SELECT m.item_id, m.name, m.description, m.base_price, m.is_vegetarian, m.prep_time_minutes, m.category_id,
+    let query = `SELECT m.item_id, m.name, m.description, m.base_price, m.is_vegetarian, m.prep_time_minutes, m.category_id, m.image_url,
                         c.name as category_name, i.quantity_available
                  FROM menu_items m
                  JOIN menu_categories c ON m.category_id = c.category_id
@@ -94,7 +94,7 @@ const Menu = {
 
   async getItemById(itemId) {
     const result = await pool.query(
-      `SELECT m.item_id, m.name, m.description, m.base_price, m.is_vegetarian, m.prep_time_minutes, m.category_id,
+      `SELECT m.item_id, m.name, m.description, m.base_price, m.is_vegetarian, m.prep_time_minutes, m.category_id, m.image_url,
               c.name as category_name, i.quantity_available
        FROM menu_items m
        JOIN menu_categories c ON m.category_id = c.category_id
@@ -107,7 +107,7 @@ const Menu = {
 
   async searchItems(searchTerm) {
     const result = await pool.query(
-      `SELECT m.item_id, m.name, m.description, m.base_price, m.is_vegetarian, m.prep_time_minutes, m.category_id,
+      `SELECT m.item_id, m.name, m.description, m.base_price, m.is_vegetarian, m.prep_time_minutes, m.category_id, m.image_url,
               c.name as category_name, i.quantity_available
        FROM menu_items m
        JOIN menu_categories c ON m.category_id = c.category_id
@@ -149,6 +149,10 @@ const Menu = {
     if (updates.is_active !== undefined) {
       fields.push(`is_active = $${index++}`);
       values.push(updates.is_active);
+    }
+    if (updates.image_url !== undefined) {
+      fields.push(`image_url = $${index++}`);
+      values.push(updates.image_url);
     }
 
     if (fields.length === 0) return null;

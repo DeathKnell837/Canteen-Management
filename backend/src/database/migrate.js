@@ -253,6 +253,17 @@ const migrations = [
       `);
       console.log('✅ Feedback table created');
     }
+  },
+
+  // MIGRATION: Add image_url to menu_items
+  {
+    name: '011_add_menu_item_image',
+    up: async () => {
+      await pool.query(`
+        ALTER TABLE menu_items ADD COLUMN IF NOT EXISTS image_url VARCHAR(500) DEFAULT NULL;
+      `);
+      console.log('✅ image_url column added to menu_items');
+    }
   }
 ];
 

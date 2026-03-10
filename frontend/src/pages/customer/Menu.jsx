@@ -163,7 +163,11 @@ export default function Menu() {
               >
                 {/* Image / Placeholder */}
                 <div className="h-44 bg-gradient-to-br from-brand-50 via-orange-50 to-amber-50 flex items-center justify-center relative overflow-hidden">
-                  <span className="text-6xl group-hover:scale-110 transition-transform duration-300">{getFoodEmoji(item.name)}</span>
+                  {item.image_url ? (
+                    <img src={item.image_url} alt={item.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                  ) : (
+                    <span className="text-6xl group-hover:scale-110 transition-transform duration-300">{getFoodEmoji(item.name)}</span>
+                  )}
                   {/* Badges */}
                   <div className="absolute top-3 left-3 flex gap-1.5">
                     {item.is_vegetarian ? (
