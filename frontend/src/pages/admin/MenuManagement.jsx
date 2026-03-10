@@ -65,8 +65,8 @@ export default function MenuManagement() {
     <div>
       <div className="flex items-center justify-between mb-6 animate-fade-in">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Menu Management</h1>
-          <p className="text-gray-500 text-sm mt-1">{items.length} items total</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Menu Management</h1>
+          <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">{items.length} items total</p>
         </div>
         <button
           onClick={() => setModal('add')}
@@ -84,7 +84,7 @@ export default function MenuManagement() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search items..."
-          className="w-full pl-11 pr-4 py-3 border-2 border-gray-100 rounded-xl text-sm focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all hover:border-gray-200"
+          className="w-full pl-11 pr-4 py-3 border-2 border-gray-100 dark:border-gray-700 rounded-xl text-sm focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all hover:border-gray-200 dark:hover:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-500"
         />
       </div>
 
@@ -93,17 +93,17 @@ export default function MenuManagement() {
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="bg-gray-50/80">
-                <th className="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase text-left">Item</th>
-                <th className="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase text-left">Category</th>
-                <th className="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase text-left">Price</th>
-                <th className="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase text-left">Available</th>
-                <th className="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase text-left">Actions</th>
+              <tr className="bg-gray-50/80 dark:bg-gray-800/80">
+                <th className="px-5 py-3.5 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase text-left">Item</th>
+                <th className="px-5 py-3.5 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase text-left">Category</th>
+                <th className="px-5 py-3.5 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase text-left">Price</th>
+                <th className="px-5 py-3.5 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase text-left">Available</th>
+                <th className="px-5 py-3.5 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase text-left">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-50">
+            <tbody className="divide-y divide-gray-50 dark:divide-gray-800">
               {filtered.map((item, idx) => (
-                <tr key={item.item_id} className="hover:bg-brand-50/30 transition-colors group">
+                <tr key={item.item_id} className="hover:bg-brand-50/30 dark:hover:bg-white/5 transition-colors group">
                   <td className="px-5 py-3.5">
                     <div className="flex items-center gap-3">
                       {item.image_url ? (
@@ -118,19 +118,19 @@ export default function MenuManagement() {
                         </div>
                       )}
                       <div>
-                        <p className="text-sm font-semibold text-gray-900">{item.name}</p>
+                        <p className="text-sm font-semibold text-gray-900 dark:text-white">{item.name}</p>
                         {item.description && (
-                          <p className="text-xs text-gray-400 truncate max-w-xs">{item.description}</p>
+                          <p className="text-xs text-gray-400 dark:text-gray-500 truncate max-w-xs">{item.description}</p>
                         )}
                       </div>
                     </div>
                   </td>
                   <td className="px-5 py-3.5">
-                    <span className="text-xs font-medium px-2.5 py-1 bg-gray-100 text-gray-600 rounded-lg">
+                    <span className="text-xs font-medium px-2.5 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-lg">
                       {getCatName(item.category_id)}
                     </span>
                   </td>
-                  <td className="px-5 py-3.5 text-sm font-bold text-gray-900">₱{parseFloat(item.base_price).toFixed(2)}</td>
+                  <td className="px-5 py-3.5 text-sm font-bold text-gray-900 dark:text-white">₱{parseFloat(item.base_price).toFixed(2)}</td>
                   <td className="px-5 py-3.5">
                     <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${item.is_active !== false ? 'bg-green-100 text-green-700 border border-green-200' : 'bg-red-100 text-red-700 border border-red-200'}`}>
                       {item.is_active !== false ? 'Yes' : 'No'}
@@ -140,13 +140,13 @@ export default function MenuManagement() {
                     <div className="flex items-center gap-1">
                       <button
                         onClick={() => setModal(item)}
-                        className="p-2 text-gray-400 hover:text-brand-500 hover:bg-brand-50 rounded-lg transition-all"
+                        className="p-2 text-gray-400 hover:text-brand-500 hover:bg-brand-50 dark:hover:bg-brand-900/20 rounded-lg transition-all"
                       >
                         <Pencil className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => handleDelete(item.item_id)}
-                        className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+                        className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -216,7 +216,7 @@ function ItemModal({ item, categories, onClose, onSaved }) {
     setImagePreview(URL.createObjectURL(file));
   };
 
-  const inputClass = 'w-full px-4 py-3 border-2 border-gray-100 rounded-xl text-sm focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all hover:border-gray-200';
+  const inputClass = 'w-full px-4 py-3 border-2 border-gray-100 dark:border-gray-700 rounded-xl text-sm focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all hover:border-gray-200 dark:hover:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-500';
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -262,19 +262,19 @@ function ItemModal({ item, categories, onClose, onSaved }) {
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 animate-overlay-in">
-      <div className="bg-white rounded-3xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl animate-modal-in">
-        <div className="flex items-center justify-between p-6 border-b border-gray-50">
-          <h2 className="text-lg font-bold text-gray-900">
+      <div className="bg-white dark:bg-gray-900 rounded-3xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl animate-modal-in">
+        <div className="flex items-center justify-between p-6 border-b border-gray-50 dark:border-gray-800">
+          <h2 className="text-lg font-bold text-gray-900 dark:text-white">
             {isEdit ? 'Edit Item' : 'Add New Item'}
           </h2>
-          <button onClick={onClose} className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-xl transition-all">
+          <button onClick={onClose} className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-all">
             <X className="w-5 h-5" />
           </button>
         </div>
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           {/* Image upload */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5">Food Image</label>
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Food Image</label>
             <input
               ref={fileInputRef}
               type="file"
@@ -284,7 +284,7 @@ function ItemModal({ item, categories, onClose, onSaved }) {
             />
             <div
               onClick={() => fileInputRef.current?.click()}
-              className="relative cursor-pointer group border-2 border-dashed border-gray-200 rounded-2xl overflow-hidden hover:border-brand-400 transition-all"
+              className="relative cursor-pointer group border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-2xl overflow-hidden hover:border-brand-400 transition-all"
             >
               {imagePreview ? (
                 <div className="relative">
@@ -306,21 +306,21 @@ function ItemModal({ item, categories, onClose, onSaved }) {
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5">Name</label>
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Name</label>
             <input value={form.name} onChange={set('name')} required minLength={2} className={inputClass} />
           </div>
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5">Description</label>
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Description</label>
             <textarea value={form.description} onChange={set('description')} rows={2} className={inputClass} />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1.5">Price (₱)</label>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Price (₱)</label>
               <input type="number" value={form.price} onChange={set('price')} required min="0" step="0.01" className={inputClass} />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1.5">Category</label>
-              <select value={form.category_id} onChange={set('category_id')} className={`${inputClass} bg-white`}>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Category</label>
+              <select value={form.category_id} onChange={set('category_id')} className={`${inputClass} bg-white dark:bg-gray-800`}>
                 {categories.map((c) => (
                   <option key={c.category_id} value={c.category_id}>{c.name}</option>
                 ))}
@@ -328,11 +328,11 @@ function ItemModal({ item, categories, onClose, onSaved }) {
             </div>
           </div>
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5">Prep Time (min)</label>
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Prep Time (min)</label>
             <input type="number" value={form.preparation_time} onChange={set('preparation_time')} min="1" className={inputClass} />
           </div>
           <div className="flex items-center gap-6">
-            <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+            <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
               <input type="checkbox" checked={form.is_vegetarian} onChange={set('is_vegetarian')}
                 className="rounded border-gray-300 text-brand-500 focus:ring-brand-500 w-4 h-4" />
               Vegetarian
@@ -340,7 +340,7 @@ function ItemModal({ item, categories, onClose, onSaved }) {
           </div>
           <div className="flex gap-3 pt-2">
             <button type="button" onClick={onClose}
-              className="flex-1 py-3 border-2 border-gray-100 text-gray-600 rounded-xl text-sm font-semibold hover:bg-gray-50 transition-all active:scale-[0.98]">
+              className="flex-1 py-3 border-2 border-gray-100 dark:border-gray-700 text-gray-600 dark:text-gray-300 rounded-xl text-sm font-semibold hover:bg-gray-50 dark:hover:bg-gray-800 transition-all active:scale-[0.98]">
               Cancel
             </button>
             <button type="submit" disabled={saving}

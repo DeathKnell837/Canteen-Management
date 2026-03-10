@@ -81,12 +81,12 @@ export default function OrderManagement() {
     <div>
       <div className="flex items-center justify-between mb-6 animate-fade-in">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Order Management</h1>
-          <p className="text-gray-500 text-sm mt-1">{orders.length} total orders</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Order Management</h1>
+          <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">{orders.length} total orders</p>
         </div>
         <button
           onClick={() => { setRefreshing(true); loadOrders(); }}
-          className="inline-flex items-center gap-2 px-4 py-2.5 border-2 border-gray-100 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50 hover:border-gray-200 transition-all active:scale-[0.97]"
+          className="inline-flex items-center gap-2 px-4 py-2.5 border-2 border-gray-100 dark:border-gray-700 rounded-xl text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:border-gray-200 dark:hover:border-gray-600 transition-all active:scale-[0.97]"
         >
           <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} /> Refresh
         </button>
@@ -101,14 +101,14 @@ export default function OrderManagement() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search by order ID..."
-            className="w-full pl-11 pr-4 py-3 border-2 border-gray-100 rounded-xl text-sm focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all hover:border-gray-200"
+            className="w-full pl-11 pr-4 py-3 border-2 border-gray-100 dark:border-gray-700 rounded-xl text-sm focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all hover:border-gray-200 dark:hover:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-500"
           />
         </div>
         <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
           <button
             onClick={() => setFilter('all')}
             className={`whitespace-nowrap px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-              filter === 'all' ? 'bg-gradient-to-r from-brand-500 to-brand-600 text-white shadow-lg shadow-brand-500/20' : 'bg-white/60 backdrop-blur-sm text-gray-600 hover:bg-white/80 border border-white/50'
+              filter === 'all' ? 'bg-gradient-to-r from-brand-500 to-brand-600 text-white shadow-lg shadow-brand-500/20' : 'bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm text-gray-600 dark:text-gray-300 hover:bg-white/80 dark:hover:bg-gray-800/80 border border-white/50 dark:border-gray-700'
             }`}
           >
             All
@@ -118,7 +118,7 @@ export default function OrderManagement() {
               key={s}
               onClick={() => setFilter(s)}
               className={`whitespace-nowrap px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-                filter === s ? 'bg-gradient-to-r from-brand-500 to-brand-600 text-white shadow-lg shadow-brand-500/20' : 'bg-white/60 backdrop-blur-sm text-gray-600 hover:bg-white/80 border border-white/50'
+                filter === s ? 'bg-gradient-to-r from-brand-500 to-brand-600 text-white shadow-lg shadow-brand-500/20' : 'bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm text-gray-600 dark:text-gray-300 hover:bg-white/80 dark:hover:bg-gray-800/80 border border-white/50 dark:border-gray-700'
               }`}
             >
               {statusEmoji[s]} {s}
@@ -132,24 +132,24 @@ export default function OrderManagement() {
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="bg-gray-50/80">
-                <th className="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase text-left">Order</th>
-                <th className="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase text-left">User</th>
-                <th className="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase text-left">Total</th>
-                <th className="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase text-left">Date</th>
-                <th className="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase text-left">Status</th>
-                <th className="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase text-left">Update</th>
+              <tr className="bg-gray-50/80 dark:bg-gray-800/80">
+                <th className="px-5 py-3.5 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase text-left">Order</th>
+                <th className="px-5 py-3.5 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase text-left">User</th>
+                <th className="px-5 py-3.5 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase text-left">Total</th>
+                <th className="px-5 py-3.5 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase text-left">Date</th>
+                <th className="px-5 py-3.5 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase text-left">Status</th>
+                <th className="px-5 py-3.5 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase text-left">Update</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-50">
+            <tbody className="divide-y divide-gray-50 dark:divide-gray-800">
               {filtered.map((o) => (
-                <tr key={o.order_id} className="hover:bg-brand-50/30 transition-colors group">
+                <tr key={o.order_id} className="hover:bg-brand-50/30 dark:hover:bg-white/5 transition-colors group">
                   <td className="px-5 py-3.5">
-                    <span className="text-sm font-bold text-gray-900 bg-gray-100 px-2.5 py-1 rounded-lg">#{o.order_id}</span>
+                    <span className="text-sm font-bold text-gray-900 dark:text-white bg-gray-100 dark:bg-gray-700 px-2.5 py-1 rounded-lg">#{o.order_id}</span>
                   </td>
-                  <td className="px-5 py-3.5 text-sm text-gray-600">User #{o.user_id}</td>
-                  <td className="px-5 py-3.5 text-sm font-bold text-gray-900">₱{(parseFloat(o.total_amount) || 0).toFixed(2)}</td>
-                  <td className="px-5 py-3.5 text-xs text-gray-500">
+                  <td className="px-5 py-3.5 text-sm text-gray-600 dark:text-gray-300">User #{o.user_id}</td>
+                  <td className="px-5 py-3.5 text-sm font-bold text-gray-900 dark:text-white">₱{(parseFloat(o.total_amount) || 0).toFixed(2)}</td>
+                  <td className="px-5 py-3.5 text-xs text-gray-500 dark:text-gray-400">
                     {new Date(o.created_at).toLocaleDateString('en-PH', {
                       day: 'numeric',
                       month: 'short',
@@ -168,7 +168,7 @@ export default function OrderManagement() {
                         <select
                           value={o.status}
                           onChange={(e) => updateStatus(o.order_id, e.target.value)}
-                          className="appearance-none pr-8 pl-3 py-2 border-2 border-gray-100 rounded-xl text-xs bg-white font-semibold focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 hover:border-gray-200 transition-all"
+                          className="appearance-none pr-8 pl-3 py-2 border-2 border-gray-100 dark:border-gray-700 rounded-xl text-xs bg-white dark:bg-gray-800 dark:text-white font-semibold focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 hover:border-gray-200 dark:hover:border-gray-600 transition-all"
                         >
                           {STATUSES.map((s) => (
                             <option key={s} value={s}>{s}</option>
@@ -177,7 +177,7 @@ export default function OrderManagement() {
                         <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none" />
                       </div>
                     ) : (
-                      <span className="text-xs text-gray-300 font-medium">Completed</span>
+                      <span className="text-xs text-gray-300 dark:text-gray-600 font-medium">Completed</span>
                     )}
                   </td>
                 </tr>

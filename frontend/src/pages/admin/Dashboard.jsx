@@ -81,13 +81,13 @@ export default function Dashboard() {
   return (
     <div>
       <div className="mb-6 animate-fade-in">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 flex items-center gap-3">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
           <div className="w-10 h-10 bg-gradient-to-br from-brand-500 to-brand-600 rounded-xl flex items-center justify-center shadow-lg shadow-brand-500/20">
             <LayoutDashboard className="w-5 h-5 text-white" />
           </div>
           Dashboard
         </h1>
-        <p className="text-gray-500 text-sm mt-1">Overview of your canteen operations</p>
+        <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Overview of your canteen operations</p>
       </div>
 
       {/* Stats grid */}
@@ -109,17 +109,17 @@ export default function Dashboard() {
             <div className={`w-10 h-10 bg-gradient-to-br ${c.gradient} rounded-xl flex items-center justify-center mb-3 shadow-sm`}>
               <c.icon className="w-5 h-5 text-white" />
             </div>
-            <p className="text-2xl font-bold text-gray-900 number-pop">{c.value}</p>
-            <p className="text-xs text-gray-500 mt-1 font-medium">{c.label}</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white number-pop">{c.value}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 font-medium">{c.label}</p>
           </div>
         ))}
       </div>
 
       {/* Recent orders */}
       <div className="table-glass rounded-2xl shadow-sm overflow-hidden animate-fade-in-up" style={{ animationDelay: '0.35s', animationFillMode: 'both' }}>
-        <div className="p-5 border-b border-white/40 flex items-center justify-between">
-          <h2 className="font-bold text-gray-900 text-lg">Recent Orders</h2>
-          <span className="text-xs text-gray-400 font-medium">Last 5</span>
+        <div className="p-5 border-b border-white/40 dark:border-gray-700/40 flex items-center justify-between">
+          <h2 className="font-bold text-gray-900 dark:text-white text-lg">Recent Orders</h2>
+          <span className="text-xs text-gray-400 dark:text-gray-500 font-medium">Last 5</span>
         </div>
         {recentOrders.length === 0 ? (
           <div className="p-12 text-center">
@@ -127,20 +127,20 @@ export default function Dashboard() {
             <p className="text-gray-400 text-sm">No orders yet</p>
           </div>
         ) : (
-          <div className="divide-y divide-gray-50">
+          <div className="divide-y divide-gray-50 dark:divide-gray-800">
             {recentOrders.map((o, idx) => (
               <div
                 key={o.order_id}
-                className="p-4 flex items-center gap-4 hover:bg-gray-50/50 transition-colors"
+                className="p-4 flex items-center gap-4 hover:bg-gray-50/50 dark:hover:bg-white/5 transition-colors"
                 style={{ animationDelay: `${0.4 + idx * 0.05}s` }}
               >
-                <div className="w-10 h-10 bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl flex items-center justify-center text-xs font-bold text-gray-500">
+                <div className="w-10 h-10 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 rounded-xl flex items-center justify-center text-xs font-bold text-gray-500 dark:text-gray-300">
                   #{o.order_id}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-gray-900">
+                  <p className="text-sm font-semibold text-gray-900 dark:text-white">
                     Order #{o.order_id}
-                    {o.user_id && <span className="text-gray-400 font-normal ml-2">User #{o.user_id}</span>}
+                    {o.user_id && <span className="text-gray-400 dark:text-gray-500 font-normal ml-2">User #{o.user_id}</span>}
                   </p>
                   <p className="text-xs text-gray-400 mt-0.5">
                     {new Date(o.created_at).toLocaleDateString('en-PH', {
@@ -154,7 +154,7 @@ export default function Dashboard() {
                 <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${statusColor[o.status] || 'bg-gray-100 text-gray-600'}`}>
                   {o.status}
                 </span>
-                <span className="text-sm font-bold text-gray-900">₱{(parseFloat(o.total_amount) || 0).toFixed(2)}</span>
+                <span className="text-sm font-bold text-gray-900 dark:text-white">₱{(parseFloat(o.total_amount) || 0).toFixed(2)}</span>
               </div>
             ))}
           </div>

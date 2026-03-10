@@ -100,8 +100,8 @@ export default function Menu() {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Menu</h1>
-        <p className="text-gray-500 text-sm mt-1">Browse and add items to your cart</p>
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Menu</h1>
+        <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Browse and add items to your cart</p>
       </div>
 
       {/* Search & filter bar */}
@@ -113,7 +113,7 @@ export default function Menu() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search items..."
-            className="w-full pl-10 pr-4 py-2.5 border border-white/60 rounded-xl text-sm focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all bg-white/60 backdrop-blur-sm hover:bg-white/80"
+            className="w-full pl-10 pr-4 py-2.5 border border-white/60 dark:border-gray-700 rounded-xl text-sm focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all bg-white/60 dark:bg-gray-800/60 dark:text-white backdrop-blur-sm hover:bg-white/80 dark:hover:bg-gray-800/80 dark:placeholder-gray-500"
           />
         </div>
       </div>
@@ -125,7 +125,7 @@ export default function Menu() {
           className={`whitespace-nowrap px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
             activeCat === 'all'
               ? 'bg-gradient-to-r from-brand-500 to-brand-600 text-white shadow-md shadow-brand-500/25'
-              : 'bg-white/60 backdrop-blur-sm text-gray-600 hover:bg-white/80 border border-white/50 hover:border-white/70'
+              : 'bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm text-gray-600 dark:text-gray-300 hover:bg-white/80 dark:hover:bg-gray-800/80 border border-white/50 dark:border-gray-700 hover:border-white/70 dark:hover:border-gray-600'
           }`}
         >
           🍽️ All
@@ -137,7 +137,7 @@ export default function Menu() {
             className={`whitespace-nowrap px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
               String(activeCat) === String(c.category_id)
                 ? 'bg-gradient-to-r from-brand-500 to-brand-600 text-white shadow-md shadow-brand-500/25'
-                : 'bg-white/60 backdrop-blur-sm text-gray-600 hover:bg-white/80 border border-white/50 hover:border-white/70'
+                : 'bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm text-gray-600 dark:text-gray-300 hover:bg-white/80 dark:hover:bg-gray-800/80 border border-white/50 dark:border-gray-700 hover:border-white/70 dark:hover:border-gray-600'
             }`}
           >
             {c.name}
@@ -149,8 +149,8 @@ export default function Menu() {
       {filtered.length === 0 ? (
         <div className="text-center py-20 animate-fade-in">
           <div className="text-6xl mb-4">🔍</div>
-          <p className="text-gray-500 font-medium text-lg">No items found</p>
-          <p className="text-gray-400 text-sm mt-1">Try a different category or search term</p>
+          <p className="text-gray-500 dark:text-gray-400 font-medium text-lg">No items found</p>
+          <p className="text-gray-400 dark:text-gray-500 text-sm mt-1">Try a different category or search term</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -165,7 +165,7 @@ export default function Menu() {
                 onClick={() => setSelectedItem(item)}
               >
                 {/* Image / Placeholder */}
-                <div className="h-44 bg-gradient-to-br from-brand-50 via-orange-50 to-amber-50 flex items-center justify-center relative overflow-hidden">
+                <div className="h-44 bg-gradient-to-br from-brand-50 via-orange-50 to-amber-50 dark:from-gray-800 dark:via-gray-800 dark:to-gray-700 flex items-center justify-center relative overflow-hidden">
                   {item.image_url ? (
                     <img src={item.image_url} alt={item.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                   ) : (
@@ -194,9 +194,9 @@ export default function Menu() {
                   </div>
                 </div>
                 <div className="p-4">
-                  <h3 className="font-semibold text-gray-900 text-lg group-hover:text-brand-600 transition-colors">{item.name}</h3>
+                  <h3 className="font-semibold text-gray-900 dark:text-white text-lg group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">{item.name}</h3>
                   {item.description && (
-                    <p className="text-gray-400 text-sm mt-1 line-clamp-2 leading-relaxed">{item.description}</p>
+                    <p className="text-gray-400 dark:text-gray-500 text-sm mt-1 line-clamp-2 leading-relaxed">{item.description}</p>
                   )}
                   <div className="flex items-center justify-between mt-4">
                     <div>
@@ -261,11 +261,11 @@ function ItemDetailModal({ item, cartQty, onAdd, onClose, getFoodEmoji }) {
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-3xl w-full max-w-md max-h-[90vh] overflow-hidden shadow-2xl animate-modal-in"
+        className="bg-white dark:bg-gray-900 rounded-3xl w-full max-w-md max-h-[90vh] overflow-hidden shadow-2xl animate-modal-in"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Image */}
-        <div className="relative h-56 sm:h-64 bg-gradient-to-br from-brand-50 via-orange-50 to-amber-50 flex items-center justify-center overflow-hidden">
+        <div className="relative h-56 sm:h-64 bg-gradient-to-br from-brand-50 via-orange-50 to-amber-50 dark:from-gray-800 dark:via-gray-800 dark:to-gray-700 flex items-center justify-center overflow-hidden">
           {item.image_url ? (
             <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
           ) : (
@@ -295,8 +295,8 @@ function ItemDetailModal({ item, cartQty, onAdd, onClose, getFoodEmoji }) {
         <div className="p-5 sm:p-6">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <h2 className="text-xl font-bold text-gray-900">{item.name}</h2>
-              <p className="text-sm text-gray-400 mt-0.5">{item.category_name}</p>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white">{item.name}</h2>
+              <p className="text-sm text-gray-400 dark:text-gray-500 mt-0.5">{item.category_name}</p>
             </div>
             <span className="text-2xl font-bold text-brand-600 whitespace-nowrap">
               ₱{parseFloat(item.base_price).toFixed(2)}
@@ -304,12 +304,12 @@ function ItemDetailModal({ item, cartQty, onAdd, onClose, getFoodEmoji }) {
           </div>
 
           {item.description && (
-            <p className="text-gray-500 text-sm mt-3 leading-relaxed">{item.description}</p>
+            <p className="text-gray-500 dark:text-gray-400 text-sm mt-3 leading-relaxed">{item.description}</p>
           )}
 
           {/* Info chips */}
           <div className="flex flex-wrap gap-2 mt-4">
-            <div className="inline-flex items-center gap-1.5 bg-gray-100 text-gray-600 text-xs font-medium px-3 py-1.5 rounded-full">
+            <div className="inline-flex items-center gap-1.5 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs font-medium px-3 py-1.5 rounded-full">
               <Clock className="w-3.5 h-3.5" /> {item.prep_time_minutes} min prep
             </div>
             {item.quantity_available != null && (
@@ -326,7 +326,7 @@ function ItemDetailModal({ item, cartQty, onAdd, onClose, getFoodEmoji }) {
           </div>
 
           {/* Cart controls */}
-          <div className="mt-5 pt-4 border-t border-gray-100">
+          <div className="mt-5 pt-4 border-t border-gray-100 dark:border-gray-700">
             {cartQty > 0 ? (
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -335,14 +335,14 @@ function ItemDetailModal({ item, cartQty, onAdd, onClose, getFoodEmoji }) {
                       if (cartQty <= 1) removeItem(item.item_id);
                       else updateQuantity(item.item_id, cartQty - 1);
                     }}
-                    className="w-10 h-10 rounded-xl border-2 border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-50 hover:border-gray-300 transition-all active:scale-90"
+                    className="w-10 h-10 rounded-xl border-2 border-gray-200 dark:border-gray-600 flex items-center justify-center text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-500 transition-all active:scale-90"
                   >
                     <Minus className="w-4 h-4" />
                   </button>
-                  <span className="w-10 text-center text-lg font-bold text-gray-900">{cartQty}</span>
+                  <span className="w-10 text-center text-lg font-bold text-gray-900 dark:text-white">{cartQty}</span>
                   <button
                     onClick={() => updateQuantity(item.item_id, cartQty + 1)}
-                    className="w-10 h-10 rounded-xl border-2 border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-50 hover:border-gray-300 transition-all active:scale-90"
+                    className="w-10 h-10 rounded-xl border-2 border-gray-200 dark:border-gray-600 flex items-center justify-center text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-500 transition-all active:scale-90"
                   >
                     <Plus className="w-4 h-4" />
                   </button>

@@ -1,6 +1,7 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
+import { useTheme } from '../context/ThemeContext';
 import {
   UtensilsCrossed,
   ShoppingCart,
@@ -15,6 +16,8 @@ import {
   ChevronRight,
   Menu,
   X,
+  Sun,
+  Moon,
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
@@ -35,6 +38,7 @@ const adminNav = [
 export default function Sidebar() {
   const { user, logout } = useAuth();
   const { itemCount } = useCart();
+  const { dark, toggle } = useTheme();
   const navigate = useNavigate();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -57,9 +61,9 @@ export default function Sidebar() {
       {/* Mobile hamburger */}
       <button
         onClick={() => setMobileOpen(true)}
-        className="fixed top-4 left-4 z-40 lg:hidden w-10 h-10 rounded-xl bg-white/80 backdrop-blur-md border border-white/50 shadow-lg shadow-black/5 flex items-center justify-center hover:bg-white/90 transition-all"
+        className="fixed top-4 left-4 z-40 lg:hidden w-10 h-10 rounded-xl bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border border-white/50 dark:border-gray-700/50 shadow-lg shadow-black/5 flex items-center justify-center hover:bg-white/90 dark:hover:bg-gray-800/90 transition-all"
       >
-        <Menu className="w-5 h-5 text-gray-700" />
+        <Menu className="w-5 h-5 text-gray-700 dark:text-gray-200" />
       </button>
 
       {/* Mobile overlay */}
@@ -77,19 +81,19 @@ export default function Sidebar() {
         `}
       >
         {/* Logo */}
-        <div className="h-16 flex items-center gap-3 px-4 border-b border-white/40 shrink-0">
+        <div className="h-16 flex items-center gap-3 px-4 border-b border-white/40 dark:border-gray-700/40 shrink-0">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-500 to-brand-600 flex items-center justify-center shrink-0 shadow-lg shadow-brand-500/20">
             <UtensilsCrossed className="w-5 h-5 text-white" />
           </div>
           {!collapsed && (
-            <span className="font-bold text-gray-900 text-sm leading-tight animate-fade-in">
+            <span className="font-bold text-gray-900 dark:text-white text-sm leading-tight animate-fade-in">
               Canteen<br />Management
             </span>
           )}
           {/* Mobile close */}
           <button
             onClick={() => setMobileOpen(false)}
-            className="lg:hidden ml-auto text-gray-400 hover:text-gray-600"
+            className="lg:hidden ml-auto text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
           >
             <X className="w-5 h-5" />
           </button>
@@ -98,7 +102,7 @@ export default function Sidebar() {
         {/* Navigation */}
         <nav className="flex-1 py-4 px-3 space-y-1 overflow-y-auto scrollbar-hide">
           {isAdmin && !collapsed && (
-            <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider px-3 mb-2 animate-fade-in">
+            <p className="text-[11px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider px-3 mb-2 animate-fade-in">
               Admin
             </p>
           )}
@@ -106,8 +110,8 @@ export default function Sidebar() {
             if (item === customerNav[0] && isAdmin && !collapsed) {
               return (
                 <div key="divider">
-                  <div className="border-t border-gray-100 my-3" />
-                  <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider px-3 mb-2 animate-fade-in">
+                  <div className="border-t border-gray-100 dark:border-gray-700 my-3" />
+                  <p className="text-[11px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider px-3 mb-2 animate-fade-in">
                     Customer
                   </p>
                   <SidebarLink item={item} collapsed={collapsed} badge={item.badge ? itemCount : 0} onClick={() => setMobileOpen(false)} />
@@ -127,21 +131,31 @@ export default function Sidebar() {
         </nav>
 
         {/* User section */}
-        <div className="border-t border-white/40 p-3 space-y-2 shrink-0">
+        <div className="border-t border-white/40 dark:border-gray-700/40 p-3 space-y-2 shrink-0">
           {!collapsed && (
             <div className="flex items-center gap-3 px-3 py-2 animate-fade-in">
-              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-brand-100 to-brand-200 flex items-center justify-center ring-2 ring-brand-100">
-                <User className="w-4 h-4 text-brand-600" />
+              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-brand-100 to-brand-200 dark:from-brand-800 dark:to-brand-900 flex items-center justify-center ring-2 ring-brand-100 dark:ring-brand-800">
+                <User className="w-4 h-4 text-brand-600 dark:text-brand-300" />
               </div>
               <div className="min-w-0">
-                <p className="text-sm font-semibold text-gray-900 truncate">{user?.full_name}</p>
-                <p className="text-xs text-gray-400 truncate capitalize">{user?.role?.toLowerCase()}</p>
+                <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">{user?.full_name}</p>
+                <p className="text-xs text-gray-400 dark:text-gray-500 truncate capitalize">{user?.role?.toLowerCase()}</p>
               </div>
             </div>
           )}
+          {/* Dark mode toggle */}
+          <button
+            onClick={toggle}
+            className={`flex items-center gap-3 w-full rounded-xl text-sm text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-gray-200 transition-all duration-200 ${
+              collapsed ? 'justify-center py-2.5' : 'px-3 py-2.5'
+            }`}
+          >
+            {dark ? <Sun className="w-[18px] h-[18px] shrink-0" /> : <Moon className="w-[18px] h-[18px] shrink-0" />}
+            {!collapsed && (dark ? 'Light mode' : 'Dark mode')}
+          </button>
           <button
             onClick={handleLogout}
-            className={`flex items-center gap-3 w-full rounded-xl text-sm text-gray-500 hover:bg-red-50 hover:text-red-600 transition-all duration-200 ${
+            className={`flex items-center gap-3 w-full rounded-xl text-sm text-gray-500 dark:text-gray-400 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 transition-all duration-200 ${
               collapsed ? 'justify-center py-2.5' : 'px-3 py-2.5'
             }`}
           >
@@ -153,12 +167,12 @@ export default function Sidebar() {
         {/* Collapse toggle - desktop only */}
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="hidden lg:flex absolute -right-3.5 top-20 w-7 h-7 rounded-full bg-white border border-gray-200 items-center justify-center shadow-md hover:bg-gray-50 hover:shadow-lg transition-all duration-200"
+          className="hidden lg:flex absolute -right-3.5 top-20 w-7 h-7 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 items-center justify-center shadow-md hover:bg-gray-50 dark:hover:bg-gray-700 hover:shadow-lg transition-all duration-200"
         >
           {collapsed ? (
-            <ChevronRight className="w-3.5 h-3.5 text-gray-500" />
+            <ChevronRight className="w-3.5 h-3.5 text-gray-500 dark:text-gray-400" />
           ) : (
-            <ChevronLeft className="w-3.5 h-3.5 text-gray-500" />
+            <ChevronLeft className="w-3.5 h-3.5 text-gray-500 dark:text-gray-400" />
           )}
         </button>
       </aside>
@@ -178,8 +192,8 @@ function SidebarLink({ item, collapsed, badge, onClick }) {
           collapsed ? 'justify-center py-2.5' : 'px-3 py-2.5'
         } ${
           isActive
-            ? 'bg-gradient-to-r from-brand-50 to-brand-100/50 text-brand-700 shadow-sm shadow-brand-100'
-            : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'
+            ? 'bg-gradient-to-r from-brand-50 to-brand-100/50 dark:from-brand-900/30 dark:to-brand-800/20 text-brand-700 dark:text-brand-400 shadow-sm shadow-brand-100 dark:shadow-brand-900/20'
+            : 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-gray-200'
         }`
       }
     >

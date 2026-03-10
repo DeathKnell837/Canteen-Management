@@ -50,8 +50,8 @@ export default function Wallet() {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Wallet</h1>
-        <p className="text-gray-500 text-sm mt-1">Manage your wallet balance</p>
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Wallet</h1>
+        <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Manage your wallet balance</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -85,8 +85,8 @@ export default function Wallet() {
 
         {/* Top-up card */}
         <div className="card-glass rounded-3xl p-7 animate-fade-in-up" style={{ animationDelay: '0.1s', animationFillMode: 'both' }}>
-          <h2 className="font-bold text-gray-900 text-lg mb-5 flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-brand-50 flex items-center justify-center">
+          <h2 className="font-bold text-gray-900 dark:text-white text-lg mb-5 flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-brand-50 dark:bg-brand-900/30 flex items-center justify-center">
               <Plus className="w-4 h-4 text-brand-500" />
             </div>
             Add Money
@@ -101,7 +101,7 @@ export default function Wallet() {
                 placeholder="0.00"
                 min="1"
                 step="0.01"
-                className="w-full pl-10 pr-4 py-3.5 border-2 border-gray-100 rounded-xl text-lg font-semibold focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all hover:border-gray-200"
+                className="w-full pl-10 pr-4 py-3.5 border-2 border-gray-100 dark:border-gray-700 rounded-xl text-lg font-semibold focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all hover:border-gray-200 dark:hover:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-500"
               />
             </div>
             <div className="flex gap-2 mb-5 flex-wrap">
@@ -112,8 +112,8 @@ export default function Wallet() {
                   onClick={() => setAmount(String(qa))}
                   className={`px-4 py-2 rounded-xl text-sm font-semibold border-2 transition-all active:scale-95 ${
                     amount === String(qa)
-                      ? 'border-brand-500 bg-brand-50 text-brand-600 shadow-sm shadow-brand-100'
-                      : 'border-gray-100 text-gray-500 hover:border-gray-200 hover:bg-gray-50'
+                      ? 'border-brand-500 bg-brand-50 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400 shadow-sm shadow-brand-100 dark:shadow-brand-900/20'
+                      : 'border-gray-100 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:border-gray-200 dark:hover:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800'
                   }`}
                 >
                   ₱{qa}
@@ -142,13 +142,13 @@ export default function Wallet() {
       </div>
 
       {/* Info note */}
-      <div className="mt-6 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-2xl p-5 flex gap-4 animate-fade-in-up" style={{ animationDelay: '0.2s', animationFillMode: 'both' }}>
-        <div className="flex-shrink-0 w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
-          <Sparkles className="w-5 h-5 text-blue-600" />
+      <div className="mt-6 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-100 dark:border-blue-800/30 rounded-2xl p-5 flex gap-4 animate-fade-in-up" style={{ animationDelay: '0.2s', animationFillMode: 'both' }}>
+        <div className="flex-shrink-0 w-10 h-10 bg-blue-100 dark:bg-blue-900/40 rounded-xl flex items-center justify-center">
+          <Sparkles className="w-5 h-5 text-blue-600 dark:text-blue-400" />
         </div>
         <div>
-          <p className="text-sm font-semibold text-blue-900">How wallet works</p>
-          <p className="text-sm text-blue-700/70 mt-1 leading-relaxed">
+          <p className="text-sm font-semibold text-blue-900 dark:text-blue-200">How wallet works</p>
+          <p className="text-sm text-blue-700/70 dark:text-blue-300/70 mt-1 leading-relaxed">
             Add money to your wallet and use it to pay for orders instantly. Wallet payments are processed immediately during checkout.
           </p>
         </div>

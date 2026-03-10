@@ -79,15 +79,15 @@ export default function Login() {
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-500 to-brand-600 flex items-center justify-center shadow-lg shadow-brand-500/20">
               <UtensilsCrossed className="w-5 h-5 text-white" />
             </div>
-            <span className="font-bold text-lg text-gray-900">Canteen Management</span>
+            <span className="font-bold text-lg text-gray-900 dark:text-white">Canteen Management</span>
           </div>
 
-          <h2 className="text-3xl font-bold text-gray-900 mb-1">Welcome back</h2>
-          <p className="text-gray-500 mb-8">Sign in to your account to continue</p>
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-1">Welcome back</h2>
+          <p className="text-gray-500 dark:text-gray-400 mb-8">Sign in to your account to continue</p>
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Email</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Email</label>
               <div className="relative group">
                 <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-gray-400 group-focus-within:text-brand-500 transition-colors" />
                 <input
@@ -96,13 +96,13 @@ export default function Login() {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   placeholder="you@example.com"
-                  className="w-full pl-11 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all bg-white hover:border-gray-300"
+                  className="w-full pl-11 pr-4 py-3 border border-gray-200 dark:border-gray-700 rounded-xl text-sm focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all bg-white dark:bg-gray-800 dark:text-white hover:border-gray-300 dark:hover:border-gray-600 dark:placeholder-gray-500"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Password</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Password</label>
               <div className="relative group">
                 <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-gray-400 group-focus-within:text-brand-500 transition-colors" />
                 <input
@@ -111,12 +111,12 @@ export default function Login() {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   placeholder="Enter your password"
-                  className="w-full pl-11 pr-12 py-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all bg-white hover:border-gray-300"
+                  className="w-full pl-11 pr-12 py-3 border border-gray-200 dark:border-gray-700 rounded-xl text-sm focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all bg-white dark:bg-gray-800 dark:text-white hover:border-gray-300 dark:hover:border-gray-600 dark:placeholder-gray-500"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPass(!showPass)}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
                 >
                   {showPass ? <EyeOff className="w-[18px] h-[18px]" /> : <Eye className="w-[18px] h-[18px]" />}
                 </button>
@@ -142,30 +142,30 @@ export default function Login() {
             </button>
           </form>
 
-          <p className="mt-6 text-center text-sm text-gray-500">
+          <p className="mt-6 text-center text-sm text-gray-500 dark:text-gray-400">
             Don't have an account?{' '}
-            <Link to="/register" className="text-brand-600 font-semibold hover:text-brand-700 transition-colors">
+            <Link to="/register" className="text-brand-600 dark:text-brand-400 font-semibold hover:text-brand-700 dark:hover:text-brand-300 transition-colors">
               Create one
             </Link>
           </p>
 
-          <div className="mt-8 p-4 bg-gradient-to-r from-gray-50 to-gray-100/50 rounded-xl border border-gray-100">
-            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2.5">Demo Accounts</p>
-            <div className="space-y-2 text-sm text-gray-600">
+          <div className="mt-8 p-4 bg-gradient-to-r from-gray-50 to-gray-100/50 dark:from-gray-800 dark:to-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-700">
+            <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2.5">Demo Accounts</p>
+            <div className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
               <button
                 type="button"
                 onClick={() => { setEmail('admin@canteen.local'); setPassword('admin123'); }}
-                className="w-full text-left px-3 py-2 rounded-lg hover:bg-white transition-colors flex items-center justify-between group"
+                className="w-full text-left px-3 py-2 rounded-lg hover:bg-white dark:hover:bg-gray-700 transition-colors flex items-center justify-between group"
               >
-                <span><span className="font-medium text-gray-700">Admin:</span> admin@canteen.local</span>
+                <span><span className="font-medium text-gray-700 dark:text-gray-200">Admin:</span> admin@canteen.local</span>
                 <ArrowRight className="w-3.5 h-3.5 text-gray-300 group-hover:text-brand-500 transition-colors" />
               </button>
               <button
                 type="button"
                 onClick={() => { setEmail('user1@example.com'); setPassword('user123'); }}
-                className="w-full text-left px-3 py-2 rounded-lg hover:bg-white transition-colors flex items-center justify-between group"
+                className="w-full text-left px-3 py-2 rounded-lg hover:bg-white dark:hover:bg-gray-700 transition-colors flex items-center justify-between group"
               >
-                <span><span className="font-medium text-gray-700">User:</span> user1@example.com</span>
+                <span><span className="font-medium text-gray-700 dark:text-gray-200">User:</span> user1@example.com</span>
                 <ArrowRight className="w-3.5 h-3.5 text-gray-300 group-hover:text-brand-500 transition-colors" />
               </button>
             </div>
