@@ -51,7 +51,7 @@ export default function Orders() {
         </div>
         <div className="space-y-3">
           {[...Array(3)].map((_, i) => (
-            <div key={i} className="bg-white rounded-2xl border border-gray-100 p-5">
+            <div key={i} className="card-glass rounded-2xl p-5">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 skeleton rounded-xl" />
                 <div className="flex-1 space-y-2">
@@ -90,7 +90,7 @@ export default function Orders() {
             return (
               <div
                 key={order.order_id}
-                className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 animate-fade-in-up"
+                className="card-glass rounded-2xl overflow-hidden hover:shadow-md transition-all duration-200 animate-fade-in-up"
                 style={{ animationDelay: `${idx * 0.05}s`, animationFillMode: 'both' }}
               >
                 {/* Header */}

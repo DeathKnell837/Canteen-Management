@@ -84,7 +84,7 @@ export default function Wallet() {
         </div>
 
         {/* Top-up card */}
-        <div className="bg-white rounded-3xl border border-gray-100 p-7 shadow-sm animate-fade-in-up" style={{ animationDelay: '0.1s', animationFillMode: 'both' }}>
+        <div className="card-glass rounded-3xl p-7 animate-fade-in-up" style={{ animationDelay: '0.1s', animationFillMode: 'both' }}>
           <h2 className="font-bold text-gray-900 text-lg mb-5 flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-brand-50 flex items-center justify-center">
               <Plus className="w-4 h-4 text-brand-500" />

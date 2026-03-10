@@ -57,7 +57,7 @@ export default function Sidebar() {
       {/* Mobile hamburger */}
       <button
         onClick={() => setMobileOpen(true)}
-        className="fixed top-4 left-4 z-40 lg:hidden w-10 h-10 rounded-xl bg-white border border-gray-200 shadow-sm flex items-center justify-center hover:bg-gray-50 transition-colors"
+        className="fixed top-4 left-4 z-40 lg:hidden w-10 h-10 rounded-xl bg-white/80 backdrop-blur-md border border-white/50 shadow-lg shadow-black/5 flex items-center justify-center hover:bg-white/90 transition-all"
       >
         <Menu className="w-5 h-5 text-gray-700" />
       </button>
@@ -65,19 +65,19 @@ export default function Sidebar() {
       {/* Mobile overlay */}
       {mobileOpen && (
         <div
-          className="fixed inset-0 bg-black/30 z-40 lg:hidden animate-overlay-in"
+          className="fixed inset-0 bg-black/25 backdrop-blur-[2px] z-40 lg:hidden animate-overlay-in"
           onClick={() => setMobileOpen(false)}
         />
       )}
 
       <aside
-        className={`fixed left-0 top-0 h-screen bg-white/95 glass border-r border-gray-200/80 flex flex-col z-50 transition-all duration-300 ease-in-out
+        className={`fixed left-0 top-0 h-screen sidebar-glass flex flex-col z-50 transition-all duration-300 ease-in-out
           ${collapsed ? 'lg:w-[72px]' : 'lg:w-64'}
           ${mobileOpen ? 'w-64 translate-x-0' : '-translate-x-full lg:translate-x-0'}
         `}
       >
         {/* Logo */}
-        <div className="h-16 flex items-center gap-3 px-4 border-b border-gray-100 shrink-0">
+        <div className="h-16 flex items-center gap-3 px-4 border-b border-white/40 shrink-0">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-500 to-brand-600 flex items-center justify-center shrink-0 shadow-lg shadow-brand-500/20">
             <UtensilsCrossed className="w-5 h-5 text-white" />
           </div>
@@ -127,7 +127,7 @@ export default function Sidebar() {
         </nav>
 
         {/* User section */}
-        <div className="border-t border-gray-100 p-3 space-y-2 shrink-0">
+        <div className="border-t border-white/40 p-3 space-y-2 shrink-0">
           {!collapsed && (
             <div className="flex items-center gap-3 px-3 py-2 animate-fade-in">
               <div className="w-9 h-9 rounded-full bg-gradient-to-br from-brand-100 to-brand-200 flex items-center justify-center ring-2 ring-brand-100">

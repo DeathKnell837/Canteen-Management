@@ -43,7 +43,7 @@ export default function Register() {
   const inputClass = "w-full pl-11 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all bg-white hover:border-gray-300";
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex auth-bg">
       {/* Left panel */}
       <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-brand-500 via-brand-600 to-brand-800 relative overflow-hidden">
         <div className="absolute inset-0 opacity-[0.07]">
@@ -63,7 +63,11 @@ export default function Register() {
       </div>
 
       {/* Right panel */}
-      <div className="flex-1 flex items-center justify-center px-6 sm:px-8 py-12 bg-gradient-to-br from-white to-gray-50">
+      <div className="flex-1 flex items-center justify-center px-6 sm:px-8 py-12 relative">
+        <div className="absolute inset-0 pointer-events-none overflow-hidden lg:hidden" aria-hidden="true">
+          <div className="ambient-orb w-72 h-72 bg-brand-300 -top-20 -right-20" />
+          <div className="ambient-orb w-56 h-56 bg-amber-200 -bottom-16 -left-16" style={{ animationDelay: '-4s' }} />
+        </div>
         <div className="w-full max-w-md animate-fade-in-up">
           <div className="lg:hidden flex items-center gap-3 mb-10">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-500 to-brand-600 flex items-center justify-center shadow-lg shadow-brand-500/20">

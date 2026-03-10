@@ -95,7 +95,7 @@ export default function Dashboard() {
         {cards.map((c, idx) => (
           <div
             key={c.label}
-            className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm card-hover animate-fade-in-up relative overflow-hidden"
+            className="card-glass rounded-2xl p-5 card-hover animate-fade-in-up relative overflow-hidden"
             style={{ animationDelay: `${idx * 0.07}s`, animationFillMode: 'both' }}
           >
             {c.pulse && (
@@ -116,8 +116,8 @@ export default function Dashboard() {
       </div>
 
       {/* Recent orders */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden animate-fade-in-up" style={{ animationDelay: '0.35s', animationFillMode: 'both' }}>
-        <div className="p-5 border-b border-gray-50 flex items-center justify-between">
+      <div className="table-glass rounded-2xl shadow-sm overflow-hidden animate-fade-in-up" style={{ animationDelay: '0.35s', animationFillMode: 'both' }}>
+        <div className="p-5 border-b border-white/40 flex items-center justify-between">
           <h2 className="font-bold text-gray-900 text-lg">Recent Orders</h2>
           <span className="text-xs text-gray-400 font-medium">Last 5</span>
         </div>

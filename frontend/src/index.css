@@ -37,8 +37,8 @@ input:focus, select:focus, textarea:focus {
 
 /* Glass morphism */
 .glass {
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
 }
 
 /* Smooth page transition */
@@ -49,15 +49,6 @@ input:focus, select:focus, textarea:focus {
 @keyframes fadeInUp {
   0% { opacity: 0; transform: translateY(16px); }
   100% { opacity: 1; transform: translateY(0); }
-}
-
-/* Card hover lift */
-.card-hover {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-.card-hover:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px -5px rgba(0,0,0,0.1), 0 4px 10px -6px rgba(0,0,0,0.1);
 }
 
 /* Gradient shimmer for loading */
@@ -108,7 +99,94 @@ input:focus, select:focus, textarea:focus {
   border-radius: 0.5rem;
 }
 
-/* Custom scrollbar for non-hidden areas */
+/* ======== Ambient Background System ======== */
+
+/* Floating orbs for background depth */
+.ambient-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  opacity: 0.12;
+  animation: orbFloat 20s ease-in-out infinite;
+  will-change: transform;
+}
+
+@keyframes orbFloat {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(40px, -30px) scale(1.08); }
+  50% { transform: translate(-30px, 25px) scale(0.95); }
+  75% { transform: translate(20px, 15px) scale(1.03); }
+}
+
+/* Subtle dot pattern overlay */
+.dot-pattern {
+  background-image: radial-gradient(circle, rgba(0,0,0,0.035) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+/* Glass card with backdrop blur */
+.card-glass {
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+/* Table glass container */
+.table-glass {
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+/* Sidebar glass background */
+.sidebar-glass {
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-right: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Animated gradient background for auth pages */
+.auth-bg {
+  background: linear-gradient(135deg, #fff7ed 0%, #fef3c7 25%, #fce7f3 50%, #ede9fe 75%, #dbeafe 100%);
+  background-size: 400% 400%;
+  animation: authGradient 15s ease infinite;
+}
+
+@keyframes authGradient {
+  0%, 100% { background-position: 0% 50%; }
+  25% { background-position: 100% 0%; }
+  50% { background-position: 100% 100%; }
+  75% { background-position: 0% 100%; }
+}
+
+/* Subtle grain texture overlay */
+.grain-overlay::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  opacity: 0.015;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 256px 256px;
+}
+
+/* ======== Enhanced Cards ======== */
+
+/* Card hover lift - upgraded */
+.card-hover {
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+.card-hover:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 32px -8px rgba(0,0,0,0.1), 0 4px 12px -4px rgba(0,0,0,0.06);
+}
+
+/* ======== Custom scrollbar ======== */
 ::-webkit-scrollbar {
   width: 6px;
 }

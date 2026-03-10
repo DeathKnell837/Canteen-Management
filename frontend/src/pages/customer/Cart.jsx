@@ -75,7 +75,7 @@ export default function Cart() {
           {items.map((item, idx) => (
             <div
               key={item.item_id}
-              className="bg-white rounded-2xl border border-gray-100 p-4 sm:p-5 flex items-center gap-4 card-hover animate-fade-in-up"
+              className="card-glass rounded-2xl p-4 sm:p-5 flex items-center gap-4 card-hover animate-fade-in-up"
               style={{ animationDelay: `${idx * 0.05}s`, animationFillMode: 'both' }}
             >
               <div className="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-brand-50 to-orange-50 rounded-xl flex items-center justify-center flex-shrink-0 text-2xl">
@@ -115,7 +115,7 @@ export default function Cart() {
 
         {/* Order summary */}
         <div className="lg:col-span-1">
-          <div className="bg-white rounded-2xl border border-gray-100 p-6 sticky top-6 shadow-sm animate-slide-in-right">
+          <div className="card-glass rounded-2xl p-6 sticky top-6 animate-slide-in-right">
             <h2 className="font-bold text-gray-900 text-lg mb-5">Order Summary</h2>
 
             {/* Price breakdown */}

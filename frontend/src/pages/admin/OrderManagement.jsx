@@ -108,7 +108,7 @@ export default function OrderManagement() {
           <button
             onClick={() => setFilter('all')}
             className={`whitespace-nowrap px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-              filter === 'all' ? 'bg-gradient-to-r from-brand-500 to-brand-600 text-white shadow-lg shadow-brand-500/20' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              filter === 'all' ? 'bg-gradient-to-r from-brand-500 to-brand-600 text-white shadow-lg shadow-brand-500/20' : 'bg-white/60 backdrop-blur-sm text-gray-600 hover:bg-white/80 border border-white/50'
             }`}
           >
             All
@@ -118,7 +118,7 @@ export default function OrderManagement() {
               key={s}
               onClick={() => setFilter(s)}
               className={`whitespace-nowrap px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-                filter === s ? 'bg-gradient-to-r from-brand-500 to-brand-600 text-white shadow-lg shadow-brand-500/20' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                filter === s ? 'bg-gradient-to-r from-brand-500 to-brand-600 text-white shadow-lg shadow-brand-500/20' : 'bg-white/60 backdrop-blur-sm text-gray-600 hover:bg-white/80 border border-white/50'
               }`}
             >
               {statusEmoji[s]} {s}
@@ -128,7 +128,7 @@ export default function OrderManagement() {
       </div>
 
       {/* Orders table */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden animate-fade-in-up" style={{ animationDelay: '0.1s', animationFillMode: 'both' }}>
+      <div className="table-glass rounded-2xl shadow-sm overflow-hidden animate-fade-in-up" style={{ animationDelay: '0.1s', animationFillMode: 'both' }}>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
