@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Trash2, Plus, Minus, ShoppingBag, ArrowLeft, CreditCard, ShieldCheck, UtensilsCrossed } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
@@ -9,6 +9,7 @@ import { Link } from 'react-router-dom';
 export default function Cart() {
   const { items, removeItem, updateQuantity, clearCart, total, itemCount } = useCart();
   const [loading, setLoading] = useState(false);
+  const submitting = useRef(false);
   const navigate = useNavigate();
 
   const TAX_RATE = 0.05;
@@ -16,14 +17,17 @@ export default function Cart() {
   const grandTotal = total + tax;
 
   const handleCheckout = async () => {
-    if (items.length === 0) return;
+    if (items.length === 0 || submitting.current) return;
+    submitting.current = true;
     setLoading(true);
+    let createdOrderId = null;
     try {
       const orderRes = await api.post('/orders', {
         deliveryType: 'PICKUP',
         items: items.map((i) => ({ item_id: i.item_id, quantity: i.quantity })),
       });
       const order = orderRes.data.data || orderRes.data;
+      createdOrderId = order.order_id;
 
       await api.post('/payments/process', {
         orderId: order.order_id,
@@ -32,12 +36,17 @@ export default function Cart() {
       });
 
       clearCart();
-      toast.success('Order placed successfully! 🎉');
+      toast.success('Order placed successfully!');
       navigate('/orders');
     } catch (err) {
+      // If order was created but payment failed, cancel it so it doesn't stay stuck
+      if (createdOrderId) {
+        try { await api.put(`/orders/${createdOrderId}/cancel`); } catch {}
+      }
       const msg = err.response?.data?.error?.message || err.response?.data?.message || 'Checkout failed';
       toast.error(msg);
     } finally {
+      submitting.current = false;
       setLoading(false);
     }
   };
