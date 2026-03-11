@@ -5,7 +5,7 @@ const { AppError } = require('../utils/errorHandler');
 const schemas = {
   register: Joi.object({
     email: Joi.string().email({ tlds: false }).required(),
-    phone: Joi.string().pattern(/^[0-9]{10}$/).required(),
+    phone: Joi.string().pattern(/^[0-9]{10,11}$/).required(),
     password: Joi.string().min(8).required(),
     fullName: Joi.string().min(3).required()
   }),

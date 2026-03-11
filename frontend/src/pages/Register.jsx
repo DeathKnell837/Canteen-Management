@@ -34,7 +34,16 @@ export default function Register() {
       navigate('/menu');
     } catch (err) {
       const msg = err.response?.data?.error?.message || 'Registration failed';
-      toast.error(msg.startsWith('[') ? 'Please check your input' : msg);
+      if (msg.startsWith('[')) {
+        try {
+          const errors = JSON.parse(msg);
+          errors.forEach(e => toast.error(e.message.replace(/"/g, '').replace('with value', 'invalid:')));
+        } catch {
+          toast.error('Please check your input');
+        }
+      } else {
+        toast.error(msg);
+      }
     } finally {
       setLoading(false);
     }
