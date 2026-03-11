@@ -96,9 +96,11 @@ const orderController = {
     const { pool } = require('../config/database');
 
     const result = await pool.query(
-      `SELECT order_id, order_number, status, delivery_type, total_amount, created_at
-       FROM orders
-       ORDER BY created_at DESC
+      `SELECT o.order_id, o.order_number, o.status, o.delivery_type, o.total_amount, o.created_at, o.user_id,
+              u.full_name AS customer_name
+       FROM orders o
+       LEFT JOIN users u ON o.user_id = u.user_id
+       ORDER BY o.created_at DESC
        LIMIT $1 OFFSET $2`,
       [parseInt(limit), parseInt(offset)]
     );
