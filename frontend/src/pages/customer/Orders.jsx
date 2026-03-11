@@ -1,15 +1,15 @@
 import { useState, useEffect } from 'react';
-import { ClipboardList, Clock, CheckCircle2, XCircle, ChevronDown, ChevronUp, Package, Loader2, Receipt, Printer } from 'lucide-react';
+import { ClipboardList, Clock, CheckCircle2, XCircle, ChevronDown, ChevronUp, Package, Loader2, Receipt, Printer, Wallet, ChefHat, UtensilsCrossed } from 'lucide-react';
 import api from '../../api/axios';
 import toast from 'react-hot-toast';
 
 const STATUS_MAP = {
-  PENDING: { label: 'Pending', color: 'bg-yellow-100 text-yellow-700 border-yellow-200', icon: Clock, active: true, emoji: '⏳' },
-  CONFIRMED: { label: 'Paid', color: 'bg-blue-100 text-blue-700 border-blue-200', icon: Receipt, active: true, emoji: '💰' },
-  PREPARING: { label: 'Preparing', color: 'bg-orange-100 text-orange-700 border-orange-200', icon: Package, active: true, emoji: '🍳' },
-  READY: { label: 'Ready for Pickup', color: 'bg-green-100 text-green-700 border-green-200', icon: CheckCircle2, active: true, emoji: '📦' },
-  PICKED_UP: { label: 'Completed', color: 'bg-emerald-100 text-emerald-700 border-emerald-200', icon: CheckCircle2, emoji: '✅' },
-  CANCELLED: { label: 'Cancelled', color: 'bg-red-100 text-red-700 border-red-200', icon: XCircle, emoji: '❌' },
+  PENDING: { label: 'Pending', color: 'bg-yellow-100 text-yellow-700 border-yellow-200', icon: Clock, active: true },
+  CONFIRMED: { label: 'Paid', color: 'bg-blue-100 text-blue-700 border-blue-200', icon: Wallet, active: true },
+  PREPARING: { label: 'Preparing', color: 'bg-orange-100 text-orange-700 border-orange-200', icon: ChefHat, active: true },
+  READY: { label: 'Ready for Pickup', color: 'bg-green-100 text-green-700 border-green-200', icon: Package, active: true },
+  PICKED_UP: { label: 'Completed', color: 'bg-emerald-100 text-emerald-700 border-emerald-200', icon: CheckCircle2 },
+  CANCELLED: { label: 'Cancelled', color: 'bg-red-100 text-red-700 border-red-200', icon: XCircle },
 };
 
 export default function Orders() {
@@ -77,7 +77,7 @@ export default function Orders() {
 
       {orders.length === 0 ? (
         <div className="text-center py-24 animate-fade-in">
-          <div className="text-6xl mb-4">📋</div>
+          <ClipboardList className="w-14 h-14 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
           <p className="text-gray-500 dark:text-gray-400 font-medium text-lg">No orders yet</p>
           <p className="text-gray-400 dark:text-gray-500 text-sm mt-1">Your orders will appear here</p>
         </div>
@@ -192,7 +192,7 @@ function ReceiptModal({ order, onClose }) {
 .center{text-align:center}.line{border-top:1px dashed #000;margin:8px 0}
 .row{display:flex;justify-content:space-between}.bold{font-weight:bold}
 @media print{button{display:none}}</style></head><body>
-<div class="center"><h2 style="margin:0">🍽️ Canteen</h2><p>Order Receipt</p></div>
+<div class="center"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin:0 auto"><path d="m16 2-2.3 2.3a3 3 0 0 0 0 4.2l1.8 1.8a3 3 0 0 0 4.2 0L22 8"/><path d="M15 15 3.3 3.3a4.2 4.2 0 0 0 0 6l7.3 7.3c1.7 1.7 4.3 1.7 6 0L15 15Zm0 0 7 7"/><path d="m2.1 21.8 6.4-6.3"/><path d="m19 5-7 7"/></svg><h2 style="margin:4px 0 0">Canteen</h2><p>Order Receipt</p></div>
 <div class="line"></div>
 <div class="row"><span>Order #</span><span class="bold">${order.order_id}</span></div>
 <div class="row"><span>Date</span><span>${new Date(order.created_at).toLocaleDateString('en-PH',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})}</span></div>
@@ -204,8 +204,8 @@ ${items.map(i=>`<div class="row"><span>${i.item_name||i.name} x${i.quantity}</sp
 ${tax>0?`<div class="row"><span>Tax</span><span>₱${tax.toFixed(2)}</span></div>`:''}
 <div class="row bold"><span>Total</span><span>₱${total.toFixed(2)}</span></div>
 <div class="line"></div>
-<div class="center" style="margin-top:12px"><p>Thank you for your order! 🙏</p></div>
-<button onclick="window.print()" style="width:100%;padding:8px;margin-top:12px;cursor:pointer">🖨️ Print</button>
+<div class="center" style="margin-top:12px"><p>Thank you for your order!</p></div>
+<button onclick="window.print()" style="width:100%;padding:8px;margin-top:12px;cursor:pointer">Print</button>
 </body></html>`;
     printWindow.document.write(receiptHTML);
     printWindow.document.close();
@@ -216,7 +216,7 @@ ${tax>0?`<div class="row"><span>Tax</span><span>₱${tax.toFixed(2)}</span></div
       <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
         <div className="p-6">
           <div className="text-center mb-4">
-            <div className="text-3xl mb-1">🍽️</div>
+            <UtensilsCrossed className="w-8 h-8 text-brand-500 mx-auto mb-1" />
             <h3 className="text-lg font-bold text-gray-900 dark:text-white">Canteen Receipt</h3>
           </div>
 
@@ -232,7 +232,7 @@ ${tax>0?`<div class="row"><span>Tax</span><span>₱${tax.toFixed(2)}</span></div
           </div>
           <div className="flex justify-between text-sm mb-1">
             <span className="text-gray-500 dark:text-gray-400">Status</span>
-            <span className="text-gray-700 dark:text-gray-300">{(STATUS_MAP[order.status] || {}).emoji} {(STATUS_MAP[order.status] || {}).label || order.status}</span>
+            <span className="text-gray-700 dark:text-gray-300">{(() => { const SIcon = (STATUS_MAP[order.status] || {}).icon; return SIcon ? <SIcon className="w-3.5 h-3.5 inline mr-1" /> : null; })()} {(STATUS_MAP[order.status] || {}).label || order.status}</span>
           </div>
 
           <div className="border-t border-dashed border-gray-300 dark:border-gray-600 my-3" />

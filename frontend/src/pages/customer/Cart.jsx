@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Trash2, Plus, Minus, ShoppingBag, ArrowLeft, CreditCard, ShieldCheck } from 'lucide-react';
+import { Trash2, Plus, Minus, ShoppingBag, ArrowLeft, CreditCard, ShieldCheck, UtensilsCrossed } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import api from '../../api/axios';
 import toast from 'react-hot-toast';
@@ -79,7 +79,7 @@ export default function Cart() {
               style={{ animationDelay: `${idx * 0.05}s`, animationFillMode: 'both' }}
             >
               <div className="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-brand-50 to-orange-50 dark:from-gray-800 dark:to-gray-700 rounded-xl flex items-center justify-center flex-shrink-0 text-2xl">
-                🍽️
+                <UtensilsCrossed className="w-6 h-6 text-brand-400 dark:text-gray-500" />
               </div>
               <div className="flex-1 min-w-0">
                 <h3 className="font-semibold text-gray-900 dark:text-white truncate">{item.name}</h3>

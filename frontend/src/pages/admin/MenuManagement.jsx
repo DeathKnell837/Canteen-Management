@@ -157,7 +157,7 @@ export default function MenuManagement() {
               {filtered.length === 0 && (
                 <tr>
                   <td colSpan={5} className="px-5 py-12 text-center">
-                    <div className="text-3xl mb-2">🍽️</div>
+                    <UtensilsCrossed className="w-10 h-10 text-gray-300 dark:text-gray-600 mx-auto mb-2" />
                     <p className="text-gray-400 text-sm">No items found</p>
                   </td>
                 </tr>

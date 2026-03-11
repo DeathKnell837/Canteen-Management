@@ -153,7 +153,7 @@ export default function Inventory() {
               {inventory.length === 0 && (
                 <tr>
                   <td colSpan={5} className="px-5 py-12 text-center">
-                    <div className="text-3xl mb-2">📦</div>
+                    <Package className="w-10 h-10 text-gray-300 dark:text-gray-600 mx-auto mb-2" />
                     <p className="text-gray-400 text-sm">No inventory data</p>
                   </td>
                 </tr>
@@ -216,7 +216,7 @@ function StockModal({ item, type, onClose, onDone }) {
         <div className="p-6 border-b border-gray-50 dark:border-gray-800 flex items-center justify-between">
           <div>
             <h2 className="text-lg font-bold text-gray-900 dark:text-white">
-              {isIn ? '📦 Add Stock' : '📤 Remove Stock'}
+              <span className="inline-flex items-center gap-1.5">{isIn ? <><Package className="w-4 h-4" /> Add Stock</> : <><Package className="w-4 h-4" /> Remove Stock</>}</span>
             </h2>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">{item.item_name || `Item #${item.item_id}`}</p>
           </div>

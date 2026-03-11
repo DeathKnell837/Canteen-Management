@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { ClipboardList, RefreshCw, Search, Loader2, ChefHat, Package, CheckCircle2, XCircle, Receipt, Printer, X } from 'lucide-react';
+import { ClipboardList, RefreshCw, Search, Loader2, ChefHat, Package, CheckCircle2, XCircle, Receipt, Printer, X, Clock, Wallet, UtensilsCrossed } from 'lucide-react';
 import api from '../../api/axios';
 import toast from 'react-hot-toast';
 
@@ -22,13 +22,13 @@ const statusColor = {
   CANCELLED: 'bg-red-100 text-red-700 border border-red-200',
 };
 
-const statusEmoji = {
-  PENDING: '🕐',
-  CONFIRMED: '💰',
-  PREPARING: '🍳',
-  READY: '📦',
-  PICKED_UP: '✅',
-  CANCELLED: '❌',
+const StatusIcon = {
+  PENDING: Clock,
+  CONFIRMED: Wallet,
+  PREPARING: ChefHat,
+  READY: Package,
+  PICKED_UP: CheckCircle2,
+  CANCELLED: XCircle,
 };
 
 // What's the next action for each status?
@@ -65,7 +65,7 @@ export default function OrderManagement() {
   const updateStatus = async (orderId, newStatus) => {
     try {
       await api.put(`/orders/${orderId}/status`, { status: newStatus });
-      toast.success(`Order #${orderId} → ${statusEmoji[newStatus]} ${STATUS_LABELS[newStatus]}`);
+      toast.success(`Order #${orderId} → ${STATUS_LABELS[newStatus]}`);
       loadOrders();
     } catch (err) {
       toast.error(err.response?.data?.error?.message || 'Update failed');
@@ -137,17 +137,20 @@ export default function OrderManagement() {
           />
         </div>
         <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-          {FILTER_TABS.map((s) => (
-            <button
-              key={s}
-              onClick={() => setFilter(s)}
-              className={`whitespace-nowrap px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-                filter === s ? 'bg-gradient-to-r from-brand-500 to-brand-600 text-white shadow-lg shadow-brand-500/20' : 'bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm text-gray-600 dark:text-gray-300 hover:bg-white/80 dark:hover:bg-gray-800/80 border border-white/50 dark:border-gray-700'
-              }`}
-            >
-              {s === 'all' ? `All (${orders.length})` : `${statusEmoji[s]} ${STATUS_LABELS[s]} (${counts[s] || 0})`}
-            </button>
-          ))}
+          {FILTER_TABS.map((s) => {
+            const SIcon = StatusIcon[s];
+            return (
+              <button
+                key={s}
+                onClick={() => setFilter(s)}
+                className={`whitespace-nowrap px-4 py-2.5 rounded-xl text-sm font-semibold transition-all inline-flex items-center gap-1.5 ${
+                  filter === s ? 'bg-gradient-to-r from-brand-500 to-brand-600 text-white shadow-lg shadow-brand-500/20' : 'bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm text-gray-600 dark:text-gray-300 hover:bg-white/80 dark:hover:bg-gray-800/80 border border-white/50 dark:border-gray-700'
+                }`}
+              >
+                {s === 'all' ? `All (${orders.length})` : <>{SIcon && <SIcon className="w-3.5 h-3.5" />} {STATUS_LABELS[s]} ({counts[s] || 0})</>}
+              </button>
+            );
+          })}
         </div>
       </div>
 
@@ -185,9 +188,11 @@ export default function OrderManagement() {
                       })}
                     </td>
                     <td className="px-5 py-3.5">
-                      <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${statusColor[o.status] || 'bg-gray-100 text-gray-600'}`}>
-                        {statusEmoji[o.status]} {STATUS_LABELS[o.status] || o.status}
-                      </span>
+                      {(() => { const SIcon = StatusIcon[o.status]; return (
+                        <span className={`inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full ${statusColor[o.status] || 'bg-gray-100 text-gray-600'}`}>
+                          {SIcon && <SIcon className="w-3 h-3" />} {STATUS_LABELS[o.status] || o.status}
+                        </span>
+                      ); })()}
                     </td>
                     <td className="px-5 py-3.5">
                       <div className="flex items-center gap-2">
@@ -233,7 +238,7 @@ export default function OrderManagement() {
               {filtered.length === 0 && (
                 <tr>
                   <td colSpan={6} className="px-5 py-12 text-center">
-                    <div className="text-3xl mb-2">📋</div>
+                    <ClipboardList className="w-10 h-10 text-gray-300 dark:text-gray-600 mx-auto mb-2" />
                     <p className="text-gray-400 text-sm">No orders found</p>
                   </td>
                 </tr>
@@ -308,7 +313,8 @@ function ReceiptModal({ order, onClose }) {
         {/* Receipt content */}
         <div className="p-5" id="receipt-content">
           <div className="center">
-            <h2 className="bold">🍽️ Canteen</h2>
+            <UtensilsCrossed className="w-6 h-6 mx-auto mb-1 text-gray-700 dark:text-gray-300" />
+            <h2 className="bold">Canteen</h2>
             <p style={{fontSize: 12, color: '#888'}}>Canteen Management System</p>
             <div className="line" />
           </div>
@@ -317,7 +323,7 @@ function ReceiptModal({ order, onClose }) {
             <div className="flex"><span>Order:</span><span className="bold">#{order.order_id}</span></div>
             <div className="flex"><span>Customer:</span><span>{order.customer_name || `User #${order.user_id}`}</span></div>
             <div className="flex"><span>Date:</span><span>{new Date(order.created_at).toLocaleDateString('en-PH', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span></div>
-            <div className="flex"><span>Status:</span><span>{statusEmoji[order.status]} {STATUS_LABELS[order.status]}</span></div>
+            <div className="flex"><span>Status:</span><span className="inline-flex items-center gap-1">{(() => { const SIcon = StatusIcon[order.status]; return SIcon ? <SIcon className="w-3 h-3" /> : null; })()} {STATUS_LABELS[order.status]}</span></div>
           </div>
 
           <div className="line" />

@@ -1,22 +1,13 @@
 import { useState, useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
-import { Search, ShoppingCart, Plus, Leaf, Flame, ChevronDown, Clock, Check, X, Minus } from 'lucide-react';
+import { Search, ShoppingCart, Plus, Leaf, Flame, ChevronDown, Clock, Check, X, Minus, UtensilsCrossed } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import api from '../../api/axios';
 import toast from 'react-hot-toast';
 
-/* Map food names to emoji for fun placeholders when no image exists */
-const FOOD_EMOJI = {
-  'chicken adobo': '🍗', 'pork sinigang': '🍲', 'beef caldereta': '🥩', 'pinakbet': '🥬',
-  'ginataang kalabasa': '🎃', 'lumpiang shanghai': '🥟', 'banana cue': '🍌', 'turon': '🍌',
-  'puto': '🍰', 'kwek-kwek': '🥚', 'bulalo': '🍖', 'tinolang manok': '🐔', 'munggo soup': '🫘',
-  'tapsilog': '🥩', 'longsilog': '🌭', 'bangsilog': '🐟', 'tocilog': '🥓',
-  "sago't gulaman": '🧋', 'calamansi juice': '🍋', 'buko juice': '🥥', 'iced coffee': '☕',
-  'royal (orange)': '🥤',
-};
-
-function getFoodEmoji(name) {
-  return FOOD_EMOJI[name.toLowerCase()] || '🍽️';
+/* Placeholder icon component for menu items without images */
+function FoodPlaceholder({ className = 'w-12 h-12' }) {
+  return <UtensilsCrossed className={`${className} text-brand-400 dark:text-gray-500`} />;
 }
 
 export default function Menu() {
@@ -128,7 +119,7 @@ export default function Menu() {
               : 'bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm text-gray-600 dark:text-gray-300 hover:bg-white/80 dark:hover:bg-gray-800/80 border border-white/50 dark:border-gray-700 hover:border-white/70 dark:hover:border-gray-600'
           }`}
         >
-          🍽️ All
+          <UtensilsCrossed className="w-4 h-4 inline -mt-0.5" /> All
         </button>
         {categories.map((c) => (
           <button
@@ -169,7 +160,7 @@ export default function Menu() {
                   {item.image_url ? (
                     <img src={item.image_url} alt={item.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                   ) : (
-                    <span className="text-6xl group-hover:scale-110 transition-transform duration-300">{getFoodEmoji(item.name)}</span>
+                    <FoodPlaceholder className="w-16 h-16 group-hover:scale-110 transition-transform duration-300" />
                   )}
                   {/* Badges */}
                   <div className="absolute top-3 left-3 flex gap-1.5">
@@ -237,7 +228,7 @@ export default function Menu() {
           cartQty={getCartQty(selectedItem.item_id)}
           onAdd={handleAdd}
           onClose={() => setSelectedItem(null)}
-          getFoodEmoji={getFoodEmoji}
+          FoodPlaceholder={FoodPlaceholder}
         />,
         document.body
       )}
@@ -245,7 +236,7 @@ export default function Menu() {
   );
 }
 
-function ItemDetailModal({ item, cartQty, onAdd, onClose, getFoodEmoji }) {
+function ItemDetailModal({ item, cartQty, onAdd, onClose, FoodPlaceholder }) {
   const { updateQuantity, removeItem } = useCart();
   const [added, setAdded] = useState(false);
 
@@ -269,7 +260,7 @@ function ItemDetailModal({ item, cartQty, onAdd, onClose, getFoodEmoji }) {
           {item.image_url ? (
             <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
           ) : (
-            <span className="text-8xl">{getFoodEmoji(item.name)}</span>
+            <FoodPlaceholder className="w-24 h-24" />
           )}
           <button
             onClick={onClose}
