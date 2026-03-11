@@ -6,23 +6,28 @@ A full-stack canteen management system with React frontend and Node.js/Express b
 
 ### Customer
 - Browse menu with category filtering and search
-- Add items to cart and place orders (dine-in / takeaway)
+- Add items to cart and place orders
 - Wallet-based payments with top-up
-- Order history with status tracking
+- Order history with status tracking (Pending, Paid, Preparing, Ready, Completed)
+- View and print receipt for any paid order
+- Dark mode support
 
 ### Admin
 - Dashboard with order/revenue/inventory stats
-- Menu item management (create, edit, delete)
-- Order status management
+- Menu item management (create, edit, delete, image upload)
+- Order management with action buttons — Start Preparing, Mark Ready, Mark Completed
+- Cancel orders (Pending or Paid)
+- View and print receipts per order
 - Inventory tracking with stock-in/stock-out
+- Dark mode support
 
 ## Tech Stack
 
-| Layer    | Technology                                  |
-|----------|---------------------------------------------|
-| Frontend | React 18, Vite, Tailwind CSS, Lucide Icons  |
-| Backend  | Node.js, Express.js, JWT Auth               |
-| Database | PostgreSQL 16 (Docker)                      |
+| Layer    | Technology                                        |
+|----------|---------------------------------------------------|
+| Frontend | React 18, Vite, Tailwind CSS, Lucide Icons        |
+| Backend  | Node.js, Express.js, JWT Auth, Multer (uploads)   |
+| Database | PostgreSQL 16 (Docker)                            |
 
 ## Quick Start
 
@@ -30,28 +35,43 @@ A full-stack canteen management system with React frontend and Node.js/Express b
 - Node.js 18+
 - Docker Desktop
 
-### 1. Start the database
+### One-command start (recommended)
+
 ```bash
-docker compose -f docker/docker-compose.yml up -d
+npm start
 ```
 
-### 2. Setup & run the backend
+This will automatically:
+1. Start the PostgreSQL Docker container
+2. Start the backend server (port 5000)
+3. Start the frontend dev server (port 3000)
+4. Open http://localhost:3000 in Chrome
+
+### Manual setup (first time only)
+
 ```bash
+# 1. Start the database
+docker compose -f docker/docker-compose.yml up -d
+
+# 2. Setup backend
 cd backend
 npm install
 node src/database/migrate.js
 node src/database/seed.js
-npm run dev
-```
 
-### 3. Run the frontend
-```bash
-cd frontend
+# 3. Setup frontend
+cd ../frontend
 npm install
-npm run dev
 ```
 
-Open **http://localhost:3000** in your browser.
+After first-time setup, use `npm start` from the project root.
+
+### URLs
+
+| Service  | URL                    |
+|----------|------------------------|
+| Frontend | http://localhost:3000  |
+| Backend  | http://localhost:5000  |
 
 ### Test Credentials
 
