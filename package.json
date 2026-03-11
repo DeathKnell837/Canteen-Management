@@ -1,0 +1,8 @@
+{
+  "name": "canteen-management",
+  "version": "1.0.0",
+  "description": "Canteen Management System - Full Stack",
+  "scripts": {
+    "start": "node start.js"
+  }
+}
