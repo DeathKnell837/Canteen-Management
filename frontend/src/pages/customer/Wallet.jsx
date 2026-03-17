@@ -105,37 +105,93 @@ export default function Wallet() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-        {/* Balance card */}
-        <div className="bg-gradient-to-br from-brand-500 via-brand-600 to-brand-800 rounded-3xl p-7 text-white relative overflow-hidden shadow-xl shadow-brand-500/20 animate-fade-in-up">
-          {/* Decorative shapes */}
-          <div className="absolute -right-8 -top-8 w-40 h-40 rounded-full bg-white/10" />
-          <div className="absolute -right-4 bottom-0 w-24 h-24 rounded-full bg-white/10" />
-          <div className="absolute left-1/2 top-0 w-16 h-16 rounded-full bg-white/5" />
-          <div className="relative z-10">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="w-8 h-8 rounded-lg bg-white/20 glass flex items-center justify-center">
-                <WalletIcon className="w-4 h-4 text-white" />
+        <div className="space-y-4">
+          {/* Balance card */}
+          <div className="bg-gradient-to-br from-brand-500 via-brand-600 to-brand-800 rounded-3xl p-7 text-white relative overflow-hidden shadow-xl shadow-brand-500/20 animate-fade-in-up">
+            {/* Decorative shapes */}
+            <div className="absolute -right-8 -top-8 w-40 h-40 rounded-full bg-white/10" />
+            <div className="absolute -right-4 bottom-0 w-24 h-24 rounded-full bg-white/10" />
+            <div className="absolute left-1/2 top-0 w-16 h-16 rounded-full bg-white/5" />
+            <div className="relative z-10">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-8 h-8 rounded-lg bg-white/20 glass flex items-center justify-center">
+                  <WalletIcon className="w-4 h-4 text-white" />
+                </div>
+                <span className="text-sm text-white/70 font-medium">Available Balance</span>
               </div>
-              <span className="text-sm text-white/70 font-medium">Available Balance</span>
-            </div>
-            {balLoading ? (
-              <div className="h-12 w-40 bg-white/20 rounded-lg animate-pulse mt-3" />
-            ) : (
-              <div className="flex items-baseline mt-3 number-pop">
-                <span className="text-3xl font-bold opacity-70">₱</span>
-                <span className="text-5xl font-bold ml-1 tracking-tight">{balance.toFixed(2)}</span>
+              {balLoading ? (
+                <div className="h-12 w-40 bg-white/20 rounded-lg animate-pulse mt-3" />
+              ) : (
+                <div className="flex items-baseline mt-3 number-pop">
+                  <span className="text-3xl font-bold opacity-70">₱</span>
+                  <span className="text-5xl font-bold ml-1 tracking-tight">{balance.toFixed(2)}</span>
+                </div>
+              )}
+              <div className="flex items-center gap-1.5 mt-4 text-white/50 text-xs">
+                <ShieldCheck className="w-3.5 h-3.5" />
+                Secured wallet balance
               </div>
-            )}
-            <div className="flex items-center gap-1.5 mt-4 text-white/50 text-xs">
-              <ShieldCheck className="w-3.5 h-3.5" />
-              Secured wallet balance
+              <p className="mt-1 text-xs text-white/70">Funded from: {lastFundingSource}</p>
             </div>
-            <p className="mt-1 text-xs text-white/70">Funded from: {lastFundingSource}</p>
           </div>
+
+          {hasPin && (
+            <Link
+              to="/settings"
+              className="card-glass rounded-2xl p-4 flex items-center justify-between hover:shadow-md transition-all"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-brand-50 dark:bg-brand-900/30 flex items-center justify-center">
+                  <Settings className="w-5 h-5 text-brand-500" />
+                </div>
+                <div>
+                  <p className="font-semibold text-gray-900 dark:text-white">Manage Wallet PIN</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Wallet PIN settings moved to Settings page</p>
+                </div>
+              </div>
+              <ChevronRight className="w-4 h-4 text-gray-400" />
+            </Link>
+          )}
+
+          {!hasPin && (
+            <Link
+              to="/settings"
+              className="card-glass rounded-2xl p-4 flex items-center justify-between hover:shadow-md transition-all"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-900/30 flex items-center justify-center">
+                  <Settings className="w-5 h-5 text-amber-600" />
+                </div>
+                <div>
+                  <p className="font-semibold text-gray-900 dark:text-white">Set Wallet PIN</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Required before first top-up</p>
+                </div>
+              </div>
+              <ChevronRight className="w-4 h-4 text-gray-400" />
+            </Link>
+          )}
+
+          <Link
+            to="/cart"
+            className="card-glass rounded-2xl p-4 flex items-center justify-between hover:shadow-md transition-all"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center">
+                <Sparkles className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+              </div>
+              <div>
+                <p className="font-semibold text-gray-900 dark:text-white">Checkout Payment Methods</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Online Payment or Direct Cash</p>
+                <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">Online channels: GCash, Maya, Bank</p>
+              </div>
+            </div>
+            <ChevronRight className="w-4 h-4 text-gray-400" />
+          </Link>
         </div>
 
-        {/* Top-up card */}
-        <div className="card-glass rounded-3xl p-7 animate-fade-in-up" style={{ animationDelay: '0.1s', animationFillMode: 'both' }}>
+        <div className="space-y-4">
+          {/* Top-up card */}
+          <div className="card-glass rounded-3xl p-7 animate-fade-in-up" style={{ animationDelay: '0.1s', animationFillMode: 'both' }}>
           <h2 className="font-bold text-gray-900 dark:text-white text-lg mb-2 flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-brand-50 dark:bg-brand-900/30 flex items-center justify-center">
               <Plus className="w-4 h-4 text-brand-500" />
@@ -269,89 +325,35 @@ export default function Wallet() {
               </button>
             </div>
           )}
-        </div>
-      </div>
+          </div>
 
-      <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-        {hasPin && (
           <Link
-            to="/settings"
+            to="/transactions"
             className="card-glass rounded-2xl p-4 flex items-center justify-between hover:shadow-md transition-all"
           >
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-brand-50 dark:bg-brand-900/30 flex items-center justify-center">
-                <Settings className="w-5 h-5 text-brand-500" />
+                <ArrowRightLeft className="w-5 h-5 text-brand-500" />
               </div>
               <div>
-                <p className="font-semibold text-gray-900 dark:text-white">Manage Wallet PIN</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">Wallet PIN settings moved to Settings page</p>
+                <p className="font-semibold text-gray-900 dark:text-white">Transaction History</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">View top-ups and purchases</p>
               </div>
             </div>
             <ChevronRight className="w-4 h-4 text-gray-400" />
           </Link>
-        )}
 
-        {!hasPin && (
-          <Link
-            to="/settings"
-            className="card-glass rounded-2xl p-4 flex items-center justify-between hover:shadow-md transition-all"
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-900/30 flex items-center justify-center">
-                <Settings className="w-5 h-5 text-amber-600" />
-              </div>
-              <div>
-                <p className="font-semibold text-gray-900 dark:text-white">Set Wallet PIN</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">Required before first top-up</p>
-              </div>
-            </div>
-            <ChevronRight className="w-4 h-4 text-gray-400" />
-          </Link>
-        )}
-
-        <Link
-          to="/transactions"
-          className="card-glass rounded-2xl p-4 flex items-center justify-between hover:shadow-md transition-all"
-        >
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-brand-50 dark:bg-brand-900/30 flex items-center justify-center">
-              <ArrowRightLeft className="w-5 h-5 text-brand-500" />
+          {/* Info note */}
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-100 dark:border-blue-800/30 rounded-2xl p-5 flex gap-4 animate-fade-in-up" style={{ animationDelay: '0.2s', animationFillMode: 'both' }}>
+            <div className="flex-shrink-0 w-10 h-10 bg-blue-100 dark:bg-blue-900/40 rounded-xl flex items-center justify-center">
+              <Sparkles className="w-5 h-5 text-blue-600 dark:text-blue-400" />
             </div>
             <div>
-              <p className="font-semibold text-gray-900 dark:text-white">Transaction History</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">View top-ups and purchases</p>
+              <p className="text-sm font-semibold text-blue-900 dark:text-blue-200">How wallet works</p>
+              <p className="text-sm text-blue-700/70 dark:text-blue-300/70 mt-1 leading-relaxed">
+                Add money to your wallet and use it to pay for orders instantly. Wallet payments are processed immediately during checkout.
+              </p>
             </div>
-          </div>
-          <ChevronRight className="w-4 h-4 text-gray-400" />
-        </Link>
-
-        <Link
-          to="/cart"
-          className="card-glass rounded-2xl p-4 flex items-center justify-between hover:shadow-md transition-all"
-        >
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center">
-              <Sparkles className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
-            </div>
-            <div>
-              <p className="font-semibold text-gray-900 dark:text-white">Checkout Payment Methods</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Online Payment or Direct Cash</p>
-              <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">Online channels: GCash, Maya, Bank</p>
-            </div>
-          </div>
-          <ChevronRight className="w-4 h-4 text-gray-400" />
-        </Link>
-
-        {/* Info note */}
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-100 dark:border-blue-800/30 rounded-2xl p-5 flex gap-4 animate-fade-in-up" style={{ animationDelay: '0.2s', animationFillMode: 'both' }}>
-          <div className="flex-shrink-0 w-10 h-10 bg-blue-100 dark:bg-blue-900/40 rounded-xl flex items-center justify-center">
-            <Sparkles className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-          </div>
-          <div>
-            <p className="text-sm font-semibold text-blue-900 dark:text-blue-200">How wallet works</p>
-            <p className="text-sm text-blue-700/70 dark:text-blue-300/70 mt-1 leading-relaxed">
-              Add money to your wallet and use it to pay for orders instantly. Wallet payments are processed immediately during checkout.
-            </p>
           </div>
         </div>
       </div>
