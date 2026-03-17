@@ -1,4 +1,5 @@
 const { pool } = require('../config/database');
+const bcrypt = require('bcryptjs');
 
 // User Model
 const User = {
@@ -60,6 +61,18 @@ const User = {
       [amount, userId]
     );
     return result.rows[0];
+  },
+
+  async verifyPassword(userId, plainPassword) {
+    const result = await pool.query(
+      'SELECT password_hash FROM users WHERE user_id = $1',
+      [userId]
+    );
+
+    const row = result.rows[0];
+    if (!row) return false;
+
+    return bcrypt.compare(plainPassword, row.password_hash);
   }
 };
 
@@ -74,7 +87,7 @@ const Menu = {
 
   async getItems(categoryId = null) {
     let query = `SELECT m.item_id, m.name, m.description, m.base_price, m.is_vegetarian, m.prep_time_minutes, m.category_id, m.image_url,
-                        c.name as category_name, i.quantity_available
+              c.name as category_name, COALESCE(i.quantity_available, 0) AS quantity_available
                  FROM menu_items m
                  JOIN menu_categories c ON m.category_id = c.category_id
                  LEFT JOIN inventory i ON m.item_id = i.item_id
@@ -94,8 +107,8 @@ const Menu = {
 
   async getItemById(itemId) {
     const result = await pool.query(
-      `SELECT m.item_id, m.name, m.description, m.base_price, m.is_vegetarian, m.prep_time_minutes, m.category_id, m.image_url,
-              c.name as category_name, i.quantity_available
+            `SELECT m.item_id, m.name, m.description, m.base_price, m.is_vegetarian, m.prep_time_minutes, m.category_id, m.image_url,
+              c.name as category_name, COALESCE(i.quantity_available, 0) AS quantity_available
        FROM menu_items m
        JOIN menu_categories c ON m.category_id = c.category_id
        LEFT JOIN inventory i ON m.item_id = i.item_id
@@ -107,8 +120,8 @@ const Menu = {
 
   async searchItems(searchTerm) {
     const result = await pool.query(
-      `SELECT m.item_id, m.name, m.description, m.base_price, m.is_vegetarian, m.prep_time_minutes, m.category_id, m.image_url,
-              c.name as category_name, i.quantity_available
+            `SELECT m.item_id, m.name, m.description, m.base_price, m.is_vegetarian, m.prep_time_minutes, m.category_id, m.image_url,
+              c.name as category_name, COALESCE(i.quantity_available, 0) AS quantity_available
        FROM menu_items m
        JOIN menu_categories c ON m.category_id = c.category_id
        LEFT JOIN inventory i ON m.item_id = i.item_id
@@ -333,8 +346,12 @@ const Inventory = {
 
   async updateQuantity(itemId, quantity) {
     const result = await pool.query(
-      'UPDATE inventory SET quantity_available = $1, updated_at = CURRENT_TIMESTAMP WHERE item_id = $2 RETURNING *',
-      [quantity, itemId]
+      `INSERT INTO inventory (item_id, quantity_available)
+       VALUES ($1, $2)
+       ON CONFLICT (item_id)
+       DO UPDATE SET quantity_available = EXCLUDED.quantity_available, updated_at = CURRENT_TIMESTAMP
+       RETURNING *`,
+      [itemId, quantity]
     );
     return result.rows[0];
   },

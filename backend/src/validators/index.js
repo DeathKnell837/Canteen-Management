@@ -38,11 +38,13 @@ const schemas = {
   processPayment: Joi.object({
     orderId: Joi.number().positive().required(),
     paymentMethod: Joi.string().valid('WALLET', 'CARD', 'CASH').required(),
-    amount: Joi.number().positive().required()
+    amount: Joi.number().positive().required(),
+    securityPassword: Joi.string().min(8).required()
   }),
 
   topupWallet: Joi.object({
-    amount: Joi.number().positive().required()
+    amount: Joi.number().positive().required(),
+    securityPassword: Joi.string().min(8).required()
   }),
 
   stockChange: Joi.object({

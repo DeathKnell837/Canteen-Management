@@ -3,7 +3,7 @@ const { pool } = require('../config/database');
 const { AppError } = require('../utils/errorHandler');
 
 class PaymentService {
-  async processPayment(orderId, userId, paymentMethod, amount) {
+  async processPayment(orderId, userId, paymentMethod, amount, securityPassword) {
     // Verify order exists
     const order = await Order.getById(orderId);
     if (!order) {
@@ -16,6 +16,11 @@ class PaymentService {
 
     if (parseFloat(amount) !== parseFloat(order.total_amount)) {
       throw new AppError('Payment amount mismatch', 400);
+    }
+
+    const isVerified = await User.verifyPassword(userId, securityPassword || '');
+    if (!isVerified) {
+      throw new AppError('Security verification failed: incorrect password', 401);
     }
 
     // Create payment record
@@ -92,9 +97,14 @@ class PaymentService {
     return payment;
   }
 
-  async topupWallet(userId, amount) {
+  async topupWallet(userId, amount, securityPassword) {
     if (amount <= 0) {
       throw new AppError('Amount must be greater than 0', 400);
+    }
+
+    const isVerified = await User.verifyPassword(userId, securityPassword || '');
+    if (!isVerified) {
+      throw new AppError('Security verification failed: incorrect password', 401);
     }
 
     // Process payment (simulated)

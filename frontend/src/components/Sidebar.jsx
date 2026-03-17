@@ -48,7 +48,7 @@ export default function Sidebar() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const isAdmin = user?.role === 'ADMIN' || user?.role === 'STAFF';
-  const navItems = isAdmin ? [...adminNav, ...customerNav] : customerNav;
+  const navItems = isAdmin ? adminNav : customerNav;
 
   const handleLogout = () => {
     logout();
@@ -111,17 +111,6 @@ export default function Sidebar() {
             </p>
           )}
           {navItems.map((item, idx) => {
-            if (item === customerNav[0] && isAdmin && !collapsed) {
-              return (
-                <div key="divider">
-                  <div className="border-t border-gray-100 dark:border-gray-700 my-3" />
-                  <p className="text-[11px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider px-3 mb-2 animate-fade-in">
-                    Customer
-                  </p>
-                  <SidebarLink item={item} collapsed={collapsed} badge={item.badge ? itemCount : 0} onClick={() => setMobileOpen(false)} />
-                </div>
-              );
-            }
             return (
               <SidebarLink
                 key={item.to}

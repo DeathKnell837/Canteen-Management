@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { BarChart3, Wallet, ShoppingBag, Trophy } from 'lucide-react';
+import { BarChart3, Wallet, ShoppingBag, Trophy, Printer, Download } from 'lucide-react';
 import api from '../../api/axios';
 import toast from 'react-hot-toast';
 
@@ -24,11 +24,70 @@ export default function Reports() {
 
   const summary = report.summary || {};
 
+  const handlePrint = () => {
+    window.print();
+  };
+
+  const handleExportCSV = () => {
+    const headers = ['Rank', 'Item Name', 'Units Sold', 'Sales'];
+    const rows = (report.topSellingItems || []).map((item, idx) => [
+      String(idx + 1),
+      item.name,
+      String(item.units_sold),
+      String(parseFloat(item.sales || 0).toFixed(2))
+    ]);
+
+    const summaryRows = [
+      ['Total Orders', String(summary.total_orders || 0)],
+      ['Successful Orders', String(summary.successful_orders || 0)],
+      ['Total Revenue', String(parseFloat(summary.total_revenue || 0).toFixed(2))]
+    ];
+
+    const csv = [
+      ['R&R Cafeteria Reports'],
+      [],
+      ['Summary'],
+      ...summaryRows,
+      [],
+      ['Top Selling Items'],
+      headers,
+      ...rows
+    ]
+      .map((line) => line.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(','))
+      .join('\n');
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'rr-cafeteria-reports.csv';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div>
       <div className="mb-6">
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Reports</h1>
         <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Sales summary, top-selling items, and total revenue</p>
+        <div className="mt-3 flex gap-2">
+          <button
+            onClick={handlePrint}
+            className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
+          >
+            <Printer className="w-4 h-4" />
+            Print Report
+          </button>
+          <button
+            onClick={handleExportCSV}
+            className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-brand-50 dark:bg-brand-900/20 text-brand-600 dark:text-brand-400 text-sm font-semibold hover:bg-brand-100 dark:hover:bg-brand-900/30"
+          >
+            <Download className="w-4 h-4" />
+            Export CSV
+          </button>
+        </div>
       </div>
 
       {loading ? (

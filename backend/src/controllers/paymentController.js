@@ -4,13 +4,14 @@ const { asyncHandler } = require('../utils/errorHandler');
 const paymentController = {
   processPayment: asyncHandler(async (req, res) => {
     const userId = req.user.id;
-    const { orderId, paymentMethod, amount } = req.body;
+    const { orderId, paymentMethod, amount, securityPassword } = req.body;
 
     const payment = await paymentService.processPayment(
       orderId,
       userId,
       paymentMethod,
-      amount
+      amount,
+      securityPassword
     );
 
     res.status(200).json({
@@ -33,9 +34,9 @@ const paymentController = {
 
   topupWallet: asyncHandler(async (req, res) => {
     const userId = req.user.id;
-    const { amount } = req.body;
+    const { amount, securityPassword } = req.body;
 
-    const result = await paymentService.topupWallet(userId, amount);
+    const result = await paymentService.topupWallet(userId, amount, securityPassword);
 
     res.status(200).json({
       success: true,

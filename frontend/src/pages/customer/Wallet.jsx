@@ -11,6 +11,7 @@ export default function Wallet() {
   const [balLoading, setBalLoading] = useState(true);
   const [flowStep, setFlowStep] = useState(1);
   const [lastTopup, setLastTopup] = useState(0);
+  const [securityPassword, setSecurityPassword] = useState('');
 
   const loadBalance = async () => {
     try {
@@ -41,17 +42,24 @@ export default function Wallet() {
 
   const handleTopup = async () => {
     const val = parseFloat(amount);
+
+    if (!securityPassword || securityPassword.length < 8) {
+      toast.error('Enter your account password for security verification');
+      return;
+    }
+
     if (!window.confirm(`Confirm wallet top-up of ₱${val.toFixed(2)}?`)) {
       return;
     }
 
     setLoading(true);
     try {
-      await api.post('/payments/wallet/topup', { amount: val });
+      await api.post('/payments/wallet/topup', { amount: val, securityPassword });
       toast.success(`₱${val.toFixed(2)} added to wallet`);
       setLastTopup(val);
       setFlowStep(3);
       setAmount('');
+      setSecurityPassword('');
       await loadBalance();
     } catch (err) {
       toast.error(err.response?.data?.error?.message || 'Top-up failed');
@@ -156,6 +164,16 @@ export default function Wallet() {
                 <p className="font-semibold text-gray-900 dark:text-white">GCash</p>
                 <p className="text-sm text-gray-500 dark:text-gray-400 mt-3">Amount</p>
                 <p className="text-2xl font-bold text-brand-600">₱{parseFloat(amount || 0).toFixed(2)}</p>
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Security Password</label>
+                <input
+                  type="password"
+                  value={securityPassword}
+                  onChange={(e) => setSecurityPassword(e.target.value)}
+                  placeholder="Enter your account password"
+                  className="w-full px-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl text-sm bg-white dark:bg-gray-800 dark:text-white"
+                />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <button
