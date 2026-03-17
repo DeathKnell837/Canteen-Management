@@ -327,6 +327,19 @@ export default function Wallet() {
           )}
           </div>
 
+          {/* Info note */}
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-100 dark:border-blue-800/30 rounded-2xl p-5 flex gap-4 animate-fade-in-up" style={{ animationDelay: '0.2s', animationFillMode: 'both' }}>
+            <div className="flex-shrink-0 w-10 h-10 bg-blue-100 dark:bg-blue-900/40 rounded-xl flex items-center justify-center">
+              <Sparkles className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-blue-900 dark:text-blue-200">How wallet works</p>
+              <p className="text-sm text-blue-700/70 dark:text-blue-300/70 mt-1 leading-relaxed">
+                Add money to your wallet and use it to pay for orders instantly. Wallet payments are processed immediately during checkout.
+              </p>
+            </div>
+          </div>
+
           <Link
             to="/transactions"
             className="card-glass rounded-2xl p-4 flex items-center justify-between hover:shadow-md transition-all"
@@ -342,19 +355,6 @@ export default function Wallet() {
             </div>
             <ChevronRight className="w-4 h-4 text-gray-400" />
           </Link>
-
-          {/* Info note */}
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-100 dark:border-blue-800/30 rounded-2xl p-5 flex gap-4 animate-fade-in-up" style={{ animationDelay: '0.2s', animationFillMode: 'both' }}>
-            <div className="flex-shrink-0 w-10 h-10 bg-blue-100 dark:bg-blue-900/40 rounded-xl flex items-center justify-center">
-              <Sparkles className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-blue-900 dark:text-blue-200">How wallet works</p>
-              <p className="text-sm text-blue-700/70 dark:text-blue-300/70 mt-1 leading-relaxed">
-                Add money to your wallet and use it to pay for orders instantly. Wallet payments are processed immediately during checkout.
-              </p>
-            </div>
-          </div>
         </div>
       </div>
     </div>
