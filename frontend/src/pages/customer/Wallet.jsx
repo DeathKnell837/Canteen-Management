@@ -276,6 +276,22 @@ export default function Wallet() {
           <ChevronRight className="w-4 h-4 text-gray-400" />
         </Link>
 
+        <Link
+          to="/cart"
+          className="card-glass rounded-2xl p-4 flex items-center justify-between hover:shadow-md transition-all"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center">
+              <Sparkles className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+            </div>
+            <div>
+              <p className="font-semibold text-gray-900 dark:text-white">Checkout Payment Methods</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">GCash, Maya, Bank Transfer, and Direct Cash</p>
+            </div>
+          </div>
+          <ChevronRight className="w-4 h-4 text-gray-400" />
+        </Link>
+
         {/* Info note */}
         <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-100 dark:border-blue-800/30 rounded-2xl p-5 flex gap-4 animate-fade-in-up" style={{ animationDelay: '0.2s', animationFillMode: 'both' }}>
           <div className="flex-shrink-0 w-10 h-10 bg-blue-100 dark:bg-blue-900/40 rounded-xl flex items-center justify-center">
