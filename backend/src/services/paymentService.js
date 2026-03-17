@@ -103,13 +103,12 @@ class PaymentService {
 
     const hasPin = await User.hasWalletPin(userId);
     if (!hasPin) {
-      // First top-up sets the wallet PIN.
-      await User.setWalletPin(userId, String(securityPin));
-    } else {
-      const isVerified = await User.verifyWalletPin(userId, securityPin || '');
-      if (!isVerified) {
-        throw new AppError('Invalid wallet PIN', 401);
-      }
+      throw new AppError('Set your wallet PIN first before top-up', 400);
+    }
+
+    const isVerified = await User.verifyWalletPin(userId, securityPin || '');
+    if (!isVerified) {
+      throw new AppError('Invalid wallet PIN', 401);
     }
 
     // Process payment (simulated)

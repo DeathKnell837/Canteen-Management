@@ -12,12 +12,18 @@ export default function Wallet() {
   const [flowStep, setFlowStep] = useState(1);
   const [lastTopup, setLastTopup] = useState(0);
   const [securityPin, setSecurityPin] = useState('');
+  const [newPin, setNewPin] = useState('');
+  const [hasPin, setHasPin] = useState(false);
 
   const loadBalance = async () => {
     try {
-      const res = await api.get('/payments/wallet/balance');
+      const [res, pinRes] = await Promise.all([
+        api.get('/payments/wallet/balance'),
+        api.get('/payments/wallet/pin/status')
+      ]);
       const data = res.data.data || res.data;
       setBalance(parseFloat(data.wallet_balance ?? data.balance ?? 0));
+      setHasPin(!!pinRes.data?.data?.hasPin);
     } catch {
       toast.error('Failed to load balance');
     } finally {
@@ -69,6 +75,23 @@ export default function Wallet() {
   };
 
   const quickAmounts = [100, 200, 500, 1000];
+
+  const handleSetPin = async (e) => {
+    e.preventDefault();
+    if (!/^[0-9]{4,6}$/.test(newPin)) {
+      toast.error('PIN must be 4 to 6 digits');
+      return;
+    }
+
+    try {
+      await api.post('/payments/wallet/pin', { pin: newPin });
+      toast.success(hasPin ? 'Wallet PIN updated' : 'Wallet PIN set');
+      setHasPin(true);
+      setNewPin('');
+    } catch (err) {
+      toast.error(err.response?.data?.error?.message || 'Failed to set wallet PIN');
+    }
+  };
 
   return (
     <div>
@@ -175,7 +198,7 @@ export default function Wallet() {
                   maxLength={6}
                   className="w-full px-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl text-sm bg-white dark:bg-gray-800 dark:text-white"
                 />
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">First top-up will set this as your wallet PIN.</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Use your saved wallet PIN to authorize top-up.</p>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <button
@@ -215,6 +238,24 @@ export default function Wallet() {
       </div>
 
       <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+        <form onSubmit={handleSetPin} className="card-glass rounded-2xl p-4">
+          <p className="font-semibold text-gray-900 dark:text-white">{hasPin ? 'Update Wallet PIN' : 'Set Wallet PIN First'}</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Top-up requires a saved wallet PIN.</p>
+          <div className="mt-3 flex gap-2">
+            <input
+              type="password"
+              value={newPin}
+              onChange={(e) => setNewPin(e.target.value)}
+              placeholder="Enter 4 to 6 digit PIN"
+              maxLength={6}
+              className="flex-1 px-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl text-sm bg-white dark:bg-gray-800 dark:text-white"
+            />
+            <button type="submit" className="px-4 py-2.5 rounded-xl bg-brand-500 text-white text-sm font-semibold hover:bg-brand-600">
+              Save PIN
+            </button>
+          </div>
+        </form>
+
         <Link
           to="/transactions"
           className="card-glass rounded-2xl p-4 flex items-center justify-between hover:shadow-md transition-all"

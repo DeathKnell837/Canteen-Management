@@ -186,7 +186,7 @@ export default function Menu() {
                       <span className={`inline-flex items-center gap-1 text-white text-xs font-medium px-2.5 py-1 rounded-full glass ${
                         isOutOfStock ? 'bg-red-600/90' : isLowStock ? 'bg-amber-500/90' : 'bg-emerald-500/90'
                       }`}>
-                        {isOutOfStock ? 'Out of Stock' : isLowStock ? 'Low Stock' : 'In Stock'}
+                        {isOutOfStock ? 'Out of Stock' : isLowStock ? `Low Stock (${Math.max(0, stock)} left)` : 'In Stock'}
                       </span>
                     )}
                   </div>
@@ -260,8 +260,15 @@ export default function Menu() {
 function ItemDetailModal({ item, cartQty, onAdd, onClose, FoodPlaceholder }) {
   const { updateQuantity, removeItem } = useCart();
   const [added, setAdded] = useState(false);
+  const stock = parseFloat(item.quantity_available ?? 0);
+  const isOutOfStock = stock <= 0;
+  const isLowStock = stock > 0 && stock <= 10;
 
   const handleAdd = () => {
+    if (isOutOfStock) {
+      toast.error(`${item.name} is out of stock`);
+      return;
+    }
     onAdd(item);
     setAdded(true);
     setTimeout(() => setAdded(false), 800);
@@ -326,13 +333,13 @@ function ItemDetailModal({ item, cartQty, onAdd, onClose, FoodPlaceholder }) {
             </div>
             {item.quantity_available != null && (
               <div className={`inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full ${
-                parseFloat(item.quantity_available) > 10
+                stock > 10
                   ? 'bg-green-50 text-green-700'
-                  : parseFloat(item.quantity_available) > 0
+                  : stock > 0
                     ? 'bg-yellow-50 text-yellow-700'
                     : 'bg-red-50 text-red-700'
               }`}>
-                {parseFloat(item.quantity_available) > 10 ? 'In Stock' : parseFloat(item.quantity_available) > 0 ? 'Low Stock' : 'Out of Stock'}
+                {stock > 10 ? 'In Stock' : stock > 0 ? `Low Stock (${Math.max(0, stock)} left)` : 'Out of Stock'}
               </div>
             )}
           </div>
@@ -354,6 +361,7 @@ function ItemDetailModal({ item, cartQty, onAdd, onClose, FoodPlaceholder }) {
                   <span className="w-10 text-center text-lg font-bold text-gray-900 dark:text-white">{cartQty}</span>
                   <button
                     onClick={() => updateQuantity(item.item_id, cartQty + 1)}
+                    disabled={cartQty >= stock}
                     className="w-10 h-10 rounded-xl border-2 border-gray-200 dark:border-gray-600 flex items-center justify-center text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-500 transition-all active:scale-90"
                   >
                     <Plus className="w-4 h-4" />
@@ -366,13 +374,18 @@ function ItemDetailModal({ item, cartQty, onAdd, onClose, FoodPlaceholder }) {
             ) : (
               <button
                 onClick={handleAdd}
+                disabled={isOutOfStock}
                 className={`w-full py-3.5 rounded-xl text-sm font-bold transition-all duration-300 active:scale-[0.98] flex items-center justify-center gap-2 ${
-                  added
+                  isOutOfStock
+                    ? 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'
+                    : added
                     ? 'bg-green-500 text-white shadow-lg shadow-green-500/30'
                     : 'bg-gradient-to-r from-brand-500 to-brand-600 text-white shadow-lg shadow-brand-500/25 hover:shadow-xl hover:shadow-brand-500/30'
                 }`}
               >
-                {added ? (
+                {isOutOfStock ? (
+                  <>Unavailable</>
+                ) : added ? (
                   <><Check className="w-4 h-4" /> Added to Cart!</>
                 ) : (
                   <><Plus className="w-4 h-4" /> Add to Cart — ₱{parseFloat(item.base_price).toFixed(2)}</>
