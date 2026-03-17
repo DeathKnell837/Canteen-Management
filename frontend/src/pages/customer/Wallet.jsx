@@ -356,21 +356,6 @@ export default function Wallet() {
             </div>
           </div>
 
-          <Link
-            to="/transactions"
-            className="card-glass rounded-2xl p-4 flex items-center justify-between hover:shadow-md transition-all"
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-brand-50 dark:bg-brand-900/30 flex items-center justify-center">
-                <ArrowRightLeft className="w-5 h-5 text-brand-500" />
-              </div>
-              <div>
-                <p className="font-semibold text-gray-900 dark:text-white">Transaction History</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">View top-ups and purchases</p>
-              </div>
-            </div>
-            <ChevronRight className="w-4 h-4 text-gray-400" />
-          </Link>
         </div>
       </div>
     </div>
