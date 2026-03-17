@@ -99,7 +99,7 @@ class PaymentService {
     return payment;
   }
 
-  async topupWallet(userId, amount, securityPin) {
+  async topupWallet(userId, amount, securityPin, sourceMethod = 'GCASH', sourceName = '') {
     if (amount <= 0) {
       throw new AppError('Amount must be greater than 0', 400);
     }
@@ -118,6 +118,22 @@ class PaymentService {
       throw new AppError('Invalid wallet PIN', 400);
     }
 
+    const normalizedSource = String(sourceMethod || 'GCASH').toUpperCase();
+    const sourceLabels = {
+      GCASH: 'GCash',
+      MAYA: 'Maya'
+    };
+    const allowedBanks = ['BPI', 'BDO', 'Metrobank', 'LandBank', 'UnionBank', 'PNB', 'RCBC'];
+    let sourceLabel = sourceLabels[normalizedSource] || 'GCash';
+
+    if (normalizedSource === 'BANK_TRANSFER') {
+      const bankName = String(sourceName || '').trim();
+      if (!allowedBanks.includes(bankName)) {
+        throw new AppError('Invalid bank name for bank transfer', 400);
+      }
+      sourceLabel = `Bank Transfer (${bankName})`;
+    }
+
     // Process payment (simulated)
     const success = await this.processCardPayment(amount);
     if (!success) {
@@ -131,12 +147,13 @@ class PaymentService {
       Math.abs(parseFloat(amount)),
       'TOPUP',
       `TOPUP-${Date.now()}`,
-      'Wallet top-up via GCash flow',
+      `Wallet top-up via ${sourceLabel}`,
       result.wallet_balance
     );
     return {
       wallet_balance: result.wallet_balance,
-      amount_added: amount
+      amount_added: amount,
+      source: sourceLabel
     };
   }
 

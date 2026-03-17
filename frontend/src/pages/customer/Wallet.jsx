@@ -13,16 +13,33 @@ export default function Wallet() {
   const [lastTopup, setLastTopup] = useState(0);
   const [securityPin, setSecurityPin] = useState('');
   const [hasPin, setHasPin] = useState(false);
+  const [sourceMethod, setSourceMethod] = useState('GCASH');
+  const [sourceName, setSourceName] = useState('BPI');
+  const [lastFundingSource, setLastFundingSource] = useState('No top-up yet');
+
+  const BANK_OPTIONS = ['BPI', 'BDO', 'Metrobank', 'LandBank', 'UnionBank', 'PNB', 'RCBC'];
+
+  const sourceLabel = sourceMethod === 'BANK_TRANSFER'
+    ? `Bank Transfer (${sourceName})`
+    : sourceMethod === 'MAYA'
+      ? 'Maya'
+      : 'GCash';
 
   const loadBalance = async () => {
     try {
-      const [res, pinRes] = await Promise.all([
+      const [res, pinRes, txRes] = await Promise.all([
         api.get('/payments/wallet/balance'),
-        api.get('/payments/wallet/pin/status')
+        api.get('/payments/wallet/pin/status'),
+        api.get('/payments/wallet/transactions?limit=20')
       ]);
       const data = res.data.data || res.data;
+      const txData = txRes.data.data || [];
+      const latestTopup = txData.find((tx) => tx.transaction_type === 'TOPUP');
       setBalance(parseFloat(data.wallet_balance ?? data.balance ?? 0));
       setHasPin(!!pinRes.data?.data?.hasPin);
+      if (latestTopup?.description) {
+        setLastFundingSource(latestTopup.description.replace('Wallet top-up via ', '').trim());
+      }
     } catch {
       toast.error('Failed to load balance');
     } finally {
@@ -53,13 +70,18 @@ export default function Wallet() {
       return;
     }
 
-    if (!window.confirm(`Confirm wallet top-up of ₱${val.toFixed(2)}?`)) {
+    if (!window.confirm(`Confirm wallet top-up of ₱${val.toFixed(2)} via ${sourceLabel}?`)) {
       return;
     }
 
     setLoading(true);
     try {
-      await api.post('/payments/wallet/topup', { amount: val, securityPin });
+      await api.post('/payments/wallet/topup', {
+        amount: val,
+        securityPin,
+        sourceMethod,
+        sourceName: sourceMethod === 'BANK_TRANSFER' ? sourceName : ''
+      });
       toast.success(`₱${val.toFixed(2)} added to wallet`);
       setLastTopup(val);
       setFlowStep(3);
@@ -108,6 +130,7 @@ export default function Wallet() {
               <ShieldCheck className="w-3.5 h-3.5" />
               Secured wallet balance
             </div>
+            <p className="mt-1 text-xs text-white/70">Funded from: {lastFundingSource}</p>
           </div>
         </div>
 
@@ -152,6 +175,32 @@ export default function Wallet() {
                   </button>
                 ))}
               </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Top-up Source</label>
+                <select
+                  value={sourceMethod}
+                  onChange={(e) => setSourceMethod(e.target.value)}
+                  className="w-full px-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl text-sm bg-white dark:bg-gray-800 dark:text-white"
+                >
+                  <option value="GCASH">GCash</option>
+                  <option value="MAYA">Maya</option>
+                  <option value="BANK_TRANSFER">Bank Transfer</option>
+                </select>
+              </div>
+              {sourceMethod === 'BANK_TRANSFER' && (
+                <div className="mb-5">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Bank Account</label>
+                  <select
+                    value={sourceName}
+                    onChange={(e) => setSourceName(e.target.value)}
+                    className="w-full px-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl text-sm bg-white dark:bg-gray-800 dark:text-white"
+                  >
+                    {BANK_OPTIONS.map((bank) => (
+                      <option key={bank} value={bank}>{bank}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
               <button
                 type="submit"
                 disabled={!hasPin}
@@ -170,7 +219,7 @@ export default function Wallet() {
             <div>
               <div className="rounded-2xl bg-gray-50 dark:bg-gray-800 p-4 mb-4">
                 <p className="text-sm text-gray-500 dark:text-gray-400">Payment Channel</p>
-                <p className="font-semibold text-gray-900 dark:text-white">GCash</p>
+                <p className="font-semibold text-gray-900 dark:text-white">{sourceLabel}</p>
                 <p className="text-sm text-gray-500 dark:text-gray-400 mt-3">Amount</p>
                 <p className="text-2xl font-bold text-brand-600">₱{parseFloat(amount || 0).toFixed(2)}</p>
               </div>

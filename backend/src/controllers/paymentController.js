@@ -33,9 +33,9 @@ const paymentController = {
 
   topupWallet: asyncHandler(async (req, res) => {
     const userId = req.user.id;
-    const { amount, securityPin } = req.body;
+    const { amount, securityPin, sourceMethod, sourceName } = req.body;
 
-    const result = await paymentService.topupWallet(userId, amount, securityPin);
+    const result = await paymentService.topupWallet(userId, amount, securityPin, sourceMethod, sourceName);
 
     res.status(200).json({
       success: true,

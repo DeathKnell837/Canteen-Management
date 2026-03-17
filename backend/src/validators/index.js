@@ -43,7 +43,13 @@ const schemas = {
 
   topupWallet: Joi.object({
     amount: Joi.number().positive().required(),
-    securityPin: Joi.string().pattern(/^[0-9]{4,6}$/).required()
+    securityPin: Joi.string().pattern(/^[0-9]{4,6}$/).required(),
+    sourceMethod: Joi.string().valid('GCASH', 'MAYA', 'BANK_TRANSFER').required(),
+    sourceName: Joi.string().allow('').when('sourceMethod', {
+      is: 'BANK_TRANSFER',
+      then: Joi.string().trim().required(),
+      otherwise: Joi.optional()
+    })
   }),
 
   setWalletPin: Joi.object({
