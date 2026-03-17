@@ -6,24 +6,18 @@ import toast from 'react-hot-toast';
 export default function Reports() {
   const [loading, setLoading] = useState(true);
   const [report, setReport] = useState({ summary: null, topSellingItems: [] });
-  const [inventory, setInventory] = useState([]);
   const [lowStockItems, setLowStockItems] = useState([]);
-  const [orders, setOrders] = useState([]);
 
   useEffect(() => {
     const load = async () => {
       try {
-        const [reportRes, invRes, lowRes, ordersRes] = await Promise.all([
+        const [reportRes, lowRes] = await Promise.all([
           api.get('/orders/admin/reports/summary'),
-          api.get('/inventory'),
           api.get('/inventory/low-stock'),
-          api.get('/orders/admin/all')
         ]);
 
         setReport(reportRes.data.data || { summary: null, topSellingItems: [] });
-        setInventory(invRes.data.data || []);
         setLowStockItems(lowRes.data.data || []);
-        setOrders(ordersRes.data.data || []);
       } catch {
         toast.error('Failed to load reports');
       } finally {
@@ -35,8 +29,6 @@ export default function Reports() {
   }, []);
 
   const summary = report.summary || {};
-  const totalInventoryUnits = (inventory || []).reduce((sum, item) => sum + parseFloat(item.quantity || 0), 0);
-  const cancelledOrders = (orders || []).filter((o) => o.status === 'CANCELLED').length;
 
   const handlePrint = () => {
     window.print();
@@ -54,13 +46,8 @@ export default function Reports() {
     const summaryRows = [
       ['Total Orders', String(summary.total_orders || 0)],
       ['Successful Orders', String(summary.successful_orders || 0)],
-      ['Cancelled Orders', String(cancelledOrders)],
       ['Low Stock Items', String(lowStockItems.length)],
-      ['Inventory Units', String(totalInventoryUnits)],
-      ['Total Revenue', String(parseFloat(summary.total_revenue || 0).toFixed(2))],
-      ['Cash Flow Statement', 'Pending module'],
-      ['Balance Sheet', 'Pending module'],
-      ['Audit Findings', 'Pending module']
+      ['Total Revenue', String(parseFloat(summary.total_revenue || 0).toFixed(2))]
     ];
 
     const csv = [
@@ -118,7 +105,7 @@ export default function Reports() {
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
             <div className="card-glass rounded-2xl p-5">
               <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 flex items-center justify-center mb-3">
                 <ShoppingBag className="w-5 h-5" />
@@ -142,35 +129,13 @@ export default function Reports() {
               <p className="text-sm text-gray-500 dark:text-gray-400">Total Revenue</p>
               <p className="text-2xl font-bold text-gray-900 dark:text-white">₱{parseFloat(summary.total_revenue || 0).toFixed(2)}</p>
             </div>
-          </div>
 
-          <div className="card-glass rounded-2xl p-5 mb-6">
-            <h2 className="font-bold text-gray-900 dark:text-white mb-3">Comprehensive Report Sections</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-              <div className="rounded-xl bg-gray-50 dark:bg-gray-800 p-3">
-                <p className="font-semibold text-gray-900 dark:text-white">1. Financial Reports</p>
-                <p className="text-gray-600 dark:text-gray-300">Sales Report: Available</p>
-                <p className="text-gray-600 dark:text-gray-300">Income Statement, Balance Sheet, Cash Flows: Pending module</p>
+            <div className="card-glass rounded-2xl p-5">
+              <div className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 flex items-center justify-center mb-3">
+                <BarChart3 className="w-5 h-5" />
               </div>
-              <div className="rounded-xl bg-gray-50 dark:bg-gray-800 p-3">
-                <p className="font-semibold text-gray-900 dark:text-white">2. Inventory & Stock</p>
-                <p className="text-gray-600 dark:text-gray-300">Real-time inventory units: {totalInventoryUnits}</p>
-                <p className="text-gray-600 dark:text-gray-300">Low stock alerts: {lowStockItems.length}</p>
-              </div>
-              <div className="rounded-xl bg-gray-50 dark:bg-gray-800 p-3">
-                <p className="font-semibold text-gray-900 dark:text-white">3. Operational Performance</p>
-                <p className="text-gray-600 dark:text-gray-300">Top-selling items: Available</p>
-                <p className="text-gray-600 dark:text-gray-300">Peak hours, staffing attendance, user usage by department: Pending module</p>
-              </div>
-              <div className="rounded-xl bg-gray-50 dark:bg-gray-800 p-3">
-                <p className="font-semibold text-gray-900 dark:text-white">4. Compliance & Quality</p>
-                <p className="text-gray-600 dark:text-gray-300">Permits, safety audits, temperature logs, nutrition compliance: Pending module</p>
-              </div>
-              <div className="rounded-xl bg-gray-50 dark:bg-gray-800 p-3 md:col-span-2">
-                <p className="font-semibold text-gray-900 dark:text-white">5. Admin & Feedback</p>
-                <p className="text-gray-600 dark:text-gray-300">Cancelled orders tracked: {cancelledOrders}</p>
-                <p className="text-gray-600 dark:text-gray-300">Audit findings, complaint log, maintenance records: Pending module</p>
-              </div>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Low Stock Items</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">{lowStockItems.length}</p>
             </div>
           </div>
 
