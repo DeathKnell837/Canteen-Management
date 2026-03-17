@@ -4,7 +4,13 @@ const { AppError } = require('../utils/errorHandler');
 
 class PaymentService {
   async processPayment(orderId, userId, paymentMethod, amount) {
-    const normalizedMethod = paymentMethod === 'GCASH' ? 'WALLET' : paymentMethod;
+    const methodMap = {
+      GCASH: 'WALLET',
+      MAYA: 'MOBILE_PAYMENT',
+      BANK_TRANSFER: 'CARD',
+      DIRECT_CASH: 'CASH'
+    };
+    const normalizedMethod = methodMap[paymentMethod] || paymentMethod;
 
     // Verify order exists
     const order = await Order.getById(orderId);
@@ -34,6 +40,7 @@ class PaymentService {
         isSuccessful = true; // Cash payment marked as success (will be verified at counter)
         break;
       case 'CARD':
+      case 'MOBILE_PAYMENT':
         isSuccessful = await this.processCardPayment(amount);
         break;
       default:

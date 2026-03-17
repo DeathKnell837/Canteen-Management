@@ -9,6 +9,7 @@ import { Link } from 'react-router-dom';
 export default function Cart() {
   const { items, removeItem, updateQuantity, clearCart, total, itemCount } = useCart();
   const [loading, setLoading] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState('GCASH');
   const submitting = useRef(false);
   const navigate = useNavigate();
 
@@ -16,10 +17,19 @@ export default function Cart() {
   const tax = total * TAX_RATE;
   const grandTotal = total + tax;
 
+  const PAYMENT_OPTIONS = [
+    { value: 'GCASH', label: 'GCash' },
+    { value: 'MAYA', label: 'Maya' },
+    { value: 'BANK_TRANSFER', label: 'Bank Transfer' },
+    { value: 'DIRECT_CASH', label: 'Direct Cash' },
+  ];
+
+  const selectedPaymentLabel = PAYMENT_OPTIONS.find((o) => o.value === paymentMethod)?.label || 'GCash';
+
   const handleCheckout = async () => {
     if (items.length === 0 || submitting.current) return;
 
-    if (!window.confirm(`Confirm wallet payment of ₱${grandTotal.toFixed(2)} for this order?`)) {
+    if (!window.confirm(`Confirm ${selectedPaymentLabel} payment of ₱${grandTotal.toFixed(2)} for this order?`)) {
       return;
     }
 
@@ -36,7 +46,7 @@ export default function Cart() {
 
       await api.post('/payments/process', {
         orderId: order.order_id,
-        paymentMethod: 'GCASH',
+        paymentMethod,
         amount: parseFloat(order.total_amount),
       });
 
@@ -134,6 +144,22 @@ export default function Cart() {
 
             {/* Price breakdown */}
             <div className="space-y-3 pt-1">
+              <div>
+                <label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1.5">Payment Method</label>
+                <select
+                  value={paymentMethod}
+                  onChange={(e) => setPaymentMethod(e.target.value)}
+                  disabled={loading}
+                  className="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-gray-900/70 px-3 py-2.5 text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-400"
+                >
+                  {PAYMENT_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
               <div className="flex justify-between text-sm text-gray-500 dark:text-gray-400">
                 <span>Subtotal</span>
                 <span>₱{total.toFixed(2)}</span>
@@ -161,7 +187,7 @@ export default function Cart() {
               ) : (
                 <>
                   <CreditCard className="w-4 h-4" />
-                  Pay with GCash ₱{grandTotal.toFixed(2)}
+                  Pay with {selectedPaymentLabel} ₱{grandTotal.toFixed(2)}
                 </>
               )}
             </button>
@@ -176,7 +202,7 @@ export default function Cart() {
             {/* Trust badges */}
             <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700 flex items-center justify-center gap-2 text-xs text-gray-400 dark:text-gray-500">
               <ShieldCheck className="w-3.5 h-3.5" />
-              Secure wallet payment
+              Secure checkout payment
             </div>
           </div>
         </div>
