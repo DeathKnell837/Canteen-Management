@@ -36,7 +36,7 @@ export default function Cart() {
 
       await api.post('/payments/process', {
         orderId: order.order_id,
-        paymentMethod: 'WALLET',
+        paymentMethod: 'GCASH',
         amount: parseFloat(order.total_amount),
       });
 
@@ -161,7 +161,7 @@ export default function Cart() {
               ) : (
                 <>
                   <CreditCard className="w-4 h-4" />
-                  Pay ₱{grandTotal.toFixed(2)}
+                  Pay with GCash ₱{grandTotal.toFixed(2)}
                 </>
               )}
             </button>

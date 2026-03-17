@@ -4,6 +4,8 @@ const { AppError } = require('../utils/errorHandler');
 
 class PaymentService {
   async processPayment(orderId, userId, paymentMethod, amount) {
+    const normalizedMethod = paymentMethod === 'GCASH' ? 'WALLET' : paymentMethod;
+
     // Verify order exists
     const order = await Order.getById(orderId);
     if (!order) {
@@ -19,12 +21,12 @@ class PaymentService {
     }
 
     // Create payment record
-    const payment = await Payment.create(orderId, userId, paymentMethod, amount);
+    const payment = await Payment.create(orderId, userId, normalizedMethod, amount);
 
     // Process based on payment method
     let isSuccessful = false;
 
-    switch (paymentMethod) {
+    switch (normalizedMethod) {
       case 'WALLET':
         isSuccessful = await this.processWalletPayment(userId, amount, orderId);
         break;
