@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Canteen Management System – System Documentation</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      font-size: 12pt;
+      color: #1a1a1a;
+      background: #fff;
+      line-height: 1.6;
+    }
+
+    /* ── PAGE WRAPPER ── */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 60px 70px;
+    }
+
+    /* ── COVER PAGE ── */
+    .cover {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      border-bottom: 3px solid #e55a00;
+      page-break-after: always;
+    }
+    .cover .logo {
+      width: 80px; height: 80px;
+      background: linear-gradient(135deg, #e55a00, #ff8c42);
+      border-radius: 20px;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 24px;
+      box-shadow: 0 8px 24px rgba(229,90,0,0.3);
+    }
+    .cover .logo svg { width: 44px; height: 44px; }
+    .cover .badge {
+      display: inline-block;
+      background: #fff3eb;
+      color: #e55a00;
+      border: 1.5px solid #e55a00;
+      border-radius: 20px;
+      padding: 4px 16px;
+      font-size: 10pt;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+    .cover h1 { font-size: 32pt; font-weight: 800; color: #1a1a1a; line-height: 1.2; margin-bottom: 12px; }
+    .cover h2 { font-size: 16pt; font-weight: 400; color: #555; margin-bottom: 40px; }
+    .cover .divider { width: 60px; height: 4px; background: #e55a00; border-radius: 2px; margin: 0 auto 40px; }
+    .cover .meta { font-size: 11pt; color: #666; line-height: 2; }
+    .cover .meta strong { color: #1a1a1a; }
+
+    /* ── SECTION HEADINGS ── */
+    h1.section { font-size: 22pt; color: #e55a00; border-bottom: 2.5px solid #e55a00; padding-bottom: 8px; margin: 40px 0 20px; }
+    h2.section { font-size: 15pt; color: #1a1a1a; margin: 30px 0 12px; border-left: 4px solid #e55a00; padding-left: 12px; }
+    h3.section { font-size: 12pt; color: #e55a00; margin: 20px 0 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    /* ── TABLES ── */
+    table { width: 100%; border-collapse: collapse; margin: 16px 0 28px; font-size: 11pt; }
+    th { background: #e55a00; color: #fff; padding: 10px 14px; text-align: left; font-weight: 600; }
+    td { padding: 9px 14px; border-bottom: 1px solid #e8e8e8; vertical-align: top; }
+    tr:nth-child(even) td { background: #fdf3ec; }
+    tr:hover td { background: #fff3eb; }
+
+    /* ── DIAGRAM BOXES ── */
+    .diagram { background: #fafafa; border: 1.5px solid #ddd; border-radius: 10px; padding: 28px 32px; margin: 20px 0 32px; overflow-x: auto; }
+    .diagram pre { font-family: 'Courier New', monospace; font-size: 9.5pt; line-height: 1.8; color: #1a1a1a; white-space: pre; }
+
+    /* ── DFD SVG ── */
+    .dfd-wrap { width: 100%; overflow-x: auto; margin: 20px 0 32px; }
+    svg text { font-family: 'Segoe UI', Arial, sans-serif; }
+
+    /* ── FLOWCHART SVG ── */
+    .flowchart-wrap { width: 100%; overflow-x: auto; margin: 20px 0 32px; }
+
+    /* ── CALLOUTS ── */
+    .note { background: #fff8f0; border-left: 4px solid #e55a00; border-radius: 0 8px 8px 0; padding: 12px 16px; margin: 16px 0; font-size: 11pt; color: #444; }
+    .note strong { color: #e55a00; }
+
+    /* ── STATUS FLOW ── */
+    .status-flow { display: flex; align-items: center; gap: 0; flex-wrap: wrap; margin: 16px 0 24px; }
+    .status-box { background: #e55a00; color: #fff; padding: 8px 16px; border-radius: 6px; font-size: 10pt; font-weight: 600; }
+    .status-box.grey { background: #888; }
+    .status-box.green { background: #2e7d32; }
+    .status-arrow { font-size: 18pt; color: #ccc; padding: 0 6px; }
+
+    /* ── LIST ── */
+    ul, ol { margin: 10px 0 16px 24px; }
+    li { margin-bottom: 6px; font-size: 11.5pt; }
+
+    /* ── FOOTER ── */
+    .footer { border-top: 1.5px solid #e8e8e8; margin-top: 60px; padding-top: 16px; font-size: 9.5pt; color: #aaa; text-align: center; }
+
+    /* ── PRINT ── */
+    @media print {
+      .page { padding: 40px 50px; }
+      .cover { min-height: auto; padding: 80px 0; }
+      h1.section { page-break-before: always; }
+      .no-break { page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════ COVER ══════════════════ -->
+<div class="page">
+  <div class="cover">
+    <div class="logo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="m16 2-2.3 2.3a3 3 0 0 0 0 4.2l1.8 1.8a3 3 0 0 0 4.2 0L22 8"/>
+        <path d="M15 15 3.3 3.3a4.2 4.2 0 0 0 0 6l7.3 7.3c1.7 1.7 4.3 1.7 6 0L15 15Zm0 0 7 7"/>
+        <path d="m2.1 21.8 6.4-6.3"/><path d="m19 5-7 7"/>
+      </svg>
+    </div>
+    <div class="badge">System Documentation</div>
+    <h1>Canteen Management<br/>System</h1>
+    <h2>Flowchart &amp; Data Flow Diagram (DFD Level 1)</h2>
+    <div class="divider"></div>
+    <div class="meta">
+      <strong>Course:</strong> Software Engineering 1 – CS 304<br/>
+      <strong>Project Type:</strong> Full-Stack Web Application<br/>
+      <strong>Repository:</strong> DeathKnell837/Canteen-Management<br/>
+      <strong>Date:</strong> March 12, 2026
+    </div>
+  </div>
+
+
+<!-- ══════════════════ 1. SYSTEM OVERVIEW ══════════════════ -->
+<h1 class="section">1. System Overview</h1>
+
+<p style="font-size:11.5pt; margin-bottom:16px;">
+The <strong>Canteen Management System</strong> is a full-stack web application designed to digitize and streamline canteen operations. It allows customers to browse the menu, place orders, and pay via a digital wallet, while administrators and staff can manage the menu, process orders through a status workflow, and track inventory.
+</p>
+
+<h2 class="section">Tech Stack</h2>
+<table class="no-break">
+  <tr><th>Layer</th><th>Technology</th><th>Purpose</th></tr>
+  <tr><td>Frontend</td><td>React 18, Vite, Tailwind CSS, Lucide Icons</td><td>Customer &amp; Admin UI</td></tr>
+  <tr><td>Backend</td><td>Node.js, Express.js</td><td>REST API, business logic</td></tr>
+  <tr><td>Database</td><td>PostgreSQL 16 (Docker)</td><td>Persistent data storage</td></tr>
+  <tr><td>Authentication</td><td>JWT (JSON Web Tokens)</td><td>Secure session management</td></tr>
+  <tr><td>File Upload</td><td>Multer</td><td>Menu item image upload</td></tr>
+  <tr><td>Validation</td><td>Joi</td><td>Input validation on all API routes</td></tr>
+  <tr><td>Password Security</td><td>bcrypt</td><td>Password hashing</td></tr>
+</table>
+
+<h2 class="section">User Roles</h2>
+<table class="no-break">
+  <tr><th>Role</th><th>Access Level</th><th>Key Capabilities</th></tr>
+  <tr><td><strong>CUSTOMER</strong></td><td>Authenticated</td><td>Browse menu, add to cart, place orders, pay, view history, top-up wallet</td></tr>
+  <tr><td><strong>ADMIN</strong></td><td>Authenticated + Admin</td><td>All staff capabilities + delete menu items</td></tr>
+  <tr><td><strong>STAFF</strong></td><td>Authenticated + Staff</td><td>Manage orders, manage menu, manage inventory, view receipts</td></tr>
+</table>
+
+
+<!-- ══════════════════ 2. FLOWCHART ══════════════════ -->
+<h1 class="section">2. System Flowchart</h1>
+
+<p style="font-size:11.5pt; margin-bottom:20px;">
+  The flowchart below illustrates the complete operational flow of the Canteen Management System, covering both the Customer and Admin/Staff paths from system entry to completion.
+</p>
+
+<!-- FLOWCHART SVG -->
+<div class="flowchart-wrap">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 1620" width="760">
+  <defs>
+    <marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#555"/>
+    </marker>
+    <marker id="arr-red" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#e55a00"/>
+    </marker>
+  </defs>
+  <style>
+    .box { fill:#fff; stroke:#555; stroke-width:1.5; }
+    .box-start { fill:#1a1a1a; stroke:#1a1a1a; }
+    .box-end { fill:#1a1a1a; stroke:#1a1a1a; }
+    .box-process { fill:#fff; stroke:#555; stroke-width:1.5; rx:6; }
+    .box-decision { fill:#fff3eb; stroke:#e55a00; stroke-width:1.8; }
+    .box-admin { fill:#fff; stroke:#2e7d32; stroke-width:1.5; }
+    .box-customer { fill:#fff; stroke:#1565c0; stroke-width:1.5; }
+    .lbl { font:12px 'Segoe UI',Arial,sans-serif; fill:#1a1a1a; text-anchor:middle; dominant-baseline:middle; }
+    .lbl-sm { font:10.5px 'Segoe UI',Arial,sans-serif; fill:#1a1a1a; text-anchor:middle; dominant-baseline:middle; }
+    .lbl-white { font:12px 'Segoe UI',Arial,sans-serif; fill:#fff; text-anchor:middle; dominant-baseline:middle; font-weight:700; }
+    .lbl-side { font:10px 'Segoe UI',Arial,sans-serif; fill:#e55a00; text-anchor:middle; dominant-baseline:middle; }
+    .lane-bg-c { fill:#f0f5ff; opacity:0.5; }
+    .lane-bg-a { fill:#f0fff4; opacity:0.5; }
+    .lane-lbl { font:11px 'Segoe UI',Arial,sans-serif; font-weight:700; fill:#fff; text-anchor:middle; }
+    line, path.arr { stroke:#555; stroke-width:1.5; fill:none; marker-end:url(#arr); }
+  </style>
+
+  <!-- background -->
+  <rect width="760" height="1620" fill="#f9f9f9" rx="8"/>
+
+  <!-- lane headers -->
+  <rect x="10" y="10" width="370" height="32" fill="#1565c0" rx="6"/>
+  <text class="lane-lbl" x="195" y="26">CUSTOMER FLOW</text>
+  <rect x="388" y="10" width="362" height="32" fill="#2e7d32" rx="6"/>
+  <text class="lane-lbl" x="569" y="26">ADMIN / STAFF FLOW</text>
+
+  <!-- ─── SHARED: START ─── -->
+  <ellipse cx="195" cy="70" rx="60" ry="20" class="box-start"/>
+  <text class="lbl-white" x="195" y="70">START</text>
+
+  <!-- arrow down -->
+  <line x1="195" y1="90" x2="195" y2="108" stroke="#555" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- Login/Register decision -->
+  <polygon points="195,120 295,150 195,180 95,150" class="box-decision"/>
+  <text class="lbl-sm" x="195" y="146">New User?</text>
+
+  <!-- YES → Register -->
+  <line x1="95" y1="150" x2="30" y2="150" stroke="#555" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text class="lbl-side" x="62" y="143">Yes</text>
+  <rect x="0" y="168" width="90" height="34" rx="6" class="box-customer"/>
+  <text class="lbl-sm" x="45" y="185">Register</text>
+  <line x1="45" y1="202" x2="45" y2="220" stroke="#555" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="0" y="220" width="90" height="34" rx="6" class="box-customer"/>
+  <text class="lbl-sm" x="45" y="237">Validate Input</text>
+  <line x1="90" y1="237" x2="140" y2="237" stroke="#555" stroke-width="1.5"/>
+  <line x1="140" y1="237" x2="140" y2="265" stroke="#555" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- NO → Login -->
+  <line x1="195" y1="180" x2="195" y2="265" stroke="#555" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text class="lbl-side" x="205" y="225">No</text>
+
+  <!-- Login box -->
+  <rect x="120" y="265" width="150" height="36" rx="6" class="box-process"/>
+  <text class="lbl" x="195" y="283">Login with Email &amp; Password</text>
+
+  <line x1="195" y1="301" x2="195" y2="318" stroke="#555" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- Auth validate -->
+  <rect x="120" y="318" width="150" height="36" rx="6" class="box-process"/>
+  <text class="lbl" x="195" y="336">Validate Credentials</text>
+
+  <line x1="195" y1="354" x2="195" y2="372" stroke="#555" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- Role decision -->
+  <polygon points="195,382 305,412 195,442 85,412" class="box-decision"/>
+  <text class="lbl-sm" x="195" y="408">Role?</text>
+
+  <!-- CUSTOMER branch -->
+  <line x1="85" y1="412" x2="40" y2="412" stroke="#1565c0" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text style="font:10px 'Segoe UI',Arial,sans-serif;fill:#1565c0;text-anchor:middle" x="62" y="405">Customer</text>
+
+  <!-- ADMIN branch -->
+  <line x1="305" y1="412" x2="530" y2="412" stroke="#2e7d32" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text style="font:10px 'Segoe UI',Arial,sans-serif;fill:#2e7d32;text-anchor:middle" x="418" y="405">Admin/Staff</text>
+
+  <!-- ─────── CUSTOMER COLUMN ─────── -->
+  <rect x="0" y="425" width="150" height="36" rx="6" class="box-customer"/>
+  <text class="lbl" x="75" y="443">Browse Menu</text>
+
+  <line x1="75" y1="461" x2="75" y2="478" stroke="#1565c0" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <rect x="0" y="478" width="150" height="36" rx="6" class="box-customer"/>
+  <text class="lbl" x="75" y="496">Filter / Search Items</text>
+
+  <line x1="75" y1="514" x2="75" y2="530" stroke="#1565c0" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <rect x="0" y="530" width="150" height="36" rx="6" class="box-customer"/>
+  <text class="lbl" x="75" y="548">Add Items to Cart</text>
+
+  <line x1="75" y1="566" x2="75" y2="582" stroke="#1565c0" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <rect x="0" y="582" width="150" height="36" rx="6" class="box-customer"/>
+  <text class="lbl" x="75" y="600">View Cart + Summary</text>
+  <text class="lbl-sm" x="75" y="613">(subtotal + 5% tax)</text>
+
+  <line x1="75" y1="625" x2="75" y2="642" stroke="#1565c0" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- Wallet check decision -->
+  <polygon points="75,652 175,682 75,712 -25,682" class="box-decision"/>
+  <text class="lbl-sm" x="75" y="678">Sufficient</text>
+  <text class="lbl-sm" x="75" y="692">Wallet?</text>
+
+  <!-- No → Top-up -->
+  <line x1="-25" y1="682" x2="-55" y2="682" stroke="#e55a00" stroke-width="1.5" marker-end="url(#arr-red)"/>
+  <text class="lbl-side" x="-38" y="675">No</text>
+  <rect x="-120" y="666" width="65" height="32" rx="6" fill="#fff3eb" stroke="#e55a00" stroke-width="1.5"/>
+  <text class="lbl-sm" x="-88" y="682">Top-up</text>
+  <text class="lbl-sm" x="-88" y="694">Wallet</text>
+  <line x1="-88" y1="666" x2="-88" y2="648" stroke="#e55a00" stroke-width="1.5"/>
+  <line x1="-88" y1="648" x2="75" y2="648" stroke="#e55a00" stroke-width="1.5" marker-end="url(#arr-red)"/>
+
+  <!-- Yes → Create order -->
+  <line x1="75" y1="712" x2="75" y2="728" stroke="#1565c0" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text class="lbl-side" x="88" y="722">Yes</text>
+
+  <rect x="0" y="728" width="150" height="36" rx="6" class="box-customer"/>
+  <text class="lbl" x="75" y="746">Create Order (PENDING)</text>
+
+  <line x1="75" y1="764" x2="75" y2="780" stroke="#1565c0" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <rect x="0" y="780" width="150" height="36" rx="6" class="box-customer"/>
+  <text class="lbl" x="75" y="798">Process Payment</text>
+  <text class="lbl-sm" x="75" y="810">(Deduct Wallet)</text>
+
+  <line x1="75" y1="822" x2="75" y2="840" stroke="#1565c0" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- Payment success? -->
+  <polygon points="75,850 175,878 75,906 -25,878" class="box-decision"/>
+  <text class="lbl-sm" x="75" y="878">Payment OK?</text>
+
+  <!-- No → Cancel order -->
+  <line x1="-25" y1="878" x2="-55" y2="878" stroke="#e55a00" stroke-width="1.5" marker-end="url(#arr-red)"/>
+  <rect x="-120" y="862" width="70" height="32" rx="6" fill="#fff3eb" stroke="#e55a00" stroke-width="1.5"/>
+  <text class="lbl-sm" x="-85" y="878">Auto-cancel</text>
+  <rect x="-120" y="904" width="70" height="32" rx="6" fill="#fff3eb" stroke="#e55a00" stroke-width="1.5"/>
+  <text class="lbl-sm" x="-85" y="920">Show Error</text>
+  <line x1="-85" y1="894" x2="-85" y2="904" stroke="#e55a00" stroke-width="1.5" marker-end="url(#arr-red)"/>
+
+  <!-- Yes → Confirmed -->
+  <line x1="75" y1="906" x2="75" y2="922" stroke="#1565c0" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text class="lbl-side" x="88" y="916">Yes</text>
+
+  <rect x="0" y="922" width="150" height="36" rx="6" class="box-customer"/>
+  <text class="lbl" x="75" y="940">Order → PAID</text>
+
+  <line x1="75" y1="958" x2="75" y2="974" stroke="#1565c0" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <rect x="0" y="974" width="150" height="36" rx="6" class="box-customer"/>
+  <text class="lbl" x="75" y="992">View Order History</text>
+
+  <line x1="75" y1="1010" x2="75" y2="1026" stroke="#1565c0" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <rect x="0" y="1026" width="150" height="36" rx="6" class="box-customer"/>
+  <text class="lbl" x="75" y="1044">View / Print Receipt</text>
+
+  <!-- Customer END -->
+  <line x1="75" y1="1062" x2="75" y2="1078" stroke="#555" stroke-width="1.5" marker-end="url(#arr)"/>
+  <ellipse cx="75" cy="1093" rx="40" ry="18" class="box-end"/>
+  <text class="lbl-white" x="75" y="1093">END</text>
+
+  <!-- ─────── ADMIN COLUMN ─────── -->
+  <rect x="455" y="425" width="280" height="36" rx="6" class="box-admin"/>
+  <text class="lbl" x="595" y="443">View Dashboard (Stats)</text>
+
+  <line x1="595" y1="461" x2="595" y2="478" stroke="#2e7d32" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- Admin action decision -->
+  <polygon points="595,488 720,516 595,544 470,516" class="box-decision" style="fill:#f0fff4;stroke:#2e7d32"/>
+  <text class="lbl-sm" x="595" y="510">Select Module</text>
+
+  <!-- Orders branch -->
+  <line x1="595" y1="544" x2="595" y2="560" stroke="#2e7d32" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="455" y="560" width="280" height="36" rx="6" class="box-admin"/>
+  <text class="lbl" x="595" y="578">View All Orders</text>
+
+  <line x1="595" y1="596" x2="595" y2="612" stroke="#2e7d32" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <rect x="455" y="612" width="280" height="36" rx="6" class="box-admin"/>
+  <text class="lbl" x="595" y="624">Select Action:</text>
+  <text class="lbl-sm" x="595" y="638">Start Preparing / Mark Ready / Completed / Cancel</text>
+
+  <line x1="595" y1="648" x2="595" y2="664" stroke="#2e7d32" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <rect x="455" y="664" width="280" height="36" rx="6" class="box-admin"/>
+  <text class="lbl" x="595" y="682">Update Order Status in DB</text>
+
+  <line x1="595" y1="700" x2="595" y2="716" stroke="#2e7d32" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <rect x="455" y="716" width="280" height="36" rx="6" class="box-admin"/>
+  <text class="lbl" x="595" y="734">Print / View Receipt</text>
+
+  <!-- Menu branch side -->
+  <line x1="720" y1="516" x2="750" y2="516" stroke="#2e7d32" stroke-width="1.5"/>
+  <line x1="750" y1="516" x2="750" y2="790" stroke="#2e7d32" stroke-width="1.5"/>
+  <line x1="750" y1="790" x2="735" y2="790" stroke="#2e7d32" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="455" y="772" width="280" height="36" rx="6" class="box-admin"/>
+  <text class="lbl" x="595" y="790">Menu Management</text>
+  <text class="lbl-sm" x="595" y="802">(Add / Edit / Delete / Upload Image)</text>
+
+  <line x1="595" y1="814" x2="595" y2="830" stroke="#2e7d32" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <rect x="455" y="830" width="280" height="36" rx="6" class="box-admin"/>
+  <text class="lbl" x="595" y="848">Save to Menu DB</text>
+
+  <!-- Inventory branch -->
+  <line x1="595" y1="866" x2="595" y2="882" stroke="#2e7d32" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="455" y="882" width="280" height="36" rx="6" class="box-admin"/>
+  <text class="lbl" x="595" y="900">Inventory Management</text>
+  <text class="lbl-sm" x="595" y="913">(Stock-in / Stock-out)</text>
+
+  <line x1="595" y1="924" x2="595" y2="940" stroke="#2e7d32" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <rect x="455" y="940" width="280" height="36" rx="6" class="box-admin"/>
+  <text class="lbl" x="595" y="958">Update Inventory Levels</text>
+
+  <line x1="595" y1="976" x2="595" y2="992" stroke="#2e7d32" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- Low stock alert -->
+  <polygon points="595,1002 695,1028 595,1054 495,1028" style="fill:#f0fff4;stroke:#2e7d32;stroke-width:1.5"/>
+  <text class="lbl-sm" x="595" y="1022">Low Stock</text>
+  <text class="lbl-sm" x="595" y="1036">Alert?</text>
+
+  <line x1="695" y1="1028" x2="735" y2="1028" stroke="#e55a00" stroke-width="1.5" marker-end="url(#arr-red)"/>
+  <rect x="735" y="1012" width="20" height="32" rx="4" fill="#fff3eb" stroke="#e55a00" stroke-width="1.5"/>
+  <text style="font:9px 'Segoe UI',Arial,sans-serif;fill:#e55a00;text-anchor:middle;writing-mode:tb" x="745" y="1026">⚠ Alert</text>
+
+  <line x1="595" y1="1054" x2="595" y2="1070" stroke="#2e7d32" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- Admin END -->
+  <ellipse cx="595" cy="1093" rx="40" ry="18" class="box-end"/>
+  <text class="lbl-white" x="595" y="1093">END</text>
+
+  <!-- Notification: when order is COMPLETED, notify customer -->
+  <rect x="180" y="990" width="240" height="32" rx="6" fill="#f5f5f5" stroke="#aaa" stroke-width="1" stroke-dasharray="4"/>
+  <text class="lbl-sm" x="300" y="1006">&lt;&lt; Order status updated by Admin</text>
+  <line x1="455" y1="734" x2="355" y2="734" stroke="#aaa" stroke-width="1" stroke-dasharray="3" marker-end="url(#arr)"/>
+  <line x1="300" y1="734" x2="300" y2="990" stroke="#aaa" stroke-width="1" stroke-dasharray="3" marker-end="url(#arr)"/>
+  <line x1="300" y1="734" x2="355" y2="734" stroke="#aaa" stroke-width="1" stroke-dasharray="3"/>
+  <text style="font:9px 'Segoe UI',Arial,sans-serif;fill:#888;text-anchor:middle" x="378" y="730">status sync</text>
+</svg>
+</div>
+
+
+<!-- ══════════════════ 3. DFD LEVEL 1 ══════════════════ -->
+<h1 class="section">3. Data Flow Diagram – Level 1</h1>
+
+<p style="font-size:11.5pt; margin-bottom:16px;">
+  The DFD Level 1 decomposes the system into <strong>6 major processes</strong>, showing how data flows between external entities, processes, and data stores.
+</p>
+
+<h2 class="section">3.1 External Entities</h2>
+<table class="no-break">
+  <tr><th>Entity</th><th>Role</th><th>Interactions</th></tr>
+  <tr><td><strong>Customer</strong></td><td>End user placing orders</td><td>Registers, logs in, browses menu, places orders, pays, views history</td></tr>
+  <tr><td><strong>Admin / Staff</strong></td><td>System operator</td><td>Manages menu, processes orders, manages inventory</td></tr>
+</table>
+
+<h2 class="section">3.2 Data Stores</h2>
+<table class="no-break">
+  <tr><th>ID</th><th>Name</th><th>Key Fields</th></tr>
+  <tr><td>D1</td><td>Users</td><td>user_id, email, phone, password_hash, role, wallet_balance, status</td></tr>
+  <tr><td>D2</td><td>Menu (Categories + Items)</td><td>item_id, category_id, name, base_price, is_active, prep_time_minutes</td></tr>
+  <tr><td>D3</td><td>Orders + Order Items</td><td>order_id, user_id, status, total_amount, delivery_type, order_items</td></tr>
+  <tr><td>D4</td><td>Payments</td><td>payment_id, order_id, user_id, method, amount, status, transaction_id</td></tr>
+  <tr><td>D5</td><td>Inventory</td><td>inventory_id, item_id, quantity_available, reorder_level</td></tr>
+  <tr><td>D6</td><td>Wallet Transactions</td><td>transaction_id, user_id, amount, transaction_type, balance_after</td></tr>
+</table>
+
+<h2 class="section">3.3 Processes</h2>
+<table class="no-break">
+  <tr><th>#</th><th>Process Name</th><th>Inputs</th><th>Outputs</th><th>Data Stores Used</th></tr>
+  <tr>
+    <td><strong>1.0</strong></td>
+    <td>User Authentication</td>
+    <td>Name, email, phone, password (register)<br/>Email + password (login)</td>
+    <td>JWT token, user session, or error message</td>
+    <td>D1 (read/write)</td>
+  </tr>
+  <tr>
+    <td><strong>2.0</strong></td>
+    <td>Menu Management</td>
+    <td>Category/item data from Admin<br/>Search query / category filter from Customer</td>
+    <td>Menu list, item details, category list</td>
+    <td>D2 (read/write)</td>
+  </tr>
+  <tr>
+    <td><strong>3.0</strong></td>
+    <td>Order Processing</td>
+    <td>Cart items + delivery type from Customer</td>
+    <td>Order record (PENDING), inventory deducted, order ID returned</td>
+    <td>D3 (write), D5 (update)</td>
+  </tr>
+  <tr>
+    <td><strong>4.0</strong></td>
+    <td>Payment Processing</td>
+    <td>Order ID, payment method, amount from Customer</td>
+    <td>Payment record, wallet deducted, order status → CONFIRMED (Paid)</td>
+    <td>D4 (write), D1 (update wallet), D3 (update status), D6 (write log)</td>
+  </tr>
+  <tr>
+    <td><strong>5.0</strong></td>
+    <td>Order Status Management</td>
+    <td>Status action from Admin (Start Preparing / Mark Ready / Mark Completed / Cancel)</td>
+    <td>Updated order status, order history visible to customer</td>
+    <td>D3 (read/update)</td>
+  </tr>
+  <tr>
+    <td><strong>6.0</strong></td>
+    <td>Inventory Management</td>
+    <td>Stock-in / stock-out quantity from Admin</td>
+    <td>Updated inventory levels, low-stock alerts</td>
+    <td>D5 (read/write)</td>
+  </tr>
+</table>
+
+<!-- DFD SVG -->
+<h2 class="section">3.4 DFD Level 1 Diagram</h2>
+<div class="dfd-wrap">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 780" width="820">
+  <defs>
+    <marker id="a1" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L7,3 z" fill="#444"/>
+    </marker>
+  </defs>
+  <style>
+    .ext { fill:#fff3eb; stroke:#e55a00; stroke-width:2; }
+    .ext2 { fill:#f0fff4; stroke:#2e7d32; stroke-width:2; }
+    .proc { fill:#fff; stroke:#1565c0; stroke-width:1.8; }
+    .store { fill:#f8f8f8; stroke:#555; stroke-width:1.5; }
+    .dfl { fill:none; stroke:#444; stroke-width:1.3; marker-end:url(#a1); }
+    .dfl-r { fill:none; stroke:#888; stroke-width:1.1; stroke-dasharray:4; marker-end:url(#a1); }
+    .t { font:11px 'Segoe UI',Arial,sans-serif; fill:#1a1a1a; text-anchor:middle; dominant-baseline:middle; }
+    .tb { font:11px 'Segoe UI',Arial,sans-serif; font-weight:700; fill:#1a1a1a; text-anchor:middle; dominant-baseline:middle; }
+    .te { font:10.5px 'Segoe UI',Arial,sans-serif; font-weight:700; fill:#e55a00; text-anchor:middle; dominant-baseline:middle; }
+    .tg { font:10.5px 'Segoe UI',Arial,sans-serif; font-weight:700; fill:#2e7d32; text-anchor:middle; dominant-baseline:middle; }
+    .tp { font:10.5px 'Segoe UI',Arial,sans-serif; font-weight:700; fill:#1565c0; text-anchor:middle; dominant-baseline:middle; }
+    .ts { font:9.5px 'Segoe UI',Arial,sans-serif; fill:#555; text-anchor:middle; }
+    .tflow { font:8.5px 'Segoe UI',Arial,sans-serif; fill:#888; }
+  </style>
+
+  <rect width="820" height="780" fill="#fafafa" rx="8"/>
+
+  <!-- ── EXTERNAL ENTITIES ── -->
+  <!-- Customer (top-left) -->
+  <rect x="20" y="60" width="120" height="52" rx="8" class="ext"/>
+  <text class="te" x="80" y="82">CUSTOMER</text>
+  <text class="t" x="80" y="97">External Entity</text>
+
+  <!-- Admin (top-right) -->
+  <rect x="680" y="60" width="120" height="52" rx="8" class="ext2"/>
+  <text class="tg" x="740" y="82">ADMIN / STAFF</text>
+  <text class="t" x="740" y="97">External Entity</text>
+
+  <!-- ── PROCESSES ── (placed in two rows) -->
+  <!-- 1.0 Auth (centre-top) -->
+  <ellipse cx="240" cy="100" rx="80" ry="36" class="proc"/>
+  <text class="tp" x="240" y="93">1.0</text>
+  <text class="tb" x="240" y="107">User Auth</text>
+
+  <!-- 2.0 Menu (centre) -->
+  <ellipse cx="410" cy="100" rx="80" ry="36" class="proc"/>
+  <text class="tp" x="410" y="93">2.0</text>
+  <text class="tb" x="410" y="107">Menu Mgmt</text>
+
+  <!-- 3.0 Order (left-mid) -->
+  <ellipse cx="160" cy="310" rx="80" ry="36" class="proc"/>
+  <text class="tp" x="160" y="303">3.0</text>
+  <text class="tb" x="160" y="317">Order Processing</text>
+
+  <!-- 4.0 Payment (centre-mid) -->
+  <ellipse cx="410" cy="310" rx="80" ry="36" class="proc"/>
+  <text class="tp" x="410" y="303">4.0</text>
+  <text class="tb" x="410" y="317">Payment Processing</text>
+
+  <!-- 5.0 Order Status (right-mid) -->
+  <ellipse cx="650" cy="310" rx="80" ry="36" class="proc"/>
+  <text class="tp" x="650" y="303">5.0</text>
+  <text class="tb" x="650" y="317">Order Status Mgmt</text>
+
+  <!-- 6.0 Inventory (right-low) -->
+  <ellipse cx="650" cy="520" rx="80" ry="36" class="proc"/>
+  <text class="tp" x="650" y="513">6.0</text>
+  <text class="tb" x="650" y="527">Inventory Mgmt</text>
+
+  <!-- ── DATA STORES ── -->
+  <!-- D1 Users -->
+  <rect x="20" y="430" width="140" height="34" rx="0" class="store"/>
+  <line x1="46" y1="430" x2="46" y2="464" stroke="#555" stroke-width="1.5"/>
+  <text class="ts" x="33" y="447">D1</text>
+  <text class="ts" x="103" y="447">Users</text>
+
+  <!-- D2 Menu -->
+  <rect x="330" y="430" width="160" height="34" rx="0" class="store"/>
+  <line x1="356" y1="430" x2="356" y2="464" stroke="#555" stroke-width="1.5"/>
+  <text class="ts" x="343" y="447">D2</text>
+  <text class="ts" x="430" y="447">Menu Items</text>
+
+  <!-- D3 Orders -->
+  <rect x="20" y="540" width="140" height="34" rx="0" class="store"/>
+  <line x1="46" y1="540" x2="46" y2="574" stroke="#555" stroke-width="1.5"/>
+  <text class="ts" x="33" y="557">D3</text>
+  <text class="ts" x="103" y="557">Orders</text>
+
+  <!-- D4 Payments -->
+  <rect x="330" y="600" width="160" height="34" rx="0" class="store"/>
+  <line x1="356" y1="600" x2="356" y2="634" stroke="#555" stroke-width="1.5"/>
+  <text class="ts" x="343" y="617">D4</text>
+  <text class="ts" x="430" y="617">Payments</text>
+
+  <!-- D5 Inventory -->
+  <rect x="555" y="640" width="160" height="34" rx="0" class="store"/>
+  <line x1="581" y1="640" x2="581" y2="674" stroke="#555" stroke-width="1.5"/>
+  <text class="ts" x="568" y="657">D5</text>
+  <text class="ts" x="648" y="657">Inventory</text>
+
+  <!-- D6 Wallet Transactions -->
+  <rect x="330" y="700" width="160" height="34" rx="0" class="store"/>
+  <line x1="356" y1="700" x2="356" y2="734" stroke="#555" stroke-width="1.5"/>
+  <text class="ts" x="343" y="717">D6</text>
+  <text class="ts" x="430" y="717">Wallet Txns</text>
+
+  <!-- ═══════════════ DATA FLOWS ═══════════════ -->
+
+  <!-- Customer → 1.0 (register/login) -->
+  <path d="M140,80 Q190,80 160,80" class="dfl" d="M140,80 L160,80"/>
+  <path d="M140,80 L160,80" class="dfl"/>
+  <text class="tflow" x="150" y="74">credentials</text>
+
+  <!-- 1.0 → Customer (JWT) -->
+  <path d="M160,106 Q150,120 80,116" class="dfl"/>
+  <text class="tflow" x="120" y="124">JWT token</text>
+
+  <!-- 1.0 ↔ D1 -->
+  <path d="M185,127 L90,430" class="dfl"/>
+  <text class="tflow" x="120" y="290">read/write user</text>
+  <path d="M90,430 L185,127" class="dfl-r"/>
+
+  <!-- Admin → 2.0 (menu data) -->
+  <path d="M680,86 L490,100" class="dfl"/>
+  <text class="tflow" x="585" y="80">item data</text>
+
+  <!-- Customer → 2.0 (browse/search) -->
+  <path d="M140,86 L330,95" class="dfl"/>
+  <text class="tflow" x="235" y="80">search/filter</text>
+
+  <!-- 2.0 → Customer (menu list) -->
+  <path d="M330,106 L140,106" class="dfl"/>
+  <text class="tflow" x="235" y="115">menu list</text>
+
+  <!-- 2.0 ↔ D2 -->
+  <path d="M410,136 L410,430" class="dfl"/>
+  <text class="tflow" x="418" y="285">read/write items</text>
+  <path d="M410,430 L410,136" class="dfl-r"/>
+
+  <!-- Customer → 3.0 (cart items) -->
+  <path d="M80,112 L80,310" class="dfl"/>
+  <path d="M80,310 L80,310" class="dfl"/>
+  <path d="M80,112 Q80,310 80,310" class="dfl"/>
+  <path d="M80,310 L80,310"/>
+  <!-- simpler line -->
+  <path d="M80,112 L80,280 L80,310" fill="none" stroke="#444" stroke-width="1.3" marker-end="url(#a1)"/>
+  <text class="tflow" x="50" y="210">cart items</text>
+
+  <!-- 3.0 → D3 (write order) -->
+  <path d="M130,336 L90,540" class="dfl"/>
+  <text class="tflow" x="90" y="440">write order</text>
+
+  <!-- 3.0 → D5 (deduct stock) -->
+  <path d="M220,320 L555,630" class="dfl"/>
+  <text class="tflow" x="370" y="465">deduct inventory</text>
+
+  <!-- 3.0 → 4.0 (order_id) -->
+  <path d="M240,310 L330,310" class="dfl"/>
+  <text class="tflow" x="285" y="303">order_id</text>
+
+  <!-- Customer → 4.0 (payment) -->
+  <path d="M80,115 Q80,200 330,300" class="dfl"/>
+  <text class="tflow" x="170" y="195">payment method + amount</text>
+
+  <!-- 4.0 → D4 (write payment) -->
+  <path d="M430,344 L430,600" class="dfl"/>
+  <text class="tflow" x="445" y="475">write payment</text>
+
+  <!-- 4.0 → D1 (deduct wallet) -->
+  <path d="M350,330 L90,447" class="dfl"/>
+  <text class="tflow" x="210" y="375">deduct wallet</text>
+
+  <!-- 4.0 → D3 (update status CONFIRMED) -->
+  <path d="M360,334 L180,540" class="dfl"/>
+  <text class="tflow" x="250" y="445">update status→Paid</text>
+
+  <!-- 4.0 → D6 (wallet log) -->
+  <path d="M410,344 L410,700" class="dfl"/>
+  <text class="tflow" x="422" y="530">wallet log</text>
+
+  <!-- Admin → 5.0 (status action) -->
+  <path d="M740,112 L740,300 L730,310" class="dfl"/>
+  <text class="tflow" x="748" y="210">status action</text>
+
+  <!-- 5.0 ↔ D3 -->
+  <path d="M590,334 L180,554" class="dfl"/>
+  <text class="tflow" x="380" y="445">update/read status</text>
+  <path d="M180,554 L590,334" class="dfl-r"/>
+
+  <!-- D3 → Customer (order history) -->
+  <path d="M50,540 L50,140 L140,112" class="dfl"/>
+  <text class="tflow" x="20" y="330">order history</text>
+
+  <!-- Admin → 6.0 (stock change) -->
+  <path d="M740,112 L740,520 L730,520" class="dfl"/>
+  <text class="tflow" x="748" y="320">stock-in/out</text>
+
+  <!-- 6.0 ↔ D5 -->
+  <path d="M650,556 L650,640" class="dfl"/>
+  <text class="tflow" x="662" y="600">update stock</text>
+  <path d="M650,640 L650,556" class="dfl-r"/>
+
+  <!-- Low stock → Admin -->
+  <path d="M715,520 L740,520 L740,112" class="dfl-r"/>
+  <text class="tflow" x="758" y="420">low stock alert</text>
+
+  <!-- Legend -->
+  <rect x="20" y="720" width="300" height="52" rx="6" fill="#f5f5f5" stroke="#ddd"/>
+  <text style="font:10px 'Segoe UI',Arial,sans-serif;font-weight:700;fill:#555" x="30" y="738">Legend</text>
+  <line x1="30" y1="752" x2="75" y2="752" stroke="#444" stroke-width="1.5" marker-end="url(#a1)"/>
+  <text style="font:9.5px 'Segoe UI',Arial,sans-serif;fill:#444" x="80" y="755">Data Flow</text>
+  <line x1="160" y1="752" x2="205" y2="752" stroke="#888" stroke-width="1.1" stroke-dasharray="4" marker-end="url(#a1)"/>
+  <text style="font:9.5px 'Segoe UI',Arial,sans-serif;fill:#888" x="212" y="755">Reverse/Read Flow</text>
+  <rect x="30" y="760" width="14" height="10" rx="1" fill="#fff3eb" stroke="#e55a00" stroke-width="1.2"/>
+  <text style="font:9.5px 'Segoe UI',Arial,sans-serif;fill:#e55a00" x="50" y="768">External Entity (Customer)</text>
+  <rect x="155" y="760" width="14" height="10" rx="1" fill="#f0fff4" stroke="#2e7d32" stroke-width="1.2"/>
+  <text style="font:9.5px 'Segoe UI',Arial,sans-serif;fill:#2e7d32" x="175" y="768">External Entity (Admin)</text>
+</svg>
+</div>
+
+
+<!-- ══════════════════ 4. ORDER STATUS LIFECYCLE ══════════════════ -->
+<h1 class="section">4. Order Status Lifecycle</h1>
+<p style="font-size:11.5pt; margin-bottom:16px;">
+  Orders pass through the following statuses. The <strong>database enum</strong> stores the raw value; the UI displays the friendly label shown below.
+</p>
+<table class="no-break">
+  <tr><th>DB Value</th><th>UI Label</th><th>Triggered By</th><th>Description</th></tr>
+  <tr><td>PENDING</td><td>Pending</td><td>System (on order create)</td><td>Order created, awaiting payment</td></tr>
+  <tr><td>CONFIRMED</td><td>Paid</td><td>System (on payment success)</td><td>Payment received, waiting for staff to start</td></tr>
+  <tr><td>PREPARING</td><td>Preparing</td><td>Admin/Staff → "Start Preparing"</td><td>Kitchen is preparing the order</td></tr>
+  <tr><td>READY</td><td>Ready for Pickup</td><td>Admin/Staff → "Mark Ready"</td><td>Order is ready at the counter</td></tr>
+  <tr><td>PICKED_UP</td><td>Completed</td><td>Admin/Staff → "Mark Completed"</td><td>Customer has received the order</td></tr>
+  <tr><td>CANCELLED</td><td>Cancelled</td><td>Customer (Pending/Paid only) or Admin</td><td>Order was cancelled; inventory restored</td></tr>
+</table>
+
+<div class="status-flow no-break">
+  <div class="status-box grey">PENDING</div>
+  <div class="status-arrow">→</div>
+  <div class="status-box">CONFIRMED<br/><span style="font-size:8pt;font-weight:400">(Paid)</span></div>
+  <div class="status-arrow">→</div>
+  <div class="status-box" style="background:#d84315">PREPARING</div>
+  <div class="status-arrow">→</div>
+  <div class="status-box" style="background:#1565c0">READY</div>
+  <div class="status-arrow">→</div>
+  <div class="status-box green">PICKED_UP<br/><span style="font-size:8pt;font-weight:400">(Completed)</span></div>
+</div>
+<div class="note"><strong>Note:</strong> If payment fails after an order is created, the system automatically cancels the order to prevent orphaned PENDING records in the database.</div>
+
+
+<!-- ══════════════════ 5. DATABASE SCHEMA ══════════════════ -->
+<h1 class="section">5. Database Schema Summary</h1>
+<p style="font-size:11.5pt; margin-bottom:16px;">
+  The system uses <strong>PostgreSQL 16</strong> with 9 tables. Relationships are enforced via foreign keys with cascading rules.
+</p>
+<div class="diagram no-break">
+<pre>
+users (D1)
+ ├── user_id         SERIAL PRIMARY KEY
+ ├── email           VARCHAR(255) UNIQUE NOT NULL
+ ├── phone           VARCHAR(20)
+ ├── password_hash   VARCHAR(255) NOT NULL
+ ├── full_name       VARCHAR(255) NOT NULL
+ ├── role            ENUM(ADMIN, STAFF, CUSTOMER, FINANCE)
+ ├── status          ENUM(ACTIVE, INACTIVE, SUSPENDED)
+ ├── wallet_balance  DECIMAL(10,2) DEFAULT 0.00
+ └── created_at      TIMESTAMP
+
+menu_categories (D2)
+ ├── category_id     SERIAL PRIMARY KEY
+ └── name, description, display_order, is_active
+
+menu_items (D2)
+ ├── item_id         SERIAL PRIMARY KEY
+ ├── category_id     FK → menu_categories
+ ├── name, description, base_price
+ ├── is_vegetarian, prep_time_minutes, is_active
+ └── image_url       VARCHAR
+
+orders (D3)
+ ├── order_id        SERIAL PRIMARY KEY
+ ├── user_id         FK → users
+ ├── order_number    VARCHAR UNIQUE
+ ├── status          ENUM(PENDING,CONFIRMED,PREPARING,READY,PICKED_UP,DELIVERED,CANCELLED)
+ ├── delivery_type   ENUM(PICKUP, DELIVERY)
+ ├── subtotal, tax_amount, discount_amount, total_amount
+ └── created_at
+
+order_items (D3)
+ ├── order_item_id   SERIAL PRIMARY KEY
+ ├── order_id        FK → orders
+ ├── item_id         FK → menu_items
+ ├── quantity, base_price, subtotal
+ └── created_at
+
+payments (D4)
+ ├── payment_id      SERIAL PRIMARY KEY
+ ├── order_id        FK → orders
+ ├── user_id         FK → users
+ ├── payment_method  ENUM(WALLET, CARD, CASH, ...)
+ ├── amount, status  ENUM(PENDING,SUCCESS,FAILED,REFUNDED)
+ └── transaction_id
+
+inventory (D5)
+ ├── inventory_id    SERIAL PRIMARY KEY
+ ├── item_id         FK → menu_items (UNIQUE)
+ ├── quantity_available, reorder_level
+ └── unit_cost, last_stock_check
+
+wallet_transactions (D6)
+ ├── transaction_id  SERIAL PRIMARY KEY
+ ├── user_id         FK → users
+ ├── amount, transaction_type
+ ├── balance_after
+ └── created_at
+
+feedback
+ ├── feedback_id     SERIAL PRIMARY KEY
+ ├── order_id        FK → orders
+ ├── user_id         FK → users
+ └── rating (1-5), comment, feedback_type, status
+</pre>
+</div>
+
+
+<!-- ══════════════════ 6. API ENDPOINTS ══════════════════ -->
+<h1 class="section">6. API Endpoints Summary</h1>
+<table class="no-break">
+  <tr><th>Module</th><th>Method</th><th>Endpoint</th><th>Access</th><th>Description</th></tr>
+  <tr><td rowspan="5">Auth</td><td>POST</td><td>/api/auth/register</td><td>Public</td><td>Register new account</td></tr>
+  <tr><td>POST</td><td>/api/auth/login</td><td>Public</td><td>Login, returns JWT</td></tr>
+  <tr><td>GET</td><td>/api/auth/profile</td><td>Auth</td><td>Get own profile</td></tr>
+  <tr><td>PUT</td><td>/api/auth/profile</td><td>Auth</td><td>Update profile</td></tr>
+  <tr><td>POST</td><td>/api/auth/logout</td><td>Auth</td><td>Logout</td></tr>
+  <tr><td rowspan="5">Menu</td><td>GET</td><td>/api/menu/items</td><td>Public</td><td>Get all menu items</td></tr>
+  <tr><td>GET</td><td>/api/menu/categories</td><td>Public</td><td>Get all categories</td></tr>
+  <tr><td>GET</td><td>/api/menu/search</td><td>Public</td><td>Search items</td></tr>
+  <tr><td>POST/PUT</td><td>/api/menu/items</td><td>Admin/Staff</td><td>Create or update item</td></tr>
+  <tr><td>POST</td><td>/api/menu/items/:id/image</td><td>Admin/Staff</td><td>Upload item image</td></tr>
+  <tr><td rowspan="5">Orders</td><td>POST</td><td>/api/orders</td><td>Auth</td><td>Place new order</td></tr>
+  <tr><td>GET</td><td>/api/orders</td><td>Auth</td><td>Get own orders</td></tr>
+  <tr><td>GET</td><td>/api/orders/:id</td><td>Auth</td><td>Get order detail</td></tr>
+  <tr><td>PUT</td><td>/api/orders/:id/cancel</td><td>Auth</td><td>Cancel order</td></tr>
+  <tr><td>GET/PUT</td><td>/api/orders/admin/all</td><td>Admin/Staff</td><td>Get all orders / update status</td></tr>
+  <tr><td rowspan="4">Payments</td><td>POST</td><td>/api/payments/process</td><td>Auth</td><td>Pay for an order</td></tr>
+  <tr><td>POST</td><td>/api/payments/wallet/topup</td><td>Auth</td><td>Top up wallet</td></tr>
+  <tr><td>GET</td><td>/api/payments/wallet/balance</td><td>Auth</td><td>Get wallet balance</td></tr>
+  <tr><td>GET</td><td>/api/payments/status/:id</td><td>Auth</td><td>Get payment status</td></tr>
+  <tr><td rowspan="4">Inventory</td><td>GET</td><td>/api/inventory</td><td>Admin/Staff</td><td>Get all inventory</td></tr>
+  <tr><td>GET</td><td>/api/inventory/low-stock</td><td>Admin/Staff</td><td>Get low stock items</td></tr>
+  <tr><td>POST</td><td>/api/inventory/items/:id/stock-in</td><td>Admin/Staff</td><td>Add stock</td></tr>
+  <tr><td>POST</td><td>/api/inventory/items/:id/stock-out</td><td>Admin/Staff</td><td>Remove stock</td></tr>
+</table>
+
+<div class="footer">
+  Canteen Management System &nbsp;|&nbsp; DeathKnell837/Canteen-Management &nbsp;|&nbsp; March 2026
+</div>
+
+</div><!-- .page -->
+</body>
+</html>
