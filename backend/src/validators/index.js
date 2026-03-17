@@ -37,7 +37,7 @@ const schemas = {
 
   processPayment: Joi.object({
     orderId: Joi.number().positive().required(),
-    paymentMethod: Joi.string().valid('ONLINE_TRANSACTION', 'DIRECT_CASH', 'WALLET', 'CARD', 'MOBILE_PAYMENT', 'CASH').required(),
+    paymentMethod: Joi.string().valid('ONLINE_PAYMENT', 'ONLINE_TRANSACTION', 'DIRECT_CASH', 'WALLET', 'CARD', 'MOBILE_PAYMENT', 'CASH').required(),
     amount: Joi.number().positive().required()
   }),
 

@@ -5,6 +5,7 @@ const { AppError } = require('../utils/errorHandler');
 class PaymentService {
   async processPayment(orderId, userId, paymentMethod, amount) {
     const methodMap = {
+      ONLINE_PAYMENT: 'WALLET',
       ONLINE_TRANSACTION: 'WALLET',
       DIRECT_CASH: 'CASH'
     };

@@ -104,7 +104,7 @@ export default function Wallet() {
         <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Manage your wallet balance</p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
         {/* Balance card */}
         <div className="bg-gradient-to-br from-brand-500 via-brand-600 to-brand-800 rounded-3xl p-7 text-white relative overflow-hidden shadow-xl shadow-brand-500/20 animate-fade-in-up">
           {/* Decorative shapes */}
@@ -335,7 +335,7 @@ export default function Wallet() {
             </div>
             <div>
               <p className="font-semibold text-gray-900 dark:text-white">Checkout Payment Methods</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Online Transaction or Direct Cash</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Online Payment or Direct Cash</p>
               <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">Online channels: GCash, Maya, Bank</p>
             </div>
           </div>
