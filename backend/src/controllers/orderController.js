@@ -109,6 +109,42 @@ const orderController = {
       success: true,
       data: result.rows
     });
+  }),
+
+  getSalesReport: asyncHandler(async (req, res) => {
+    const { pool } = require('../config/database');
+
+    const [summaryRes, topItemsRes] = await Promise.all([
+      pool.query(
+        `SELECT
+           COUNT(*)::INT AS total_orders,
+           COUNT(*) FILTER (WHERE status <> 'CANCELLED')::INT AS successful_orders,
+           COALESCE(SUM(total_amount) FILTER (WHERE status <> 'CANCELLED'), 0)::DECIMAL(10,2) AS total_revenue
+         FROM orders`
+      ),
+      pool.query(
+        `SELECT
+           m.item_id,
+           m.name,
+           COALESCE(SUM(oi.quantity), 0)::INT AS units_sold,
+           COALESCE(SUM(oi.subtotal), 0)::DECIMAL(10,2) AS sales
+         FROM order_items oi
+         JOIN orders o ON oi.order_id = o.order_id
+         JOIN menu_items m ON oi.item_id = m.item_id
+         WHERE o.status <> 'CANCELLED'
+         GROUP BY m.item_id, m.name
+         ORDER BY units_sold DESC, sales DESC
+         LIMIT 10`
+      )
+    ]);
+
+    res.status(200).json({
+      success: true,
+      data: {
+        summary: summaryRes.rows[0],
+        topSellingItems: topItemsRes.rows
+      }
+    });
   })
 };
 

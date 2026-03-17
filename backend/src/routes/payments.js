@@ -18,4 +18,7 @@ router.post('/wallet/topup', validateTopup, paymentController.topupWallet);
 // Get wallet balance
 router.get('/wallet/balance', paymentController.getWalletBalance);
 
+// Get wallet transaction history
+router.get('/wallet/transactions', paymentController.getWalletTransactions);
+
 module.exports = router;

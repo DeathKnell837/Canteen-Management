@@ -56,6 +56,18 @@ const paymentController = {
         wallet_balance: user.wallet_balance
       }
     });
+  }),
+
+  getWalletTransactions: asyncHandler(async (req, res) => {
+    const userId = req.user.id;
+    const { limit = 50 } = req.query;
+
+    const data = await paymentService.getWalletTransactions(userId, limit);
+
+    res.status(200).json({
+      success: true,
+      data
+    });
   })
 };
 

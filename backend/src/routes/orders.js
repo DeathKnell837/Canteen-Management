@@ -15,5 +15,6 @@ router.put('/:orderId/cancel', orderController.cancelOrder);
 // Admin/Staff routes
 router.put('/:orderId/status', authorize('ADMIN', 'STAFF'), orderController.updateStatus);
 router.get('/admin/all', authorize('ADMIN', 'STAFF'), orderController.getAllOrders);
+router.get('/admin/reports/summary', authorize('ADMIN', 'STAFF'), orderController.getSalesReport);
 
 module.exports = router;

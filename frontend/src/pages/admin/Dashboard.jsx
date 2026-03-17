@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { LayoutDashboard, ShoppingBag, UtensilsCrossed, AlertTriangle, Clock, TrendingUp } from 'lucide-react';
 import api from '../../api/axios';
 
@@ -87,7 +88,7 @@ export default function Dashboard() {
           </div>
           Dashboard
         </h1>
-        <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Overview of your canteen operations</p>
+        <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Overview of your cafeteria operations</p>
       </div>
 
       {/* Stats grid */}
@@ -159,6 +160,15 @@ export default function Dashboard() {
             ))}
           </div>
         )}
+      </div>
+
+      <div className="mt-6">
+        <Link
+          to="/admin/reports"
+          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-brand-50 dark:bg-brand-900/20 text-brand-600 dark:text-brand-400 font-semibold hover:bg-brand-100 dark:hover:bg-brand-900/30 transition-colors"
+        >
+          View Detailed Reports
+        </Link>
       </div>
     </div>
   );

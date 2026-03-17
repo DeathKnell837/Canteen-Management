@@ -18,6 +18,11 @@ export default function Cart() {
 
   const handleCheckout = async () => {
     if (items.length === 0 || submitting.current) return;
+
+    if (!window.confirm(`Confirm wallet payment of ₱${grandTotal.toFixed(2)} for this order?`)) {
+      return;
+    }
+
     submitting.current = true;
     setLoading(true);
     let createdOrderId = null;

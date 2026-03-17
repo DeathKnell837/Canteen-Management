@@ -43,7 +43,7 @@ export default function Menu() {
       if (activeCat !== 'all' && String(item.category_id) !== String(activeCat)) return false;
       if (search && !item.name.toLowerCase().includes(search.toLowerCase())) return false;
       return true;
-    });
+    }).sort((a, b) => a.name.localeCompare(b.name));
   }, [items, activeCat, search]);
 
   const getCartQty = (id) => {
@@ -52,6 +52,11 @@ export default function Menu() {
   };
 
   const handleAdd = (item) => {
+    if (parseFloat(item.quantity_available ?? 9999) <= 0) {
+      toast.error(`${item.name} is out of stock`);
+      return;
+    }
+
     addItem({
       item_id: item.item_id,
       name: item.name,
@@ -59,7 +64,7 @@ export default function Menu() {
     });
     setAddedId(item.item_id);
     setTimeout(() => setAddedId(null), 800);
-    toast.success(`${item.name} added to cart`, { duration: 1500, icon: '🛒' });
+    toast.success(`${item.name} added to cart`, { duration: 1500 });
   };
 
   if (loading) {
@@ -139,7 +144,7 @@ export default function Menu() {
       {/* Items grid */}
       {filtered.length === 0 ? (
         <div className="text-center py-20 animate-fade-in">
-          <div className="text-6xl mb-4">🔍</div>
+          <Search className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
           <p className="text-gray-500 dark:text-gray-400 font-medium text-lg">No items found</p>
           <p className="text-gray-400 dark:text-gray-500 text-sm mt-1">Try a different category or search term</p>
         </div>
@@ -148,6 +153,9 @@ export default function Menu() {
           {filtered.map((item, idx) => {
             const qty = getCartQty(item.item_id);
             const isAdding = addedId === item.item_id;
+            const stock = parseFloat(item.quantity_available ?? 9999);
+            const isOutOfStock = stock <= 0;
+            const isLowStock = stock > 0 && stock <= 10;
             return (
               <div
                 key={item.item_id}
@@ -171,6 +179,14 @@ export default function Menu() {
                     ) : (
                       <span className="inline-flex items-center gap-1 bg-red-500/90 text-white text-xs font-medium px-2.5 py-1 rounded-full glass">
                         <Flame className="w-3 h-3" /> Non-veg
+                      </span>
+                    )}
+
+                    {item.quantity_available != null && (
+                      <span className={`inline-flex items-center gap-1 text-white text-xs font-medium px-2.5 py-1 rounded-full glass ${
+                        isOutOfStock ? 'bg-red-600/90' : isLowStock ? 'bg-amber-500/90' : 'bg-emerald-500/90'
+                      }`}>
+                        {isOutOfStock ? 'Out of Stock' : isLowStock ? 'Low Stock' : 'In Stock'}
                       </span>
                     )}
                   </div>
@@ -197,13 +213,18 @@ export default function Menu() {
                     </div>
                     <button
                       onClick={(e) => { e.stopPropagation(); handleAdd(item); }}
+                      disabled={isOutOfStock}
                       className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-300 active:scale-95 ${
-                        isAdding
+                        isOutOfStock
+                          ? 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'
+                          : isAdding
                           ? 'bg-green-500 text-white shadow-lg shadow-green-500/30'
                           : 'bg-gradient-to-r from-brand-500 to-brand-600 text-white shadow-md shadow-brand-500/25 hover:shadow-lg hover:shadow-brand-500/30'
                       }`}
                     >
-                      {isAdding ? (
+                      {isOutOfStock ? (
+                        'Unavailable'
+                      ) : isAdding ? (
                         <>
                           <Check className="w-4 h-4" /> Added!
                         </>

@@ -8,10 +8,12 @@ import Menu from './pages/customer/Menu';
 import Cart from './pages/customer/Cart';
 import Orders from './pages/customer/Orders';
 import Wallet from './pages/customer/Wallet';
+import Transactions from './pages/customer/Transactions';
 import Dashboard from './pages/admin/Dashboard';
 import MenuManagement from './pages/admin/MenuManagement';
 import OrderManagement from './pages/admin/OrderManagement';
 import Inventory from './pages/admin/Inventory';
+import Reports from './pages/admin/Reports';
 
 export default function App() {
   const { user } = useAuth();
@@ -29,6 +31,7 @@ export default function App() {
           <Route path="/cart" element={<Cart />} />
           <Route path="/orders" element={<Orders />} />
           <Route path="/wallet" element={<Wallet />} />
+          <Route path="/transactions" element={<Transactions />} />
         </Route>
       </Route>
 
@@ -39,6 +42,7 @@ export default function App() {
           <Route path="/admin/menu" element={<MenuManagement />} />
           <Route path="/admin/orders" element={<OrderManagement />} />
           <Route path="/admin/inventory" element={<Inventory />} />
+          <Route path="/admin/reports" element={<Reports />} />
         </Route>
       </Route>
 

@@ -18,6 +18,8 @@ import {
   X,
   Sun,
   Moon,
+  BarChart3,
+  ReceiptText,
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
@@ -26,6 +28,7 @@ const customerNav = [
   { to: '/cart', label: 'Cart', icon: ShoppingCart, badge: true },
   { to: '/orders', label: 'My Orders', icon: ClipboardList },
   { to: '/wallet', label: 'Wallet', icon: Wallet },
+  { to: '/transactions', label: 'Transactions', icon: ReceiptText },
 ];
 
 const adminNav = [
@@ -33,6 +36,7 @@ const adminNav = [
   { to: '/admin/menu', label: 'Menu Mgmt', icon: BookOpen },
   { to: '/admin/orders', label: 'Orders', icon: ClipboardList },
   { to: '/admin/inventory', label: 'Inventory', icon: Package },
+  { to: '/admin/reports', label: 'Reports', icon: BarChart3 },
 ];
 
 export default function Sidebar() {
@@ -87,7 +91,7 @@ export default function Sidebar() {
           </div>
           {!collapsed && (
             <span className="font-bold text-gray-900 dark:text-white text-sm leading-tight animate-fade-in">
-              Canteen<br />Management
+              R&R<br />Cafeteria
             </span>
           )}
           {/* Mobile close */}

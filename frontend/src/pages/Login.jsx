@@ -45,7 +45,7 @@ export default function Login() {
             <UtensilsCrossed className="w-8 h-8 text-white" />
           </div>
           <h1 className="text-4xl font-bold text-white mb-4 leading-tight">
-            Canteen<br />Management System
+            R&R<br />Cafeteria
           </h1>
           <p className="text-brand-100 text-lg leading-relaxed max-w-md">
             Order meals, manage your wallet, and track your orders — all in one place.
@@ -79,7 +79,7 @@ export default function Login() {
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-500 to-brand-600 flex items-center justify-center shadow-lg shadow-brand-500/20">
               <UtensilsCrossed className="w-5 h-5 text-white" />
             </div>
-            <span className="font-bold text-lg text-gray-900 dark:text-white">Canteen Management</span>
+            <span className="font-bold text-lg text-gray-900 dark:text-white">R&R Cafeteria</span>
           </div>
 
           <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-1">Welcome back</h2>

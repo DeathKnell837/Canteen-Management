@@ -314,8 +314,8 @@ function ReceiptModal({ order, onClose }) {
         <div className="p-5" id="receipt-content">
           <div className="center">
             <UtensilsCrossed className="w-6 h-6 mx-auto mb-1 text-gray-700 dark:text-gray-300" />
-            <h2 className="bold">Canteen</h2>
-            <p style={{fontSize: 12, color: '#888'}}>Canteen Management System</p>
+            <h2 className="bold">R&R Cafeteria</h2>
+            <p style={{fontSize: 12, color: '#888'}}>R&R Cafeteria</p>
             <div className="line" />
           </div>
 

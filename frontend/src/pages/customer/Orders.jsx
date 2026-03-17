@@ -192,7 +192,7 @@ function ReceiptModal({ order, onClose }) {
 .center{text-align:center}.line{border-top:1px dashed #000;margin:8px 0}
 .row{display:flex;justify-content:space-between}.bold{font-weight:bold}
 @media print{button{display:none}}</style></head><body>
-<div class="center"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin:0 auto"><path d="m16 2-2.3 2.3a3 3 0 0 0 0 4.2l1.8 1.8a3 3 0 0 0 4.2 0L22 8"/><path d="M15 15 3.3 3.3a4.2 4.2 0 0 0 0 6l7.3 7.3c1.7 1.7 4.3 1.7 6 0L15 15Zm0 0 7 7"/><path d="m2.1 21.8 6.4-6.3"/><path d="m19 5-7 7"/></svg><h2 style="margin:4px 0 0">Canteen</h2><p>Order Receipt</p></div>
+<div class="center"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin:0 auto"><path d="m16 2-2.3 2.3a3 3 0 0 0 0 4.2l1.8 1.8a3 3 0 0 0 4.2 0L22 8"/><path d="M15 15 3.3 3.3a4.2 4.2 0 0 0 0 6l7.3 7.3c1.7 1.7 4.3 1.7 6 0L15 15Zm0 0 7 7"/><path d="m2.1 21.8 6.4-6.3"/><path d="m19 5-7 7"/></svg><h2 style="margin:4px 0 0">R&R Cafeteria</h2><p>Order Receipt</p></div>
 <div class="line"></div>
 <div class="row"><span>Order #</span><span class="bold">${order.order_id}</span></div>
 <div class="row"><span>Date</span><span>${new Date(order.created_at).toLocaleDateString('en-PH',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})}</span></div>
@@ -217,7 +217,7 @@ ${tax>0?`<div class="row"><span>Tax</span><span>₱${tax.toFixed(2)}</span></div
         <div className="p-6">
           <div className="text-center mb-4">
             <UtensilsCrossed className="w-8 h-8 text-brand-500 mx-auto mb-1" />
-            <h3 className="text-lg font-bold text-gray-900 dark:text-white">Canteen Receipt</h3>
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white">R&R Cafeteria Receipt</h3>
           </div>
 
           <div className="border-t border-dashed border-gray-300 dark:border-gray-600 my-3" />

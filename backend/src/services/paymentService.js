@@ -1,4 +1,5 @@
 const { Payment, Order, User } = require('../models');
+const { pool } = require('../config/database');
 const { AppError } = require('../utils/errorHandler');
 
 class PaymentService {
@@ -25,7 +26,7 @@ class PaymentService {
 
     switch (paymentMethod) {
       case 'WALLET':
-        isSuccessful = await this.processWalletPayment(userId, amount);
+        isSuccessful = await this.processWalletPayment(userId, amount, orderId);
         break;
       case 'CASH':
         isSuccessful = true; // Cash payment marked as success (will be verified at counter)
@@ -55,14 +56,22 @@ class PaymentService {
     return updatedPayment;
   }
 
-  async processWalletPayment(userId, amount) {
+  async processWalletPayment(userId, amount, orderId = null) {
     const user = await User.findById(userId);
     if (!user || parseFloat(user.wallet_balance) < parseFloat(amount)) {
       return false;
     }
 
     // Deduct from wallet
-    await User.updateWalletBalance(userId, -amount);
+    const updatedWallet = await User.updateWalletBalance(userId, -amount);
+    await this.recordWalletTransaction(
+      userId,
+      -Math.abs(parseFloat(amount)),
+      'PURCHASE',
+      orderId ? String(orderId) : null,
+      orderId ? `Wallet payment for order #${orderId}` : 'Wallet purchase payment',
+      updatedWallet.wallet_balance
+    );
     return true;
   }
 
@@ -96,10 +105,40 @@ class PaymentService {
 
     // Add to wallet
     const result = await User.updateWalletBalance(userId, amount);
+    await this.recordWalletTransaction(
+      userId,
+      Math.abs(parseFloat(amount)),
+      'TOPUP',
+      `TOPUP-${Date.now()}`,
+      'Wallet top-up via GCash flow',
+      result.wallet_balance
+    );
     return {
       wallet_balance: result.wallet_balance,
       amount_added: amount
     };
+  }
+
+  async getWalletTransactions(userId, limit = 50) {
+    const parsedLimit = Math.min(Math.max(parseInt(limit) || 50, 1), 200);
+    const result = await pool.query(
+      `SELECT transaction_id, amount, transaction_type, reference_id, description, balance_after, created_at
+       FROM wallet_transactions
+       WHERE user_id = $1
+       ORDER BY created_at DESC
+       LIMIT $2`,
+      [userId, parsedLimit]
+    );
+
+    return result.rows;
+  }
+
+  async recordWalletTransaction(userId, amount, transactionType, referenceId, description, balanceAfter) {
+    await pool.query(
+      `INSERT INTO wallet_transactions (user_id, amount, transaction_type, reference_id, description, balance_after)
+       VALUES ($1, $2, $3, $4, $5, $6)`,
+      [userId, amount, transactionType, referenceId, description, balanceAfter]
+    );
   }
 }
 
