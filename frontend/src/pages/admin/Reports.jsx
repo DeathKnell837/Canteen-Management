@@ -30,8 +30,115 @@ export default function Reports() {
 
   const summary = report.summary || {};
 
+  const escapeHtml = (value) => String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+
   const handlePrint = () => {
-    window.print();
+    const summaryRows = [
+      ['Total Orders', String(summary.total_orders || 0)],
+      ['Successful Orders', String(summary.successful_orders || 0)],
+      ['Low Stock Items', String(lowStockItems.length)],
+      ['Total Revenue', `PHP ${parseFloat(summary.total_revenue || 0).toFixed(2)}`]
+    ];
+
+    const topSellingRows = (report.topSellingItems || []).map((item, idx) => `
+      <tr>
+        <td>${idx + 1}</td>
+        <td>${escapeHtml(item.name)}</td>
+        <td>${item.units_sold || 0}</td>
+        <td>PHP ${parseFloat(item.sales || 0).toFixed(2)}</td>
+      </tr>
+    `).join('');
+
+    const lowStockRows = (lowStockItems || []).map((item) => `
+      <tr>
+        <td>${escapeHtml(item.item_name)}</td>
+        <td>${item.quantity || 0}</td>
+        <td>${item.reorder_level || 0}</td>
+      </tr>
+    `).join('');
+
+    const printWindow = window.open('', '_blank', 'width=1024,height=768');
+    if (!printWindow) {
+      toast.error('Please allow pop-ups to print the report.');
+      return;
+    }
+
+    const html = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>R&R Cafeteria Reports</title>
+  <style>
+    @page { margin: 18mm; }
+    body { font-family: Arial, sans-serif; color: #111827; margin: 0; }
+    .header { margin-bottom: 18px; }
+    .title { font-size: 24px; font-weight: 700; margin: 0; }
+    .subtitle { font-size: 12px; color: #6b7280; margin-top: 4px; }
+    .section { margin-top: 18px; }
+    .section h2 { font-size: 16px; margin: 0 0 8px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { border: 1px solid #d1d5db; padding: 8px; font-size: 12px; text-align: left; }
+    th { background: #f3f4f6; }
+    .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .summary-item { border: 1px solid #d1d5db; border-radius: 8px; padding: 8px; }
+    .summary-item .k { color: #6b7280; font-size: 11px; }
+    .summary-item .v { font-size: 16px; font-weight: 700; margin-top: 2px; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1 class="title">R&R Cafeteria Reports</h1>
+    <p class="subtitle">Generated on ${new Date().toLocaleString('en-PH')}</p>
+  </div>
+
+  <div class="section">
+    <h2>Summary</h2>
+    <div class="summary-grid">
+      ${summaryRows.map(([k, v]) => `<div class="summary-item"><div class="k">${escapeHtml(k)}</div><div class="v">${escapeHtml(v)}</div></div>`).join('')}
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Top-Selling Items</h2>
+    <table>
+      <thead>
+        <tr><th>Rank</th><th>Item Name</th><th>Units Sold</th><th>Sales</th></tr>
+      </thead>
+      <tbody>
+        ${topSellingRows || '<tr><td colspan="4">No sales data yet.</td></tr>'}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section">
+    <h2>Low Stock Items</h2>
+    <table>
+      <thead>
+        <tr><th>Item Name</th><th>Quantity</th><th>Reorder Level</th></tr>
+      </thead>
+      <tbody>
+        ${lowStockRows || '<tr><td colspan="3">No low stock items.</td></tr>'}
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    window.onload = function () {
+      window.print();
+      setTimeout(function () { window.close(); }, 200);
+    };
+  </script>
+</body>
+</html>`;
+
+    printWindow.document.open();
+    printWindow.document.write(html);
+    printWindow.document.close();
   };
 
   const handleExportCSV = () => {
