@@ -23,12 +23,6 @@ export default function Cart() {
       return;
     }
 
-    const securityPassword = window.prompt('Enter your account password to authorize this payment:');
-    if (!securityPassword) {
-      toast.error('Payment authorization cancelled');
-      return;
-    }
-
     submitting.current = true;
     setLoading(true);
     let createdOrderId = null;
@@ -44,7 +38,6 @@ export default function Cart() {
         orderId: order.order_id,
         paymentMethod: 'WALLET',
         amount: parseFloat(order.total_amount),
-        securityPassword,
       });
 
       clearCart();

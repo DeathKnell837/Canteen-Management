@@ -38,13 +38,16 @@ const schemas = {
   processPayment: Joi.object({
     orderId: Joi.number().positive().required(),
     paymentMethod: Joi.string().valid('WALLET', 'CARD', 'CASH').required(),
-    amount: Joi.number().positive().required(),
-    securityPassword: Joi.string().min(8).required()
+    amount: Joi.number().positive().required()
   }),
 
   topupWallet: Joi.object({
     amount: Joi.number().positive().required(),
-    securityPassword: Joi.string().min(8).required()
+    securityPin: Joi.string().pattern(/^[0-9]{4,6}$/).required()
+  }),
+
+  setWalletPin: Joi.object({
+    pin: Joi.string().pattern(/^[0-9]{4,6}$/).required()
   }),
 
   stockChange: Joi.object({
@@ -81,6 +84,7 @@ const validateMenuItem = validate(schemas.createMenuItem);
 const validateCreateOrder = validate(schemas.createOrder);
 const validatePayment = validate(schemas.processPayment);
 const validateTopup = validate(schemas.topupWallet);
+const validateSetWalletPin = validate(schemas.setWalletPin);
 const validateStockChange = validate(schemas.stockChange);
 
 module.exports = {
@@ -92,5 +96,6 @@ module.exports = {
   validateCreateOrder,
   validatePayment,
   validateTopup,
+  validateSetWalletPin,
   validateStockChange
 };

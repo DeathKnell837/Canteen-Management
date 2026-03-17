@@ -1,7 +1,7 @@
 const express = require('express');
 const { authenticate } = require('../middleware/auth');
 const paymentController = require('../controllers/paymentController');
-const { validatePayment, validateTopup } = require('../validators');
+const { validatePayment, validateTopup, validateSetWalletPin } = require('../validators');
 const router = express.Router();
 
 router.use(authenticate);
@@ -20,5 +20,11 @@ router.get('/wallet/balance', paymentController.getWalletBalance);
 
 // Get wallet transaction history
 router.get('/wallet/transactions', paymentController.getWalletTransactions);
+
+// Set wallet PIN
+router.post('/wallet/pin', validateSetWalletPin, paymentController.setWalletPin);
+
+// Get wallet PIN status
+router.get('/wallet/pin/status', paymentController.getWalletPinStatus);
 
 module.exports = router;

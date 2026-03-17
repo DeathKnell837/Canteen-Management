@@ -32,8 +32,8 @@ class MenuService {
 
     const item = await Menu.createItem(categoryId, name, description, price, isVegetarian, prepTime);
     
-    // Add default inventory
-    await Inventory.updateQuantity(item.item_id, 50);
+    // Ensure every menu item has an inventory row so stock status can be shown.
+    await Inventory.updateQuantity(item.item_id, 0);
 
     return item;
   }

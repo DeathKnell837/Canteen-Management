@@ -73,6 +73,35 @@ const User = {
     if (!row) return false;
 
     return bcrypt.compare(plainPassword, row.password_hash);
+  },
+
+  async setWalletPin(userId, pin) {
+    const pinHash = await bcrypt.hash(pin, 10);
+    const result = await pool.query(
+      'UPDATE users SET wallet_pin_hash = $1, updated_at = CURRENT_TIMESTAMP WHERE user_id = $2 RETURNING user_id',
+      [pinHash, userId]
+    );
+    return result.rows[0];
+  },
+
+  async hasWalletPin(userId) {
+    const result = await pool.query(
+      'SELECT wallet_pin_hash FROM users WHERE user_id = $1',
+      [userId]
+    );
+    const row = result.rows[0];
+    return !!(row && row.wallet_pin_hash);
+  },
+
+  async verifyWalletPin(userId, pin) {
+    const result = await pool.query(
+      'SELECT wallet_pin_hash FROM users WHERE user_id = $1',
+      [userId]
+    );
+
+    const row = result.rows[0];
+    if (!row || !row.wallet_pin_hash) return false;
+    return bcrypt.compare(pin, row.wallet_pin_hash);
   }
 };
 

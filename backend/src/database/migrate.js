@@ -264,6 +264,32 @@ const migrations = [
       `);
       console.log('✅ image_url column added to menu_items');
     }
+  },
+
+  // MIGRATION: Add wallet pin hash to users
+  {
+    name: '012_add_wallet_pin_hash',
+    up: async () => {
+      await pool.query(`
+        ALTER TABLE users ADD COLUMN IF NOT EXISTS wallet_pin_hash VARCHAR(255) DEFAULT NULL;
+      `);
+      console.log('✅ wallet_pin_hash column added to users');
+    }
+  },
+
+  // MIGRATION: Ensure all menu items exist in inventory
+  {
+    name: '013_backfill_inventory_rows',
+    up: async () => {
+      await pool.query(`
+        INSERT INTO inventory (item_id, quantity_available)
+        SELECT m.item_id, 0
+        FROM menu_items m
+        LEFT JOIN inventory i ON i.item_id = m.item_id
+        WHERE i.item_id IS NULL;
+      `);
+      console.log('✅ Missing inventory rows backfilled');
+    }
   }
 ];
 

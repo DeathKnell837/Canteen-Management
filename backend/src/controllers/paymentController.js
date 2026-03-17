@@ -4,14 +4,13 @@ const { asyncHandler } = require('../utils/errorHandler');
 const paymentController = {
   processPayment: asyncHandler(async (req, res) => {
     const userId = req.user.id;
-    const { orderId, paymentMethod, amount, securityPassword } = req.body;
+    const { orderId, paymentMethod, amount } = req.body;
 
     const payment = await paymentService.processPayment(
       orderId,
       userId,
       paymentMethod,
-      amount,
-      securityPassword
+      amount
     );
 
     res.status(200).json({
@@ -34,9 +33,9 @@ const paymentController = {
 
   topupWallet: asyncHandler(async (req, res) => {
     const userId = req.user.id;
-    const { amount, securityPassword } = req.body;
+    const { amount, securityPin } = req.body;
 
-    const result = await paymentService.topupWallet(userId, amount, securityPassword);
+    const result = await paymentService.topupWallet(userId, amount, securityPin);
 
     res.status(200).json({
       success: true,
@@ -68,6 +67,28 @@ const paymentController = {
     res.status(200).json({
       success: true,
       data
+    });
+  }),
+
+  setWalletPin: asyncHandler(async (req, res) => {
+    const userId = req.user.id;
+    const { pin } = req.body;
+
+    await paymentService.setWalletPin(userId, pin);
+
+    res.status(200).json({
+      success: true,
+      message: 'Wallet PIN set successfully'
+    });
+  }),
+
+  getWalletPinStatus: asyncHandler(async (req, res) => {
+    const userId = req.user.id;
+    const hasPin = await paymentService.getWalletPinStatus(userId);
+
+    res.status(200).json({
+      success: true,
+      data: { hasPin }
     });
   })
 };

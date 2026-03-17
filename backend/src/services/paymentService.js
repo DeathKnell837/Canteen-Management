@@ -3,7 +3,7 @@ const { pool } = require('../config/database');
 const { AppError } = require('../utils/errorHandler');
 
 class PaymentService {
-  async processPayment(orderId, userId, paymentMethod, amount, securityPassword) {
+  async processPayment(orderId, userId, paymentMethod, amount) {
     // Verify order exists
     const order = await Order.getById(orderId);
     if (!order) {
@@ -16,11 +16,6 @@ class PaymentService {
 
     if (parseFloat(amount) !== parseFloat(order.total_amount)) {
       throw new AppError('Payment amount mismatch', 400);
-    }
-
-    const isVerified = await User.verifyPassword(userId, securityPassword || '');
-    if (!isVerified) {
-      throw new AppError('Security verification failed: incorrect password', 401);
     }
 
     // Create payment record
@@ -97,14 +92,24 @@ class PaymentService {
     return payment;
   }
 
-  async topupWallet(userId, amount, securityPassword) {
+  async topupWallet(userId, amount, securityPin) {
     if (amount <= 0) {
       throw new AppError('Amount must be greater than 0', 400);
     }
 
-    const isVerified = await User.verifyPassword(userId, securityPassword || '');
-    if (!isVerified) {
-      throw new AppError('Security verification failed: incorrect password', 401);
+    if (!/^[0-9]{4,6}$/.test(String(securityPin || ''))) {
+      throw new AppError('Wallet PIN must be 4 to 6 digits', 400);
+    }
+
+    const hasPin = await User.hasWalletPin(userId);
+    if (!hasPin) {
+      // First top-up sets the wallet PIN.
+      await User.setWalletPin(userId, String(securityPin));
+    } else {
+      const isVerified = await User.verifyWalletPin(userId, securityPin || '');
+      if (!isVerified) {
+        throw new AppError('Invalid wallet PIN', 401);
+      }
     }
 
     // Process payment (simulated)
@@ -149,6 +154,14 @@ class PaymentService {
        VALUES ($1, $2, $3, $4, $5, $6)`,
       [userId, amount, transactionType, referenceId, description, balanceAfter]
     );
+  }
+
+  async setWalletPin(userId, pin) {
+    await User.setWalletPin(userId, pin);
+  }
+
+  async getWalletPinStatus(userId) {
+    return User.hasWalletPin(userId);
   }
 }
 
