@@ -5,9 +5,7 @@ const { AppError } = require('../utils/errorHandler');
 class PaymentService {
   async processPayment(orderId, userId, paymentMethod, amount) {
     const methodMap = {
-      GCASH: 'WALLET',
-      MAYA: 'MOBILE_PAYMENT',
-      BANK_TRANSFER: 'CARD',
+      ONLINE_TRANSACTION: 'WALLET',
       DIRECT_CASH: 'CASH'
     };
     const normalizedMethod = methodMap[paymentMethod] || paymentMethod;

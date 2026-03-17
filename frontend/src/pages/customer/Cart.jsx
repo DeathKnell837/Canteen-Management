@@ -9,7 +9,7 @@ import { Link } from 'react-router-dom';
 export default function Cart() {
   const { items, removeItem, updateQuantity, clearCart, total, itemCount } = useCart();
   const [loading, setLoading] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState('GCASH');
+  const [paymentMethod, setPaymentMethod] = useState('ONLINE_TRANSACTION');
   const submitting = useRef(false);
   const navigate = useNavigate();
 
@@ -18,13 +18,11 @@ export default function Cart() {
   const grandTotal = total + tax;
 
   const PAYMENT_OPTIONS = [
-    { value: 'GCASH', label: 'GCash' },
-    { value: 'MAYA', label: 'Maya' },
-    { value: 'BANK_TRANSFER', label: 'Bank Transfer' },
+    { value: 'ONLINE_TRANSACTION', label: 'Online Transaction' },
     { value: 'DIRECT_CASH', label: 'Direct Cash' },
   ];
 
-  const selectedPaymentLabel = PAYMENT_OPTIONS.find((o) => o.value === paymentMethod)?.label || 'GCash';
+  const selectedPaymentLabel = PAYMENT_OPTIONS.find((o) => o.value === paymentMethod)?.label || 'Online Transaction';
 
   const handleCheckout = async () => {
     if (items.length === 0 || submitting.current) return;
@@ -75,7 +73,7 @@ export default function Cart() {
         <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Your cart is empty</h2>
         <p className="text-gray-400 dark:text-gray-500 mb-8">Add some delicious Filipino food from the menu</p>
         <p className="text-xs text-gray-500 dark:text-gray-400 mb-4 text-center max-w-sm">
-          Checkout supports GCash, Maya, Bank Transfer, and Direct Cash once you add an item.
+          Checkout supports Online Transaction or Direct Cash once you add an item.
         </p>
         <Link
           to="/menu"

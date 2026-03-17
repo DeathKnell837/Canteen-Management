@@ -286,7 +286,8 @@ export default function Wallet() {
             </div>
             <div>
               <p className="font-semibold text-gray-900 dark:text-white">Checkout Payment Methods</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">GCash, Maya, Bank Transfer, and Direct Cash</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Online Transaction or Direct Cash</p>
+              <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">Online channels: GCash, Maya, Bank</p>
             </div>
           </div>
           <ChevronRight className="w-4 h-4 text-gray-400" />
