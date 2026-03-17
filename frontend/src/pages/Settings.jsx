@@ -11,6 +11,7 @@ export default function Settings() {
   const [hasPin, setHasPin] = useState(false);
   const [pin, setPin] = useState('');
   const [confirmPin, setConfirmPin] = useState('');
+  const [accountPassword, setAccountPassword] = useState('');
   const [saving, setSaving] = useState(false);
 
   const isCustomer = user?.role === 'CUSTOMER';
@@ -43,13 +44,19 @@ export default function Settings() {
       return;
     }
 
+    if (!accountPassword || accountPassword.length < 8) {
+      toast.error('Enter your account password to confirm PIN changes');
+      return;
+    }
+
     setSaving(true);
     try {
-      await api.post('/payments/wallet/pin', { pin });
+      await api.post('/payments/wallet/pin', { pin, accountPassword });
       toast.success(hasPin ? 'Wallet PIN updated' : 'Wallet PIN set');
       setHasPin(true);
       setPin('');
       setConfirmPin('');
+      setAccountPassword('');
     } catch (err) {
       toast.error(err.response?.data?.error?.message || 'Failed to save wallet PIN');
     } finally {
@@ -109,6 +116,13 @@ export default function Settings() {
                 onChange={(e) => setConfirmPin(e.target.value)}
                 placeholder="Confirm PIN"
                 maxLength={6}
+                className="w-full px-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl text-sm bg-white dark:bg-gray-800 dark:text-white"
+              />
+              <input
+                type="password"
+                value={accountPassword}
+                onChange={(e) => setAccountPassword(e.target.value)}
+                placeholder="Account password confirmation"
                 className="w-full px-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl text-sm bg-white dark:bg-gray-800 dark:text-white"
               />
             </div>

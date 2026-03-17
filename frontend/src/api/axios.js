@@ -16,7 +16,12 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    const status = error.response?.status;
+    const message = error.response?.data?.error?.message || error.response?.data?.message || '';
+    const url = error.config?.url || '';
+    const tokenAuthIssue = /token|jwt|unauthorized|expired/i.test(String(message)) || url.includes('/auth/profile');
+
+    if (status === 401 && tokenAuthIssue) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       if (window.location.pathname !== '/login') {

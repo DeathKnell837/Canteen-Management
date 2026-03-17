@@ -72,9 +72,9 @@ const paymentController = {
 
   setWalletPin: asyncHandler(async (req, res) => {
     const userId = req.user.id;
-    const { pin } = req.body;
+    const { pin, accountPassword } = req.body;
 
-    await paymentService.setWalletPin(userId, pin);
+    await paymentService.setWalletPin(userId, pin, accountPassword);
 
     res.status(200).json({
       success: true,

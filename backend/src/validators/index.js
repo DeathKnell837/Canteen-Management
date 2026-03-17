@@ -47,7 +47,8 @@ const schemas = {
   }),
 
   setWalletPin: Joi.object({
-    pin: Joi.string().pattern(/^[0-9]{4,6}$/).required()
+    pin: Joi.string().pattern(/^[0-9]{4,6}$/).required(),
+    accountPassword: Joi.string().min(8).required()
   }),
 
   stockChange: Joi.object({

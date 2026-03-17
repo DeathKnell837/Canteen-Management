@@ -108,7 +108,7 @@ class PaymentService {
 
     const isVerified = await User.verifyWalletPin(userId, securityPin || '');
     if (!isVerified) {
-      throw new AppError('Invalid wallet PIN', 401);
+      throw new AppError('Invalid wallet PIN', 400);
     }
 
     // Process payment (simulated)
@@ -155,7 +155,12 @@ class PaymentService {
     );
   }
 
-  async setWalletPin(userId, pin) {
+  async setWalletPin(userId, pin, accountPassword) {
+    const passwordValid = await User.verifyPassword(userId, accountPassword || '');
+    if (!passwordValid) {
+      throw new AppError('Invalid account password', 400);
+    }
+
     await User.setWalletPin(userId, pin);
   }
 
