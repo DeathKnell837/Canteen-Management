@@ -1,7 +1,6 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
-import { useTheme } from '../context/ThemeContext';
 import {
   UtensilsCrossed,
   ShoppingCart,
@@ -16,10 +15,9 @@ import {
   ChevronRight,
   Menu,
   X,
-  Sun,
-  Moon,
   BarChart3,
   ReceiptText,
+  Settings,
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
@@ -29,6 +27,7 @@ const customerNav = [
   { to: '/orders', label: 'My Orders', icon: ClipboardList },
   { to: '/wallet', label: 'Wallet', icon: Wallet },
   { to: '/transactions', label: 'Transactions', icon: ReceiptText },
+  { to: '/settings', label: 'Settings', icon: Settings },
 ];
 
 const adminNav = [
@@ -37,12 +36,12 @@ const adminNav = [
   { to: '/admin/orders', label: 'Orders', icon: ClipboardList },
   { to: '/admin/inventory', label: 'Inventory', icon: Package },
   { to: '/admin/reports', label: 'Reports', icon: BarChart3 },
+  { to: '/settings', label: 'Settings', icon: Settings },
 ];
 
 export default function Sidebar() {
   const { user, logout } = useAuth();
   const { itemCount } = useCart();
-  const { dark, toggle } = useTheme();
   const navigate = useNavigate();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -136,16 +135,6 @@ export default function Sidebar() {
               </div>
             </div>
           )}
-          {/* Dark mode toggle */}
-          <button
-            onClick={toggle}
-            className={`flex items-center gap-3 w-full rounded-xl text-sm text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-gray-200 transition-all duration-200 ${
-              collapsed ? 'justify-center py-2.5' : 'px-3 py-2.5'
-            }`}
-          >
-            {dark ? <Sun className="w-[18px] h-[18px] shrink-0" /> : <Moon className="w-[18px] h-[18px] shrink-0" />}
-            {!collapsed && (dark ? 'Light mode' : 'Dark mode')}
-          </button>
           <button
             onClick={handleLogout}
             className={`flex items-center gap-3 w-full rounded-xl text-sm text-gray-500 dark:text-gray-400 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 transition-all duration-200 ${

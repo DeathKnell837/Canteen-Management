@@ -9,6 +9,7 @@ import Cart from './pages/customer/Cart';
 import Orders from './pages/customer/Orders';
 import Wallet from './pages/customer/Wallet';
 import Transactions from './pages/customer/Transactions';
+import Settings from './pages/Settings';
 import Dashboard from './pages/admin/Dashboard';
 import MenuManagement from './pages/admin/MenuManagement';
 import OrderManagement from './pages/admin/OrderManagement';
@@ -32,6 +33,7 @@ export default function App() {
           <Route path="/orders" element={<Orders />} />
           <Route path="/wallet" element={<Wallet />} />
           <Route path="/transactions" element={<Transactions />} />
+          <Route path="/settings" element={<Settings />} />
         </Route>
       </Route>
 
