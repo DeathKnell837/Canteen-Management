@@ -92,22 +92,69 @@ const orderController = {
   }),
 
   getAllOrders: asyncHandler(async (req, res) => {
-    const { limit = 50, offset = 0 } = req.query;
+    const { limit = 50, offset = 0, startDate, endDate, status } = req.query;
     const { pool } = require('../config/database');
 
-    const result = await pool.query(
-      `SELECT o.order_id, o.order_number, o.status, o.delivery_type, o.total_amount, o.created_at, o.user_id,
+    let query = `SELECT o.order_id, o.order_number, o.status, o.delivery_type, o.total_amount, o.created_at, o.user_id,
               u.full_name AS customer_name
        FROM orders o
-       LEFT JOIN users u ON o.user_id = u.user_id
-       ORDER BY o.created_at DESC
-       LIMIT $1 OFFSET $2`,
-      [parseInt(limit), parseInt(offset)]
-    );
+       LEFT JOIN users u ON o.user_id = u.user_id`;
+    const params = [];
+    const conditions = [];
+
+    if (startDate) {
+      params.push(startDate);
+      conditions.push(`o.created_at >= $${params.length}`);
+    }
+    if (endDate) {
+      params.push(endDate);
+      conditions.push(`o.created_at <= $${params.length}`);
+    }
+    if (status && status !== 'ALL') {
+      params.push(status);
+      conditions.push(`o.status = $${params.length}`);
+    }
+
+    if (conditions.length > 0) {
+      query += ' WHERE ' + conditions.join(' AND ');
+    }
+
+    params.push(parseInt(limit));
+    query += ` ORDER BY o.created_at DESC LIMIT $${params.length}`;
+    params.push(parseInt(offset));
+    query += ` OFFSET $${params.length}`;
+
+    const result = await pool.query(query, params);
+
+    // Also get summary stats for the period
+    let summaryQuery = `SELECT COUNT(*)::INT AS total_orders,
+      COALESCE(SUM(total_amount) FILTER (WHERE status <> 'CANCELLED'), 0)::DECIMAL(10,2) AS total_revenue
+      FROM orders`;
+    const summaryParams = [];
+    const summaryConditions = [];
+
+    if (startDate) {
+      summaryParams.push(startDate);
+      summaryConditions.push(`created_at >= $${summaryParams.length}`);
+    }
+    if (endDate) {
+      summaryParams.push(endDate);
+      summaryConditions.push(`created_at <= $${summaryParams.length}`);
+    }
+    if (status && status !== 'ALL') {
+      summaryParams.push(status);
+      summaryConditions.push(`status = $${summaryParams.length}`);
+    }
+    if (summaryConditions.length > 0) {
+      summaryQuery += ' WHERE ' + summaryConditions.join(' AND ');
+    }
+
+    const summaryResult = await pool.query(summaryQuery, summaryParams);
 
     res.status(200).json({
       success: true,
-      data: result.rows
+      data: result.rows,
+      summary: summaryResult.rows[0]
     });
   }),
 

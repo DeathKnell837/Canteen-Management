@@ -9,11 +9,23 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({});
   const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setErrors({});
+    let newErrors = {};
+    if (!email) newErrors.email = 'Email is required';
+    else if (!/\S+@\S+\.\S+/.test(email)) newErrors.email = 'Please enter a valid email address';
+    if (!password) newErrors.password = 'Password is required';
+    
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
     setLoading(true);
     try {
       const user = await login(email, password);
@@ -21,7 +33,7 @@ export default function Login() {
       navigate(user.role === 'ADMIN' || user.role === 'STAFF' ? '/admin' : '/menu');
     } catch (err) {
       const msg = err.response?.data?.error?.message || 'Login failed';
-      toast.error(msg.startsWith('[') ? 'Invalid email or password' : msg);
+      setErrors({ submit: msg.startsWith('[') ? 'Invalid email or password' : msg });
     } finally {
       setLoading(false);
     }
@@ -86,6 +98,7 @@ export default function Login() {
           <p className="text-gray-500 dark:text-gray-400 mb-8">Sign in to your account to continue</p>
 
           <form onSubmit={handleSubmit} className="space-y-5">
+            {errors.submit && <div className="p-3 bg-red-50 text-red-600 border border-red-100 rounded-xl text-sm mb-4">{errors.submit}</div>}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Email</label>
               <div className="relative group">
@@ -93,12 +106,13 @@ export default function Login() {
                 <input
                   type="email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => { setEmail(e.target.value); if (errors.email) setErrors({...errors, email: null}); }}
                   required
                   placeholder="you@example.com"
-                  className="w-full pl-11 pr-4 py-3 border border-gray-200 dark:border-gray-700 rounded-xl text-sm focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all bg-white dark:bg-gray-800 dark:text-white hover:border-gray-300 dark:hover:border-gray-600 dark:placeholder-gray-500"
+                  className={`w-full pl-11 pr-4 py-3 border rounded-xl text-sm focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all bg-white dark:bg-gray-800 dark:text-white hover:border-gray-300 dark:hover:border-gray-600 dark:placeholder-gray-500 ${errors.email ? 'border-red-500' : 'border-gray-200 dark:border-gray-700'}`}
                 />
               </div>
+              {errors.email && <p className="mt-1.5 text-xs text-red-500">{errors.email}</p>}
             </div>
 
             <div>
@@ -108,10 +122,10 @@ export default function Login() {
                 <input
                   type={showPass ? 'text' : 'password'}
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e) => { setPassword(e.target.value); if (errors.password) setErrors({...errors, password: null}); }}
                   required
                   placeholder="Enter your password"
-                  className="w-full pl-11 pr-12 py-3 border border-gray-200 dark:border-gray-700 rounded-xl text-sm focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all bg-white dark:bg-gray-800 dark:text-white hover:border-gray-300 dark:hover:border-gray-600 dark:placeholder-gray-500"
+                  className={`w-full pl-11 pr-12 py-3 border rounded-xl text-sm focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all bg-white dark:bg-gray-800 dark:text-white hover:border-gray-300 dark:hover:border-gray-600 dark:placeholder-gray-500 ${errors.password ? 'border-red-500' : 'border-gray-200 dark:border-gray-700'}`}
                 />
                 <button
                   type="button"
@@ -121,6 +135,7 @@ export default function Login() {
                   {showPass ? <EyeOff className="w-[18px] h-[18px]" /> : <Eye className="w-[18px] h-[18px]" />}
                 </button>
               </div>
+              {errors.password && <p className="mt-1.5 text-xs text-red-500">{errors.password}</p>}
             </div>
 
             <button

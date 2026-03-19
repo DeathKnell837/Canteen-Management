@@ -290,6 +290,38 @@ const migrations = [
       `);
       console.log('✅ Missing inventory rows backfilled');
     }
+  },
+
+  // MIGRATION 14: Admin top-up log
+  {
+    name: '014_create_admin_topup_log',
+    up: async () => {
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS admin_topup_log (
+          topup_id SERIAL PRIMARY KEY,
+          admin_id INT NOT NULL REFERENCES users(user_id),
+          customer_id INT NOT NULL REFERENCES users(user_id),
+          amount DECIMAL(10, 2) NOT NULL,
+          note TEXT,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+        CREATE INDEX IF NOT EXISTS idx_admin_topup_admin ON admin_topup_log(admin_id);
+        CREATE INDEX IF NOT EXISTS idx_admin_topup_customer ON admin_topup_log(customer_id);
+        CREATE INDEX IF NOT EXISTS idx_admin_topup_created ON admin_topup_log(created_at);
+      `);
+      console.log('✅ Admin top-up log table created');
+    }
+  },
+
+  // MIGRATION 15: Add profile picture URL to users
+  {
+    name: '015_add_profile_picture_url',
+    up: async () => {
+      await pool.query(`
+        ALTER TABLE users ADD COLUMN IF NOT EXISTS profile_picture_url VARCHAR(500) DEFAULT NULL;
+      `);
+      console.log('✅ profile_picture_url column added to users');
+    }
   }
 ];
 

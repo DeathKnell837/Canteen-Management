@@ -14,6 +14,9 @@ const menuRoutes = require('./routes/menu');
 const orderRoutes = require('./routes/orders');
 const paymentRoutes = require('./routes/payments');
 const inventoryRoutes = require('./routes/inventory');
+const adminWalletRoutes = require('./routes/adminWallet');
+const settingsRoutes = require('./routes/settings');
+const reportRoutes = require('./routes/reports');
 const path = require('path');
 
 const app = express();
@@ -70,6 +73,9 @@ app.use('/api/menu', menuRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/inventory', inventoryRoutes);
+app.use('/api/admin/wallet', adminWalletRoutes);
+app.use('/api/settings', settingsRoutes);
+app.use('/api/reports', reportRoutes);
 
 // ===== API DOCUMENTATION =====
 app.get('/api', (req, res) => {

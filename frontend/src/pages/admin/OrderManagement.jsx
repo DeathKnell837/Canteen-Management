@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { ClipboardList, RefreshCw, Search, Loader2, ChefHat, Package, CheckCircle2, XCircle, Receipt, Printer, X, Clock, Wallet, UtensilsCrossed } from 'lucide-react';
+import { ClipboardList, RefreshCw, Search, Loader2, ChefHat, Package, CheckCircle2, XCircle, Receipt, Printer, X, Clock, Wallet, UtensilsCrossed, CalendarDays } from 'lucide-react';
 import api from '../../api/axios';
 import toast from 'react-hot-toast';
 
@@ -47,11 +47,42 @@ export default function OrderManagement() {
   const [filter, setFilter] = useState('all');
   const [search, setSearch] = useState('');
   const [receiptOrder, setReceiptOrder] = useState(null);
+  const [datePeriod, setDatePeriod] = useState('all');
+  const [summary, setSummary] = useState(null);
+
+  const getDateRange = (period) => {
+    const now = new Date();
+    let start;
+    switch (period) {
+      case 'today':
+        start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        break;
+      case 'week': {
+        const day = now.getDay();
+        start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - day);
+        break;
+      }
+      case 'month':
+        start = new Date(now.getFullYear(), now.getMonth(), 1);
+        break;
+      case 'year':
+        start = new Date(now.getFullYear(), 0, 1);
+        break;
+      default:
+        return {};
+    }
+    return { startDate: start.toISOString(), endDate: now.toISOString() };
+  };
 
   const loadOrders = async () => {
     try {
-      const res = await api.get('/orders/admin/all');
+      const params = new URLSearchParams();
+      const range = getDateRange(datePeriod);
+      if (range.startDate) params.append('startDate', range.startDate);
+      if (range.endDate) params.append('endDate', range.endDate);
+      const res = await api.get(`/orders/admin/all?${params.toString()}`);
       setOrders(res.data.data || res.data || []);
+      setSummary(res.data.summary || null);
     } catch {
       toast.error('Failed to load orders');
     } finally {
@@ -60,7 +91,7 @@ export default function OrderManagement() {
     }
   };
 
-  useEffect(() => { loadOrders(); }, []);
+  useEffect(() => { loadOrders(); }, [datePeriod]);
 
   const updateStatus = async (orderId, newStatus) => {
     try {
@@ -125,17 +156,56 @@ export default function OrderManagement() {
       </div>
 
       {/* Search + Filters */}
-      <div className="flex flex-col sm:flex-row gap-3 mb-6 animate-fade-in-up" style={{ animationDelay: '0.05s', animationFillMode: 'both' }}>
-        <div className="relative flex-1">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by order ID or customer..."
-            className="w-full pl-11 pr-4 py-3 border-2 border-gray-100 dark:border-gray-700 rounded-xl text-sm focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all hover:border-gray-200 dark:hover:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-500"
-          />
+      <div className="flex flex-col gap-3 mb-6 animate-fade-in-up" style={{ animationDelay: '0.05s', animationFillMode: 'both' }}>
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="relative flex-1">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search by order ID or customer..."
+              className="w-full pl-11 pr-4 py-3 border-2 border-gray-100 dark:border-gray-700 rounded-xl text-sm focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all hover:border-gray-200 dark:hover:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-500"
+            />
+          </div>
+          {/* Date Period Selector */}
+          <div className="flex items-center gap-2">
+            <CalendarDays className="w-4 h-4 text-gray-400" />
+            <select
+              value={datePeriod}
+              onChange={(e) => { setDatePeriod(e.target.value); setLoading(true); }}
+              className="px-3 py-3 border-2 border-gray-100 dark:border-gray-700 rounded-xl text-sm font-semibold bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all"
+            >
+              <option value="all">All Time</option>
+              <option value="today">Today</option>
+              <option value="week">This Week</option>
+              <option value="month">This Month</option>
+              <option value="year">This Year</option>
+            </select>
+          </div>
         </div>
+
+        {/* Period Summary */}
+        {summary && (
+          <div className="flex gap-4 flex-wrap">
+            <div className="card-glass rounded-xl px-4 py-2.5 flex items-center gap-3">
+              <ClipboardList className="w-4 h-4 text-brand-500" />
+              <div>
+                <p className="text-xs text-gray-400">Orders</p>
+                <p className="text-sm font-bold text-gray-900 dark:text-white">{summary.total_orders}</p>
+              </div>
+            </div>
+            <div className="card-glass rounded-xl px-4 py-2.5 flex items-center gap-3">
+              <Wallet className="w-4 h-4 text-emerald-500" />
+              <div>
+                <p className="text-xs text-gray-400">Revenue</p>
+                <p className="text-sm font-bold text-emerald-600">₱{parseFloat(summary.total_revenue).toFixed(2)}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Status tabs */}
         <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
           {FILTER_TABS.map((s) => {
             const SIcon = StatusIcon[s];

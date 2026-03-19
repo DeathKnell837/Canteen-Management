@@ -35,8 +35,9 @@ const adminNav = [
   { to: '/admin/menu', label: 'Menu Mgmt', icon: BookOpen },
   { to: '/admin/orders', label: 'Orders', icon: ClipboardList },
   { to: '/admin/inventory', label: 'Inventory', icon: Package },
+  { to: '/admin/topup', label: 'Wallet Top-Up', icon: Wallet },
   { to: '/admin/reports', label: 'Reports', icon: BarChart3 },
-  { to: '/settings', label: 'Settings', icon: Settings },
+  { to: '/admin/settings', label: 'Settings', icon: Settings },
 ];
 
 export default function Sidebar() {

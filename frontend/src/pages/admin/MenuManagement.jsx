@@ -10,6 +10,8 @@ export default function MenuManagement() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [modal, setModal] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [catModal, setCatModal] = useState(false);
 
   const loadData = async () => {
     try {
@@ -39,9 +41,11 @@ export default function MenuManagement() {
     }
   };
 
-  const filtered = items.filter((i) =>
-    i.name.toLowerCase().includes(search.toLowerCase())
-  );
+  const filtered = items.filter((i) => {
+    const matchSearch = i.name.toLowerCase().includes(search.toLowerCase());
+    const matchCat = selectedCategory === 'all' || i.category_id === parseInt(selectedCategory);
+    return matchSearch && matchCat;
+  });
 
   const getCatName = (id) => {
     const c = categories.find((cat) => cat.category_id === id);
@@ -77,7 +81,7 @@ export default function MenuManagement() {
       </div>
 
       {/* Search */}
-      <div className="relative mb-5 animate-fade-in-up" style={{ animationDelay: '0.05s', animationFillMode: 'both' }}>
+      <div className="relative mb-4 animate-fade-in-up" style={{ animationDelay: '0.05s', animationFillMode: 'both' }}>
         <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
         <input
           type="text"
@@ -86,6 +90,34 @@ export default function MenuManagement() {
           placeholder="Search items..."
           className="w-full pl-11 pr-4 py-3 border-2 border-gray-100 dark:border-gray-700 rounded-xl text-sm focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all hover:border-gray-200 dark:hover:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-500"
         />
+      </div>
+
+      {/* Category Filter Tabs */}
+      <div className="flex gap-2 mb-5 overflow-x-auto pb-1 scrollbar-hide animate-fade-in-up" style={{ animationDelay: '0.07s', animationFillMode: 'both' }}>
+        <button
+          onClick={() => setSelectedCategory('all')}
+          className={`whitespace-nowrap px-4 py-2 rounded-xl text-sm font-semibold transition-all ${selectedCategory === 'all' ? 'bg-gradient-to-r from-brand-500 to-brand-600 text-white shadow-lg shadow-brand-500/20' : 'bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm text-gray-600 dark:text-gray-300 border border-white/50 dark:border-gray-700'}`}
+        >
+          All ({items.length})
+        </button>
+        {categories.map((c) => {
+          const count = items.filter(i => i.category_id === c.category_id).length;
+          return (
+            <button
+              key={c.category_id}
+              onClick={() => setSelectedCategory(String(c.category_id))}
+              className={`whitespace-nowrap px-4 py-2 rounded-xl text-sm font-semibold transition-all ${String(selectedCategory) === String(c.category_id) ? 'bg-gradient-to-r from-brand-500 to-brand-600 text-white shadow-lg shadow-brand-500/20' : 'bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm text-gray-600 dark:text-gray-300 border border-white/50 dark:border-gray-700'}`}
+            >
+              {c.name} ({count})
+            </button>
+          );
+        })}
+        <button
+          onClick={() => setCatModal(true)}
+          className="whitespace-nowrap px-3 py-2 rounded-xl text-sm font-semibold text-brand-500 hover:bg-brand-50 dark:hover:bg-brand-900/20 transition-all border border-dashed border-brand-300 dark:border-brand-700"
+        >
+          + Manage
+        </button>
       </div>
 
       {/* Table */}
@@ -167,7 +199,7 @@ export default function MenuManagement() {
         </div>
       </div>
 
-      {/* Modal */}
+      {/* Item Modal */}
       {modal !== null && createPortal(
         <ItemModal
           item={modal === 'add' ? null : modal}
@@ -175,6 +207,19 @@ export default function MenuManagement() {
           onClose={() => setModal(null)}
           onSaved={() => {
             setModal(null);
+            loadData();
+          }}
+        />,
+        document.body
+      )}
+
+      {/* Category Modal */}
+      {catModal && createPortal(
+        <CategoryModal
+          categories={categories}
+          onClose={() => setCatModal(false)}
+          onSaved={() => {
+            setCatModal(false);
             loadData();
           }}
         />,
@@ -354,6 +399,118 @@ function ItemModal({ item, categories, onClose, onSaved }) {
             </button>
           </div>
         </form>
+      </div>
+    </div>
+  );
+}
+
+function CategoryModal({ categories, onClose, onSaved }) {
+  const [cats, setCats] = useState(categories);
+  const [newName, setNewName] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+  const [editName, setEditName] = useState('');
+
+  const inputClass = 'w-full px-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl text-sm bg-white dark:bg-gray-800 dark:text-white';
+
+  const handleCreate = async (e) => {
+    e.preventDefault();
+    if (!newName.trim() || newName.trim().length < 2) { toast.error('Name too short'); return; }
+    setSaving(true);
+    try {
+      const res = await api.post('/menu/categories', { name: newName.trim() });
+      setCats([...cats, res.data.data]);
+      setNewName('');
+      toast.success('Category created');
+    } catch (err) {
+      toast.error(err.response?.data?.error?.message || 'Failed');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleUpdate = async (id) => {
+    if (!editName.trim() || editName.trim().length < 2) return;
+    try {
+      await api.put(`/menu/categories/${id}`, { name: editName.trim() });
+      setCats(cats.map(c => c.category_id === id ? { ...c, name: editName.trim() } : c));
+      setEditingId(null);
+      toast.success('Updated');
+    } catch (err) {
+      toast.error(err.response?.data?.error?.message || 'Failed');
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm('Delete this category? Items in it must be removed first.')) return;
+    try {
+      await api.delete(`/menu/categories/${id}`);
+      setCats(cats.filter(c => c.category_id !== id));
+      toast.success('Deleted');
+    } catch (err) {
+      toast.error(err.response?.data?.error?.message || 'Failed');
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 animate-overlay-in">
+      <div className="bg-white dark:bg-gray-900 rounded-3xl w-full max-w-md max-h-[80vh] overflow-y-auto shadow-2xl animate-modal-in">
+        <div className="flex items-center justify-between p-6 border-b border-gray-50 dark:border-gray-800">
+          <h2 className="text-lg font-bold text-gray-900 dark:text-white">Manage Categories</h2>
+          <button onClick={() => { onSaved(); }} className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-all">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+        <div className="p-6 space-y-4">
+          {/* Add new */}
+          <form onSubmit={handleCreate} className="flex gap-2">
+            <input
+              value={newName}
+              onChange={(e) => setNewName(e.target.value)}
+              placeholder="New category name..."
+              className={`flex-1 ${inputClass}`}
+            />
+            <button type="submit" disabled={saving}
+              className="px-4 py-2.5 bg-brand-500 text-white rounded-xl text-sm font-semibold hover:bg-brand-600 disabled:opacity-50">
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+            </button>
+          </form>
+
+          {/* Existing categories */}
+          <div className="space-y-2">
+            {cats.map((c) => (
+              <div key={c.category_id} className="flex items-center gap-2 p-3 bg-gray-50 dark:bg-gray-800 rounded-xl">
+                {editingId === c.category_id ? (
+                  <>
+                    <input
+                      value={editName}
+                      onChange={(e) => setEditName(e.target.value)}
+                      onKeyDown={(e) => e.key === 'Enter' && handleUpdate(c.category_id)}
+                      className={`flex-1 ${inputClass}`}
+                      autoFocus
+                    />
+                    <button onClick={() => handleUpdate(c.category_id)} className="p-1.5 text-green-500 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg">
+                      <Save className="w-4 h-4" />
+                    </button>
+                    <button onClick={() => setEditingId(null)} className="p-1.5 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">
+                      <X className="w-4 h-4" />
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <span className="flex-1 text-sm font-medium text-gray-900 dark:text-white">{c.name}</span>
+                    <button onClick={() => { setEditingId(c.category_id); setEditName(c.name); }} className="p-1.5 text-gray-400 hover:text-brand-500 hover:bg-brand-50 dark:hover:bg-brand-900/20 rounded-lg">
+                      <Pencil className="w-3.5 h-3.5" />
+                    </button>
+                    <button onClick={() => handleDelete(c.category_id)} className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg">
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );

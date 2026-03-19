@@ -8,25 +8,32 @@ export default function Register() {
   const [form, setForm] = useState({ fullName: '', email: '', phone: '', password: '', confirm: '' });
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({});
   const { register } = useAuth();
   const navigate = useNavigate();
 
-  const set = (field) => (e) => setForm({ ...form, [field]: e.target.value });
+  const set = (field) => (e) => {
+    setForm({ ...form, [field]: e.target.value });
+    if (errors[field]) setErrors({ ...errors, [field]: null });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (form.password !== form.confirm) {
-      toast.error('Passwords do not match');
+    setErrors({});
+    let newErrors = {};
+
+    if (!form.fullName || form.fullName.trim().length < 3) newErrors.fullName = 'Name must be at least 3 characters';
+    if (!form.email) newErrors.email = 'Email is required';
+    else if (!/\S+@\S+\.\S+/.test(form.email)) newErrors.email = 'Please enter a valid email address';
+    if (!/^[0-9]{10,11}$/.test(form.phone)) newErrors.phone = 'Phone must be 10-11 digits';
+    if (form.password.length < 8) newErrors.password = 'Password must be at least 8 characters';
+    if (form.password !== form.confirm) newErrors.confirm = 'Passwords do not match';
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
       return;
     }
-    if (form.password.length < 8) {
-      toast.error('Password must be at least 8 characters');
-      return;
-    }
-    if (!/^[0-9]{10,11}$/.test(form.phone)) {
-      toast.error('Phone must be 10-11 digits');
-      return;
-    }
+
     setLoading(true);
     try {
       await register(form.email, form.phone, form.password, form.fullName);
@@ -34,16 +41,7 @@ export default function Register() {
       navigate('/menu');
     } catch (err) {
       const msg = err.response?.data?.error?.message || 'Registration failed';
-      if (msg.startsWith('[')) {
-        try {
-          const errors = JSON.parse(msg);
-          errors.forEach(e => toast.error(e.message.replace(/"/g, '').replace('with value', 'invalid:')));
-        } catch {
-          toast.error('Please check your input');
-        }
-      } else {
-        toast.error(msg);
-      }
+      setErrors({ submit: msg });
     } finally {
       setLoading(false);
     }
@@ -89,28 +87,33 @@ export default function Register() {
           <p className="text-gray-500 dark:text-gray-400 mb-8">Fill in your details to get started</p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
+            {errors.submit && <div className="p-3 bg-red-50 text-red-600 border border-red-100 rounded-xl text-sm mb-4">{errors.submit}</div>}
+            
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Full Name</label>
               <div className="relative group">
                 <UserIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-gray-400 group-focus-within:text-brand-500 transition-colors" />
-                <input type="text" value={form.fullName} onChange={set('fullName')} required minLength={3} placeholder="Juan Dela Cruz" className={inputClass} />
+                <input type="text" value={form.fullName} onChange={set('fullName')} placeholder="Juan Dela Cruz" className={`${inputClass} ${errors.fullName ? 'border-red-500' : ''}`} />
               </div>
+              {errors.fullName && <p className="mt-1 text-xs text-red-500">{errors.fullName}</p>}
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Email</label>
               <div className="relative group">
                 <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-gray-400 group-focus-within:text-brand-500 transition-colors" />
-                <input type="email" value={form.email} onChange={set('email')} required placeholder="you@example.com" className={inputClass} />
+                <input type="email" value={form.email} onChange={set('email')} placeholder="you@example.com" className={`${inputClass} ${errors.email ? 'border-red-500' : ''}`} />
               </div>
+              {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email}</p>}
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Phone (10-11 digits)</label>
               <div className="relative group">
                 <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-gray-400 group-focus-within:text-brand-500 transition-colors" />
-                <input type="tel" value={form.phone} onChange={set('phone')} required pattern="[0-9]{10,11}" placeholder="09171234567" className={inputClass} />
+                <input type="tel" value={form.phone} onChange={set('phone')} placeholder="09171234567" className={`${inputClass} ${errors.phone ? 'border-red-500' : ''}`} />
               </div>
+              {errors.phone && <p className="mt-1 text-xs text-red-500">{errors.phone}</p>}
             </div>
 
             <div>
@@ -118,21 +121,23 @@ export default function Register() {
               <div className="relative group">
                 <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-gray-400 group-focus-within:text-brand-500 transition-colors" />
                 <input
-                  type={showPass ? 'text' : 'password'} value={form.password} onChange={set('password')} required minLength={8} placeholder="Min 8 characters"
-                  className="w-full pl-11 pr-12 py-3 border border-gray-200 dark:border-gray-700 rounded-xl text-sm focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all bg-white dark:bg-gray-800 dark:text-white hover:border-gray-300 dark:hover:border-gray-600 dark:placeholder-gray-500"
+                  type={showPass ? 'text' : 'password'} value={form.password} onChange={set('password')} placeholder="Min 8 characters"
+                  className={`w-full pl-11 pr-12 py-3 border rounded-xl text-sm focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all bg-white dark:bg-gray-800 dark:text-white hover:border-gray-300 dark:hover:border-gray-600 dark:placeholder-gray-500 ${errors.password ? 'border-red-500' : 'border-gray-200 dark:border-gray-700'}`}
                 />
                 <button type="button" onClick={() => setShowPass(!showPass)} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
                   {showPass ? <EyeOff className="w-[18px] h-[18px]" /> : <Eye className="w-[18px] h-[18px]" />}
                 </button>
               </div>
+              {errors.password && <p className="mt-1 text-xs text-red-500">{errors.password}</p>}
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Confirm Password</label>
               <div className="relative group">
                 <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-gray-400 group-focus-within:text-brand-500 transition-colors" />
-                <input type="password" value={form.confirm} onChange={set('confirm')} required placeholder="Repeat password" className={inputClass} />
+                <input type="password" value={form.confirm} onChange={set('confirm')} placeholder="Repeat password" className={`${inputClass} ${errors.confirm ? 'border-red-500' : ''}`} />
               </div>
+              {errors.confirm && <p className="mt-1 text-xs text-red-500">{errors.confirm}</p>}
             </div>
 
             <button

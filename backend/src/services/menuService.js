@@ -55,6 +55,53 @@ class MenuService {
 
     return await Menu.updateItem(itemId, { is_active: false });
   }
+
+  async createCategory(name, description, displayOrder = 0) {
+    const { pool } = require('../config/database');
+    const result = await pool.query(
+      `INSERT INTO menu_categories (name, description, display_order)
+       VALUES ($1, $2, $3) RETURNING *`,
+      [name, description, displayOrder]
+    );
+    return result.rows[0];
+  }
+
+  async updateCategory(categoryId, updates) {
+    const { pool } = require('../config/database');
+    const fields = [];
+    const values = [];
+    let idx = 1;
+
+    if (updates.name !== undefined) { fields.push(`name = $${idx++}`); values.push(updates.name); }
+    if (updates.description !== undefined) { fields.push(`description = $${idx++}`); values.push(updates.description); }
+    if (updates.display_order !== undefined) { fields.push(`display_order = $${idx++}`); values.push(updates.display_order); }
+    if (updates.is_active !== undefined) { fields.push(`is_active = $${idx++}`); values.push(updates.is_active); }
+
+    if (fields.length === 0) throw new AppError('No valid updates', 400);
+
+    fields.push(`updated_at = CURRENT_TIMESTAMP`);
+    values.push(categoryId);
+
+    const result = await pool.query(
+      `UPDATE menu_categories SET ${fields.join(', ')} WHERE category_id = $${idx} RETURNING *`,
+      values
+    );
+    if (!result.rows[0]) throw new AppError('Category not found', 404);
+    return result.rows[0];
+  }
+
+  async deleteCategory(categoryId) {
+    const { pool } = require('../config/database');
+    // Check if category has active items
+    const items = await pool.query(
+      'SELECT COUNT(*) FROM menu_items WHERE category_id = $1 AND is_active = true',
+      [categoryId]
+    );
+    if (parseInt(items.rows[0].count) > 0) {
+      throw new AppError('Cannot delete category with active items. Remove or move items first.', 400);
+    }
+    await pool.query('DELETE FROM menu_categories WHERE category_id = $1', [categoryId]);
+  }
 }
 
 module.exports = new MenuService();

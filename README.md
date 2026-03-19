@@ -1,33 +1,80 @@
 # Canteen Management System
 
-A full-stack canteen management system with React frontend and Node.js/Express backend, using PostgreSQL for data storage.
+Full-stack web application for canteen operations with role-based workflows for customers, admins, and staff.
 
-## Features
+## Current Implementation Summary
 
-### Customer
-- Browse menu with category filtering and search
-- Add items to cart and place orders
-- Wallet-based payments with top-up
-- Order history with status tracking (Pending, Paid, Preparing, Ready, Completed)
-- View and print receipt for any paid order
-- Dark mode support
+### Customer Features
+- Menu browsing with search and category filtering
+- Cart and checkout (wallet and cash)
+- Order tracking and transaction history
+- Wallet view (balance + history)
+- Profile and account settings (name, phone, email, password, wallet PIN, profile picture)
 
-### Admin
-- Dashboard with order/revenue/inventory stats
-- Menu item management (create, edit, delete, image upload)
-- Order management with action buttons — Start Preparing, Mark Ready, Mark Completed
-- Cancel orders (Pending or Paid)
-- View and print receipts per order
-- Inventory tracking with stock-in/stock-out
-- Dark mode support
+### Admin/Staff Features
+- Dashboard with key operational metrics
+- Menu management with category tabs and category CRUD
+- Order management with status controls and date-range filters
+- Inventory stock-in/stock-out with low-stock visibility
+- Cash-based customer wallet top-up at counter (`/admin/topup`)
+- Top-up history and cash collection visibility
+- Comprehensive reports suite (7 report categories)
+- Admin account management from settings (admin role)
 
-## Tech Stack
+## Technology Stack
 
-| Layer    | Technology                                        |
-|----------|---------------------------------------------------|
-| Frontend | React 18, Vite, Tailwind CSS, Lucide Icons        |
-| Backend  | Node.js, Express.js, JWT Auth, Multer (uploads)   |
-| Database | PostgreSQL 16 (Docker)                            |
+| Layer | Technology |
+|---|---|
+| Frontend | React 18, Vite, Tailwind CSS |
+| Backend | Node.js, Express, Joi validation, JWT auth, Multer |
+| Database | PostgreSQL |
+| DevOps | Docker Compose |
+
+## System Architecture
+
+Frontend (React SPA) calls REST APIs in backend (Express), and backend reads/writes PostgreSQL.
+
+```mermaid
+graph TD
+    %% Frontend Components
+    subgraph Frontend [React SPA Vite]
+        UI[User Interface]
+        AuthCtx[Auth Context]
+        Components[Pages/Components]
+        APIClient[Axios API Client]
+        
+        UI --> Components
+        Components --> AuthCtx
+        Components --> APIClient
+    end
+    
+    %% Backend Node Server
+    subgraph Backend [Node.js Express Server]
+        Router[Express Router/Auth Middleware]
+        Controllers[API Controllers]
+        Validators[Joi Schema Validators]
+        Services[Business Logic/Services]
+        
+        APIClient -->|REST API HTTP| Router
+        Router --> Validators
+        Validators --> Controllers
+        Controllers --> Services
+    end
+    
+    %% Database and Storage
+    subgraph Storage [Persistent Data]
+        PG[(PostgreSQL DB)]
+        Disk[Local File Storage 'uploads/']
+        
+        Services -->|pg-pool SQL| PG
+        Controllers -->|multer| Disk
+    end
+```
+
+- Frontend: `frontend/src`
+- Backend API: `backend/src`
+- DB setup: `docker/init.sql`, `backend/src/database/migrations`
+- Uploads: `backend/uploads`
 
 ## Quick Start
 
@@ -35,47 +82,70 @@ A full-stack canteen management system with React frontend and Node.js/Express b
 - Node.js 18+
 - Docker Desktop
 
-### One-command start (recommended)
+### Recommended (one command)
 
 ```bash
 npm start
 ```
 
-This will automatically:
-1. Start the PostgreSQL Docker container
-2. Start the backend server (port 5000)
-3. Start the frontend dev server (port 3000)
-4. Open http://localhost:3000 in Chrome
+This starts database, backend, and frontend.
 
-### Manual setup (first time only)
+### Manual setup
 
 ```bash
-# 1. Start the database
+# From project root
 docker compose -f docker/docker-compose.yml up -d
 
-# 2. Setup backend
 cd backend
 npm install
 node src/database/migrate.js
 node src/database/seed.js
 
-# 3. Setup frontend
 cd ../frontend
 npm install
 ```
 
-After first-time setup, use `npm start` from the project root.
+Run services:
 
-### URLs
+```bash
+# backend
+cd backend
+npm run dev
 
-| Service  | URL                    |
-|----------|------------------------|
-| Frontend | http://localhost:3000  |
-| Backend  | http://localhost:5000  |
+# frontend (separate terminal)
+cd frontend
+npm run dev
+```
 
-### Test Credentials
+## Default URLs
 
-| Role     | Email               | Password |
-|----------|---------------------|----------|
-| Admin    | admin@canteen.local | admin123 |
-| Customer | user1@example.com   | user123  |
+- Frontend: `http://localhost:3000`
+- Backend: `http://localhost:5000`
+- Health: `http://localhost:5000/health`
+
+## Test Accounts
+
+| Role | Email | Password |
+|---|---|---|
+| Admin | admin@canteen.local | admin123 |
+| Customer | user1@example.com | user123 |
+
+## Core API Groups
+
+- `/api/auth`
+- `/api/menu`
+- `/api/orders`
+- `/api/payments`
+- `/api/inventory`
+- `/api/admin/wallet`
+- `/api/settings`
+- `/api/reports`
+
+See full endpoint details in `API_DOCUMENTATION.md`.
+
+## Project Docs
+
+- Implementation plan: `CURRENT_IMPLEMENTATION_PLAN.md`
+- Progress log: `PROGRESS.md`
+- API reference: `API_DOCUMENTATION.md`
+- User guide: `docs/USER_GUIDE.md`

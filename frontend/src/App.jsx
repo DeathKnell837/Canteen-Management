@@ -15,6 +15,7 @@ import MenuManagement from './pages/admin/MenuManagement';
 import OrderManagement from './pages/admin/OrderManagement';
 import Inventory from './pages/admin/Inventory';
 import Reports from './pages/admin/Reports';
+import WalletTopup from './pages/admin/WalletTopup';
 
 export default function App() {
   const { user } = useAuth();
@@ -45,6 +46,8 @@ export default function App() {
           <Route path="/admin/orders" element={<OrderManagement />} />
           <Route path="/admin/inventory" element={<Inventory />} />
           <Route path="/admin/reports" element={<Reports />} />
+          <Route path="/admin/topup" element={<WalletTopup />} />
+          <Route path="/admin/settings" element={<Settings />} />
         </Route>
       </Route>
 
