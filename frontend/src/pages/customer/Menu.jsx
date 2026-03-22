@@ -61,6 +61,7 @@ export default function Menu() {
       item_id: item.item_id,
       name: item.name,
       price: parseFloat(item.base_price),
+      image_url: item.image_url || null,
     });
     setAddedId(item.item_id);
     setTimeout(() => setAddedId(null), 800);

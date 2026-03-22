@@ -40,7 +40,8 @@ const authController = {
         phone: user.phone,
         role: user.role,
         wallet_balance: user.wallet_balance,
-        status: user.status
+        status: user.status,
+        profile_picture_url: user.profile_picture_url || null
       }
     });
   }),

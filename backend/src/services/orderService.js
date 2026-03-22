@@ -1,4 +1,4 @@
-const { Order, Menu, Inventory } = require('../models');
+const { Order, Menu, Inventory, Payment } = require('../models');
 const { AppError } = require('../utils/errorHandler');
 
 class OrderService {
@@ -62,6 +62,18 @@ class OrderService {
     const order = await Order.getById(orderId);
     if (!order) {
       throw new AppError('Order not found', 404);
+    }
+
+    // When admin confirms a direct-cash order, mark payment as successful as well.
+    if (status === 'CONFIRMED') {
+      const payment = await Payment.getByOrder(orderId);
+      if (payment && payment.payment_method === 'CASH' && payment.status !== 'SUCCESS') {
+        await Payment.updateStatus(
+          payment.payment_id,
+          'SUCCESS',
+          payment.transaction_id || `CASH-${Date.now()}`
+        );
+      }
     }
 
     return await Order.updateStatus(orderId, status);

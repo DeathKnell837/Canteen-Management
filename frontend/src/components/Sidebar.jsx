@@ -18,8 +18,11 @@ import {
   BarChart3,
   ReceiptText,
   Settings,
+  Sun,
+  Moon,
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { useTheme } from '../context/ThemeContext';
 
 const customerNav = [
   { to: '/menu', label: 'Menu', icon: UtensilsCrossed },
@@ -42,10 +45,12 @@ const adminNav = [
 
 export default function Sidebar() {
   const { user, logout } = useAuth();
+  const { dark, toggle } = useTheme();
   const { itemCount } = useCart();
   const navigate = useNavigate();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [avatarLoadFailed, setAvatarLoadFailed] = useState(false);
 
   const isAdmin = user?.role === 'ADMIN' || user?.role === 'STAFF';
   const navItems = isAdmin ? adminNav : customerNav;
@@ -59,6 +64,18 @@ export default function Sidebar() {
   useEffect(() => {
     setMobileOpen(false);
   }, [navigate]);
+
+  useEffect(() => {
+    setAvatarLoadFailed(false);
+  }, [user?.profile_picture_url]);
+
+  const avatarSrc = (() => {
+    const raw = user?.profile_picture_url;
+    if (!raw) return null;
+    if (/^https?:\/\//i.test(raw)) return raw;
+    if (raw.startsWith('/')) return raw;
+    return `/${raw}`;
+  })();
 
   return (
     <>
@@ -127,8 +144,17 @@ export default function Sidebar() {
         <div className="border-t border-white/40 dark:border-gray-700/40 p-3 space-y-2 shrink-0">
           {!collapsed && (
             <div className="flex items-center gap-3 px-3 py-2 animate-fade-in">
-              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-brand-100 to-brand-200 dark:from-brand-800 dark:to-brand-900 flex items-center justify-center ring-2 ring-brand-100 dark:ring-brand-800">
-                <User className="w-4 h-4 text-brand-600 dark:text-brand-300" />
+              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-brand-100 to-brand-200 dark:from-brand-800 dark:to-brand-900 flex items-center justify-center ring-2 ring-brand-100 dark:ring-brand-800 overflow-hidden shrink-0">
+                {avatarSrc && !avatarLoadFailed ? (
+                  <img 
+                    src={avatarSrc}
+                    alt={user?.full_name || 'User'} 
+                    className="w-full h-full object-cover"
+                    onError={() => setAvatarLoadFailed(true)}
+                  />
+                ) : (
+                  <User className="w-4 h-4 text-brand-600 dark:text-brand-300" />
+                )}
               </div>
               <div className="min-w-0">
                 <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">{user?.full_name}</p>
@@ -136,6 +162,18 @@ export default function Sidebar() {
               </div>
             </div>
           )}
+
+          <button
+            onClick={toggle}
+            className={`flex items-center gap-3 w-full rounded-xl text-sm text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-gray-200 transition-all duration-200 ${
+              collapsed ? 'justify-center py-2.5' : 'px-3 py-2.5'
+            }`}
+            title={dark ? 'Switch to light mode' : 'Switch to dark mode'}
+          >
+            {dark ? <Sun className="w-[18px] h-[18px] shrink-0" /> : <Moon className="w-[18px] h-[18px] shrink-0" />}
+            {!collapsed && (dark ? 'Light mode' : 'Dark mode')}
+          </button>
+
           <button
             onClick={handleLogout}
             className={`flex items-center gap-3 w-full rounded-xl text-sm text-gray-500 dark:text-gray-400 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 transition-all duration-200 ${

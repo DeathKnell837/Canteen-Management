@@ -12,7 +12,7 @@ const adminWalletController = {
     }
 
     const result = await pool.query(
-      `SELECT user_id, email, full_name, wallet_balance, status
+      `SELECT user_id, email, full_name, wallet_balance, status, profile_picture_url
        FROM users
        WHERE role = 'CUSTOMER' AND status = 'ACTIVE'
          AND (full_name ILIKE $1 OR email ILIKE $1)
@@ -36,7 +36,8 @@ const adminWalletController = {
         user_id: user.user_id,
         full_name: user.full_name,
         email: user.email,
-        wallet_balance: user.wallet_balance
+        wallet_balance: user.wallet_balance,
+        profile_picture_url: user.profile_picture_url || null
       }
     });
   }),

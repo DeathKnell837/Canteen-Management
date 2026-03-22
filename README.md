@@ -1,33 +1,40 @@
-# Canteen Management System
+# R&R Cafeteria — Canteen Management System
 
-Full-stack web application for canteen operations with role-based workflows for customers, admins, and staff.
+Full-stack web application for canteen operations with role-based workflows for customers and admins.
 
 ## Current Implementation Summary
 
 ### Customer Features
 - Menu browsing with search and category filtering
-- Cart and checkout (wallet and cash)
+- Cart and checkout (wallet and cash payment options)
 - Order tracking and transaction history
-- Wallet view (balance + history)
+- Wallet (balance, top-up via GCash/Maya/Bank Transfer with security PIN)
 - Profile and account settings (name, phone, email, password, wallet PIN, profile picture)
+- Account deletion (soft delete — anonymizes personal data, preserves order history)
+- Modern UI with dark mode / light mode toggle
 
-### Admin/Staff Features
-- Dashboard with key operational metrics
-- Menu management with category tabs and category CRUD
-- Order management with status controls and date-range filters
-- Inventory stock-in/stock-out with low-stock visibility
-- Cash-based customer wallet top-up at counter (`/admin/topup`)
-- Top-up history and cash collection visibility
-- Comprehensive reports suite (7 report categories)
-- Admin account management from settings (admin role)
+### Admin Features
+- **Comprehensive Dashboard:** Interactive metrics cards, 6-stage order pipeline, recent orders feed, and real-time low-stock alerts side panel
+- **Menu Management:** Category tabs and category/item CRUD (with image upload)
+- **Order Management:** Status controls (Pending → Paid → Preparing → Ready → Completed) and date-range filters
+- **Inventory Management:** Stock-in/stock-out capabilities with low-stock visual flags
+- **Wallet Control:** Cash-based customer wallet top-up at counter (`/admin/topup`) with transaction history
+- **Analytics & Reports Suite:** 7 dedicated report categories (Sales, Inventory, Transactions, Menu Performance, Customers, Order Analytics, Cash Collection)
+- **Export Capabilities:** Comprehensive PDF printing and CSV export for all report types
+- **Settings:** Admin account creation and management (original admin is protected as OWNER)
+
+## Project Documentation & Guides
+
+- **API Reference:** `API_DOCUMENTATION.md`
+- **Diagrams Guide:** `Lucidchart_Guide_RR_Canteen.md` (Detailed step-by-step for creating Flowchart and DFD Level 1)
 
 ## Technology Stack
 
 | Layer | Technology |
 |---|---|
-| Frontend | React 18, Vite, Tailwind CSS |
-| Backend | Node.js, Express, Joi validation, JWT auth, Multer |
-| Database | PostgreSQL |
+| Frontend | React 18, Vite 5, Tailwind CSS 3, Lucide React, Recharts |
+| Backend | Node.js, Express 4, Joi validation, JWT auth, Multer, Helmet, Morgan |
+| Database | PostgreSQL 16 |
 | DevOps | Docker Compose |
 
 ## System Architecture
@@ -71,27 +78,20 @@ graph TD
     end
 ```
 
-- Frontend: `frontend/src`
-- Backend API: `backend/src`
-- DB setup: `docker/init.sql`, `backend/src/database/migrations`
-- Uploads: `backend/uploads`
-
-## Quick Start
+## Quick Start (Local Development)
 
 ### Prerequisites
 - Node.js 18+
 - Docker Desktop
 
-### Recommended (one command)
+### Recommended Approach (One Command)
 
 ```bash
 npm start
 ```
+This script handles everything: starts the database via Docker, runs backend migrations/seeds, and launches both frontend and backend dev servers.
 
-This starts database, backend, and frontend.
-
-### Manual setup
-
+### Manual Setup
 ```bash
 # From project root
 docker compose -f docker/docker-compose.yml up -d
@@ -105,47 +105,32 @@ cd ../frontend
 npm install
 ```
 
-Run services:
-
+Run services manually:
 ```bash
-# backend
-cd backend
-npm run dev
+# terminal 1
+cd backend && npm run dev
 
-# frontend (separate terminal)
-cd frontend
-npm run dev
+# terminal 2
+cd frontend && npm run dev
 ```
 
-## Default URLs
+## Default URLs & Test Accounts
 
 - Frontend: `http://localhost:3000`
 - Backend: `http://localhost:5000`
-- Health: `http://localhost:5000/health`
-
-## Test Accounts
 
 | Role | Email | Password |
 |---|---|---|
 | Admin | admin@canteen.local | admin123 |
 | Customer | user1@example.com | user123 |
 
-## Core API Groups
+## Core API Routing
 
-- `/api/auth`
-- `/api/menu`
-- `/api/orders`
-- `/api/payments`
-- `/api/inventory`
-- `/api/admin/wallet`
-- `/api/settings`
-- `/api/reports`
-
-See full endpoint details in `API_DOCUMENTATION.md`.
-
-## Project Docs
-
-- Implementation plan: `CURRENT_IMPLEMENTATION_PLAN.md`
-- Progress log: `PROGRESS.md`
-- API reference: `API_DOCUMENTATION.md`
-- User guide: `docs/USER_GUIDE.md`
+- `/api/auth` — Registration, login, profile
+- `/api/menu` — Menu items and categories
+- `/api/orders` — Customer orders + admin status management
+- `/api/payments` — Payment processing, wallet top-up, balance, PIN
+- `/api/inventory` — Stock-in/stock-out, low-stock alerts
+- `/api/admin/wallet` — Admin counter top-up for customers
+- `/api/settings` — Profile, security, admin account management
+- `/api/reports` — Advanced analytics and data export

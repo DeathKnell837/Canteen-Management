@@ -1,19 +1,43 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
-import { Package, AlertTriangle, Plus, Minus, RefreshCw, X, Loader2 } from 'lucide-react';
+import { Package, AlertTriangle, Plus, Minus, RefreshCw, X, Loader2, Trash2, Search } from 'lucide-react';
 import api from '../../api/axios';
 import toast from 'react-hot-toast';
 
 export default function Inventory() {
   const [inventory, setInventory] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [stockModal, setStockModal] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterCategory, setFilterCategory] = useState('all');
+  const [sortBy, setSortBy] = useState('name_asc');
 
   const loadInventory = async () => {
     try {
-      const res = await api.get('/inventory');
-      setInventory(res.data.data || res.data || []);
+      const [invRes, menuRes, catRes] = await Promise.all([
+        api.get('/inventory'),
+        api.get('/menu/items'),
+        api.get('/menu/categories')
+      ]);
+      const invData = invRes.data.data || invRes.data || [];
+      const menuData = menuRes.data.data || menuRes.data || [];
+      const catData = catRes.data.data || catRes.data || [];
+
+      const merged = invData.map(inv => {
+        const menuItem = menuData.find(m => m.item_id === inv.item_id);
+        const catId = menuItem?.category_id;
+        const categoryMatch = catData.find(c => c.category_id === parseInt(catId));
+        return {
+          ...inv,
+          category: categoryMatch ? categoryMatch.name : 'Uncategorized',
+          item_name: menuItem?.name || inv.item_name
+        };
+      });
+
+      setInventory(merged);
+      setCategories(catData);
     } catch {
       toast.error('Failed to load inventory');
     } finally {
@@ -23,6 +47,78 @@ export default function Inventory() {
   };
 
   useEffect(() => { loadInventory(); }, []);
+
+  const filteredAndSorted = useMemo(() => {
+    let result = [...inventory];
+
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      result = result.filter(i => 
+        (i.item_name || '').toLowerCase().includes(q) || 
+        (i.category || '').toLowerCase().includes(q)
+      );
+    }
+
+    if (filterCategory !== 'all') {
+      result = result.filter(i => i.category === filterCategory);
+    }
+
+    result.sort((a, b) => {
+      const nameA = (a.item_name || '').toLowerCase();
+      const nameB = (b.item_name || '').toLowerCase();
+      const stockA = parseFloat(a.quantity || 0);
+      const stockB = parseFloat(b.quantity || 0);
+      const dateA = new Date(a.last_updated || 0).getTime();
+      const dateB = new Date(b.last_updated || 0).getTime();
+
+      switch (sortBy) {
+        case 'name_asc': return nameA.localeCompare(nameB);
+        case 'name_desc': return nameB.localeCompare(nameA);
+        case 'stock_asc': return stockA - stockB;
+        case 'stock_desc': return stockB - stockA;
+        case 'date_desc': return dateB - dateA;
+        case 'date_asc': return dateA - dateB;
+        default: return 0;
+      }
+    });
+
+    return result;
+  }, [inventory, searchQuery, filterCategory, sortBy]);
+
+  const handleDeleteInventoryItem = async (item) => {
+    const itemName = item?.item_name || `Item #${item?.item_id}`;
+    const ok = window.confirm(`Delete ${itemName} from inventory?`);
+    if (!ok) return;
+
+    try {
+      await api.delete(`/inventory/items/${item.item_id}`);
+      toast.success('Inventory item deleted');
+      loadInventory();
+    } catch (err) {
+      const status = err.response?.status;
+      const msg = err.response?.data?.error?.message || err.response?.data?.error || err.response?.data?.message;
+
+      // Backward-compatible fallback for older backend route sets.
+      if (status === 404 || /endpoint not found/i.test(String(msg || ''))) {
+        try {
+          await api.delete(`/menu/items/${item.item_id}`);
+          toast.success('Item removed from menu and inventory');
+          loadInventory();
+          return;
+        } catch (fallbackErr) {
+          toast.error(
+            fallbackErr.response?.data?.error?.message ||
+            fallbackErr.response?.data?.error ||
+            fallbackErr.response?.data?.message ||
+            'Failed to delete inventory item'
+          );
+          return;
+        }
+      }
+
+      toast.error(msg || 'Failed to delete inventory item');
+    }
+  };
 
   if (loading) {
     return (
@@ -53,6 +149,42 @@ export default function Inventory() {
         >
           <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} /> Refresh
         </button>
+      </div>
+
+      {/* Filters and Search */}
+      <div className="flex flex-col md:flex-row gap-3 mb-6 animate-fade-in-up" style={{ animationDelay: '0.05s', animationFillMode: 'both' }}>
+        <div className="relative flex-1">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search inventory items or categories..."
+            className="w-full pl-11 pr-4 py-2.5 border-2 border-gray-100 dark:border-gray-700 rounded-xl text-sm focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all dark:bg-gray-800 dark:text-white"
+          />
+        </div>
+        <div className="flex gap-2 w-full md:w-auto overflow-x-auto pb-1 md:pb-0 scrollbar-hide shrink-0">
+          <select
+            value={filterCategory}
+            onChange={(e) => setFilterCategory(e.target.value)}
+            className="px-4 py-2.5 bg-white dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-700 rounded-xl text-sm font-medium text-gray-700 dark:text-gray-300 focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none min-w-[140px]"
+          >
+            <option value="all">All Categories</option>
+            {categories.map(c => <option key={c.category_id} value={c.name}>{c.name}</option>)}
+          </select>
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+            className="px-4 py-2.5 bg-white dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-700 rounded-xl text-sm font-medium text-gray-700 dark:text-gray-300 focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none min-w-[170px]"
+          >
+            <option value="name_asc">Name (A-Z)</option>
+            <option value="name_desc">Name (Z-A)</option>
+            <option value="stock_asc">Stock (Low Ext)</option>
+            <option value="stock_desc">Stock (High Ext)</option>
+            <option value="date_desc">Updated (Newest)</option>
+            <option value="date_asc">Updated (Oldest)</option>
+          </select>
+        </div>
       </div>
 
       {/* Low stock alert */}
@@ -86,7 +218,7 @@ export default function Inventory() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50 dark:divide-gray-800">
-              {inventory.map((inv) => {
+              {filteredAndSorted.map((inv) => {
                 const qty = parseFloat(inv.quantity);
                 const isLow = qty < 10;
                 const pct = Math.min((qty / maxQty) * 100, 100);
@@ -97,7 +229,10 @@ export default function Inventory() {
                         <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform ${isLow ? 'bg-gradient-to-br from-red-50 to-red-100' : 'bg-gradient-to-br from-brand-50 to-brand-100'}`}>
                           <Package className={`w-4 h-4 ${isLow ? 'text-red-500' : 'text-brand-500'}`} />
                         </div>
-                        <p className="text-sm font-semibold text-gray-900 dark:text-white">{inv.item_name || `Item #${inv.item_id}`}</p>
+                        <div>
+                          <p className="text-sm font-semibold text-gray-900 dark:text-white">{inv.item_name || `Item #${inv.item_id}`}</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{inv.category}</p>
+                        </div>
                       </div>
                     </td>
                     <td className="px-5 py-3.5">
@@ -145,12 +280,19 @@ export default function Inventory() {
                         >
                           <Minus className="w-3 h-3" /> Remove
                         </button>
+                        <button
+                          onClick={() => handleDeleteInventoryItem(inv)}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-red-700 bg-red-50 rounded-lg hover:bg-red-100 transition-all border border-red-200/50 active:scale-[0.97]"
+                          title="Delete item from inventory"
+                        >
+                          <Trash2 className="w-3 h-3" /> Delete
+                        </button>
                       </div>
                     </td>
                   </tr>
                 );
               })}
-              {inventory.length === 0 && (
+              {filteredAndSorted.length === 0 && (
                 <tr>
                   <td colSpan={5} className="px-5 py-12 text-center">
                     <Package className="w-10 h-10 text-gray-300 dark:text-gray-600 mx-auto mb-2" />

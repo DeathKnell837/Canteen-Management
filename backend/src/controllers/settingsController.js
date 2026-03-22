@@ -32,7 +32,6 @@ const settingsController = {
     res.status(200).json({ success: true, message: 'Password changed successfully' });
   }),
 
-  // Update email
   updateEmail: asyncHandler(async (req, res) => {
     const userId = req.user.id;
     const { newEmail, password } = req.body;
@@ -46,7 +45,6 @@ const settingsController = {
       throw new AppError('Password is incorrect', 400);
     }
 
-    // Check if email is already taken
     const existing = await User.findByEmail(newEmail);
     if (existing && existing.user_id !== userId) {
       throw new AppError('Email is already in use', 400);
@@ -58,6 +56,28 @@ const settingsController = {
     );
 
     res.status(200).json({ success: true, message: 'Email updated successfully' });
+  }),
+
+  // Delete account (soft delete / anonymize)
+  deleteAccount: asyncHandler(async (req, res) => {
+    const userId = req.user.id;
+    
+    // Anonymize user to preserve order history and foreign keys
+    await pool.query(
+      `UPDATE users 
+       SET 
+         status = 'INACTIVE', 
+         email = CONCAT('deleted_', user_id, '@canteen.local'),
+         full_name = 'Deleted User',
+         password_hash = '',
+         phone = NULL,
+         profile_picture_url = NULL,
+         updated_at = CURRENT_TIMESTAMP
+       WHERE user_id = $1`,
+      [userId]
+    );
+
+    res.status(200).json({ success: true, message: 'Account deleted successfully' });
   }),
 
   // Update profile (name, phone)
@@ -120,21 +140,43 @@ const settingsController = {
 
   // ===== Admin Management =====
 
+  // Helper: get the original (first) admin user_id
+  _getOriginalAdminId: async () => {
+    const result = await pool.query(
+      `SELECT user_id FROM users WHERE role = 'ADMIN' ORDER BY user_id ASC LIMIT 1`
+    );
+    return result.rows[0]?.user_id;
+  },
+
   // List all admins
   listAdmins: asyncHandler(async (req, res) => {
     const result = await pool.query(
       `SELECT user_id, email, full_name, role, status, created_at
        FROM users
-       WHERE role IN ('ADMIN', 'STAFF')
+       WHERE role = 'ADMIN'
        ORDER BY created_at DESC`
     );
 
-    res.status(200).json({ success: true, data: result.rows });
+    // Mark the original admin so frontend can identify them
+    const originalId = await settingsController._getOriginalAdminId();
+    const admins = result.rows.map(a => ({
+      ...a,
+      is_original: a.user_id === originalId
+    }));
+
+    res.status(200).json({ success: true, data: admins });
   }),
 
-  // Create new admin
+  // Create new admin (only original admin can do this)
   createAdmin: asyncHandler(async (req, res) => {
-    const { email, fullName, password, role } = req.body;
+    const { email, fullName, password } = req.body;
+    const currentUserId = req.user.id;
+
+    // Only the original admin can create new admins
+    const originalAdminId = await settingsController._getOriginalAdminId();
+    if (currentUserId !== originalAdminId) {
+      throw new AppError('Only the original admin can create new admin accounts', 403);
+    }
 
     if (!email || !fullName || !password) {
       throw new AppError('Email, full name, and password are required', 400);
@@ -143,30 +185,39 @@ const settingsController = {
       throw new AppError('Password must be at least 8 characters', 400);
     }
 
-    const adminRole = role === 'STAFF' ? 'STAFF' : 'ADMIN';
-
     const existing = await User.findByEmail(email);
     if (existing) {
       throw new AppError('Email is already in use', 400);
     }
 
     const hash = await bcrypt.hash(password, 10);
-    const user = await User.create(email, '', hash, fullName, adminRole);
+    const user = await User.create(email, '', hash, fullName, 'ADMIN');
 
     res.status(201).json({
       success: true,
-      message: `${adminRole} account created successfully`,
+      message: 'Admin account created successfully',
       data: user
     });
   }),
 
-  // Deactivate/activate admin
+  // Deactivate/activate admin (only original admin can do this)
   toggleAdminStatus: asyncHandler(async (req, res) => {
     const { userId } = req.params;
     const currentUserId = req.user.id;
 
+    // Only the original admin can toggle other admins
+    const originalAdminId = await settingsController._getOriginalAdminId();
+    if (currentUserId !== originalAdminId) {
+      throw new AppError('Only the original admin can manage admin accounts', 403);
+    }
+
     if (parseInt(userId) === currentUserId) {
       throw new AppError('Cannot deactivate your own account', 400);
+    }
+
+    // Prevent deactivating the original admin
+    if (parseInt(userId) === originalAdminId) {
+      throw new AppError('The original admin account cannot be deactivated', 400);
     }
 
     const user = await User.findById(parseInt(userId));

@@ -1,6 +1,6 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Trash2, Plus, Minus, ShoppingBag, ArrowLeft, CreditCard, ShieldCheck, UtensilsCrossed } from 'lucide-react';
+import { Trash2, Plus, Minus, ShoppingBag, ArrowLeft, CreditCard, ShieldCheck, UtensilsCrossed, X, Lock } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import api from '../../api/axios';
 import toast from 'react-hot-toast';
@@ -13,6 +13,24 @@ export default function Cart() {
   const submitting = useRef(false);
   const navigate = useNavigate();
 
+  // Wallet PIN state
+  const [hasPin, setHasPin] = useState(false);
+  const [showPinModal, setShowPinModal] = useState(false);
+  const [pinInput, setPinInput] = useState('');
+  const [pinError, setPinError] = useState('');
+
+  useEffect(() => {
+    const checkPin = async () => {
+      try {
+        const res = await api.get('/payments/wallet/pin/status');
+        setHasPin(res.data.data.hasPin);
+      } catch {
+        setHasPin(false);
+      }
+    };
+    checkPin();
+  }, []);
+
   const TAX_RATE = 0.05;
   const tax = total * TAX_RATE;
   const grandTotal = total + tax;
@@ -24,9 +42,35 @@ export default function Cart() {
 
   const selectedPaymentLabel = PAYMENT_OPTIONS.find((o) => o.value === paymentMethod)?.label || 'Online Payment';
 
-  const handleCheckout = async () => {
+  const handlePayClick = () => {
     if (items.length === 0 || submitting.current) return;
 
+    // If online payment and user has a PIN set, show PIN modal first
+    if (paymentMethod === 'ONLINE_PAYMENT' && hasPin) {
+      setPinInput('');
+      setPinError('');
+      setShowPinModal(true);
+      return;
+    }
+
+    // Otherwise proceed directly (Direct Cash or no PIN set)
+    handleCheckout();
+  };
+
+  const handlePinSubmit = async () => {
+    if (!/^[0-9]{4,6}$/.test(pinInput)) {
+      setPinError('PIN must be 4-6 digits');
+      return;
+    }
+
+    // Verify PIN by attempting a wallet balance check approach
+    // We'll verify it during the actual payment, but first do a quick frontend validation
+    setPinError('');
+    setShowPinModal(false);
+    handleCheckout(pinInput);
+  };
+
+  const handleCheckout = async (verifiedPin = null) => {
     if (!window.confirm(`Confirm ${selectedPaymentLabel} payment of ₱${grandTotal.toFixed(2)} for this order?`)) {
       return;
     }
@@ -46,6 +90,7 @@ export default function Cart() {
         orderId: order.order_id,
         paymentMethod,
         amount: parseFloat(order.total_amount),
+        ...(verifiedPin ? { walletPin: verifiedPin } : {}),
       });
 
       clearCart();
@@ -86,6 +131,7 @@ export default function Cart() {
   }
 
   return (
+    <>
     <div>
       <div className="mb-6">
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Cart</h1>
@@ -103,8 +149,12 @@ export default function Cart() {
               className="card-glass rounded-2xl p-4 sm:p-5 flex items-center gap-4 card-hover animate-fade-in-up"
               style={{ animationDelay: `${idx * 0.05}s`, animationFillMode: 'both' }}
             >
-              <div className="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-brand-50 to-orange-50 dark:from-gray-800 dark:to-gray-700 rounded-xl flex items-center justify-center flex-shrink-0 text-2xl">
-                <UtensilsCrossed className="w-6 h-6 text-brand-400 dark:text-gray-500" />
+              <div className="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-brand-50 to-orange-50 dark:from-gray-800 dark:to-gray-700 rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden">
+                {item.image_url ? (
+                  <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
+                ) : (
+                  <UtensilsCrossed className="w-6 h-6 text-brand-400 dark:text-gray-500" />
+                )}
               </div>
               <div className="flex-1 min-w-0">
                 <h3 className="font-semibold text-gray-900 dark:text-white truncate">{item.name}</h3>
@@ -176,7 +226,7 @@ export default function Cart() {
             </div>
 
             <button
-              onClick={handleCheckout}
+              onClick={handlePayClick}
               disabled={loading}
               className="w-full mt-6 py-3.5 bg-gradient-to-r from-brand-500 to-brand-600 text-white rounded-xl font-bold hover:from-brand-600 hover:to-brand-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-brand-500/25 hover:shadow-xl active:scale-[0.98] flex items-center justify-center gap-2"
             >
@@ -209,5 +259,55 @@ export default function Cart() {
         </div>
       </div>
     </div>
+
+    {/* Wallet PIN Verification Modal */}
+    {showPinModal && (
+      <div className="fixed inset-0 z-50 flex items-center justify-center">
+        <div className="absolute inset-0 bg-black/40 backdrop-blur-sm animate-overlay-in" onClick={() => setShowPinModal(false)} />
+        <div className="relative bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-sm mx-4 shadow-2xl animate-modal-in">
+          <button onClick={() => setShowPinModal(false)} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+            <X className="w-5 h-5" />
+          </button>
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-500 to-brand-600 flex items-center justify-center shadow-lg shadow-brand-500/20">
+              <Lock className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h3 className="font-bold text-gray-900 dark:text-white">Enter Wallet PIN</h3>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Verify your identity to proceed</p>
+            </div>
+          </div>
+          <input
+            type="password"
+            inputMode="numeric"
+            maxLength={6}
+            value={pinInput}
+            onChange={(e) => { setPinInput(e.target.value.replace(/\D/g, '').slice(0, 6)); setPinError(''); }}
+            onKeyDown={(e) => e.key === 'Enter' && handlePinSubmit()}
+            placeholder="4-6 digit PIN"
+            autoFocus
+            className={`w-full px-4 py-3 text-center text-2xl tracking-[0.5em] font-bold border rounded-xl bg-gray-50 dark:bg-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-400 ${
+              pinError ? 'border-red-400' : 'border-gray-200 dark:border-gray-700'
+            }`}
+          />
+          {pinError && <p className="text-xs text-red-500 mt-2 text-center">{pinError}</p>}
+          <div className="flex gap-3 mt-5">
+            <button
+              onClick={() => setShowPinModal(false)}
+              className="flex-1 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 text-sm font-semibold hover:bg-gray-50 dark:hover:bg-gray-700"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handlePinSubmit}
+              className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-brand-500 to-brand-600 text-white text-sm font-bold hover:from-brand-600 hover:to-brand-700 shadow-lg shadow-brand-500/20"
+            >
+              Confirm
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
+  </>
   );
 }

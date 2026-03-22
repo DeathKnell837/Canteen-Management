@@ -21,4 +21,8 @@ router.post('/items/:itemId/stock-in', validateItemIdParam, validateStockChange,
 // Remove stock
 router.post('/items/:itemId/stock-out', validateItemIdParam, validateStockChange, inventoryController.removeStock);
 
+// Delete inventory item (admin only)
+router.delete('/items/:itemId', authorize('ADMIN'), validateItemIdParam, inventoryController.deleteInventoryItem);
+router.delete('/:itemId', authorize('ADMIN'), validateItemIdParam, inventoryController.deleteInventoryItem);
+
 module.exports = router;

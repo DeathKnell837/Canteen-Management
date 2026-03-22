@@ -3,6 +3,40 @@ import { Search, Wallet, Plus, CheckCircle2, User, ArrowRightLeft, Loader2, Hist
 import api from '../../api/axios';
 import toast from 'react-hot-toast';
 
+function getAvatarSrc(raw) {
+  if (!raw) return null;
+  if (/^https?:\/\//i.test(raw)) return raw;
+  if (raw.startsWith('/')) return raw;
+  return `/${raw}`;
+}
+
+function CustomerAvatar({ customer, size = 'md' }) {
+  const [failed, setFailed] = useState(false);
+
+  useEffect(() => {
+    setFailed(false);
+  }, [customer?.profile_picture_url]);
+
+  const src = getAvatarSrc(customer?.profile_picture_url);
+  const sizeClass = size === 'lg' ? 'w-11 h-11' : 'w-9 h-9';
+  const iconClass = size === 'lg' ? 'w-5 h-5' : 'w-4 h-4';
+
+  return (
+    <div className={`${sizeClass} rounded-full bg-gradient-to-br from-emerald-100 to-emerald-200 dark:from-emerald-800 dark:to-emerald-900 flex items-center justify-center overflow-hidden`}>
+      {src && !failed ? (
+        <img
+          src={src}
+          alt={customer?.full_name || 'Customer'}
+          className="w-full h-full object-cover"
+          onError={() => setFailed(true)}
+        />
+      ) : (
+        <User className={`${iconClass} text-emerald-600 dark:text-emerald-300`} />
+      )}
+    </div>
+  );
+}
+
 export default function WalletTopup() {
   const [search, setSearch] = useState('');
   const [customers, setCustomers] = useState([]);
@@ -167,9 +201,7 @@ export default function WalletTopup() {
                       onClick={() => handleSelectCustomer(c)}
                       className="w-full flex items-center gap-3 p-3 hover:bg-emerald-50/50 dark:hover:bg-emerald-900/10 transition-colors text-left"
                     >
-                      <div className="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-100 to-emerald-200 dark:from-emerald-800 dark:to-emerald-900 flex items-center justify-center">
-                        <User className="w-4 h-4 text-emerald-600 dark:text-emerald-300" />
-                      </div>
+                      <CustomerAvatar customer={c} size="md" />
                       <div className="min-w-0 flex-1">
                         <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">{c.full_name}</p>
                         <p className="text-xs text-gray-400 truncate">{c.email}</p>
@@ -190,9 +222,7 @@ export default function WalletTopup() {
               <div className="card-glass rounded-2xl p-5 border-2 border-emerald-200 dark:border-emerald-800 animate-fade-in-up">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-11 h-11 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center">
-                      <User className="w-5 h-5 text-white" />
-                    </div>
+                    <CustomerAvatar customer={selected} size="lg" />
                     <div>
                       <p className="font-bold text-gray-900 dark:text-white">{selected.full_name}</p>
                       <p className="text-xs text-gray-400">{selected.email}</p>

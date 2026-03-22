@@ -45,8 +45,22 @@ class InventoryService {
   }
 
   async getAllInventory() {
-    const result = await Inventory.getLowStock(999999);
-    return result;
+    return await Inventory.getAllActive();
+  }
+
+  async deleteInventoryItem(itemId) {
+    const existing = await Inventory.getByItemAny(itemId);
+    if (!existing) {
+      throw new AppError('Inventory item not found', 404);
+    }
+
+    // Hide item from menu/inventory views immediately.
+    await Inventory.deactivateMenuItem(itemId);
+
+    // Best-effort cleanup of inventory row.
+    await Inventory.deleteByItem(itemId);
+
+    return { item_id: itemId };
   }
 }
 

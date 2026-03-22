@@ -164,27 +164,7 @@ export default function Login() {
             </Link>
           </p>
 
-          <div className="mt-8 p-4 bg-gradient-to-r from-gray-50 to-gray-100/50 dark:from-gray-800 dark:to-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-700">
-            <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2.5">Demo Accounts</p>
-            <div className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
-              <button
-                type="button"
-                onClick={() => { setEmail('admin@canteen.local'); setPassword('admin123'); }}
-                className="w-full text-left px-3 py-2 rounded-lg hover:bg-white dark:hover:bg-gray-700 transition-colors flex items-center justify-between group"
-              >
-                <span><span className="font-medium text-gray-700 dark:text-gray-200">Admin:</span> admin@canteen.local</span>
-                <ArrowRight className="w-3.5 h-3.5 text-gray-300 group-hover:text-brand-500 transition-colors" />
-              </button>
-              <button
-                type="button"
-                onClick={() => { setEmail('user1@example.com'); setPassword('user123'); }}
-                className="w-full text-left px-3 py-2 rounded-lg hover:bg-white dark:hover:bg-gray-700 transition-colors flex items-center justify-between group"
-              >
-                <span><span className="font-medium text-gray-700 dark:text-gray-200">User:</span> user1@example.com</span>
-                <ArrowRight className="w-3.5 h-3.5 text-gray-300 group-hover:text-brand-500 transition-colors" />
-              </button>
-            </div>
-          </div>
+
         </div>
       </div>
     </div>

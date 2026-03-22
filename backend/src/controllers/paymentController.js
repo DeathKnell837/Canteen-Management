@@ -4,13 +4,14 @@ const { asyncHandler } = require('../utils/errorHandler');
 const paymentController = {
   processPayment: asyncHandler(async (req, res) => {
     const userId = req.user.id;
-    const { orderId, paymentMethod, amount } = req.body;
+    const { orderId, paymentMethod, amount, walletPin } = req.body;
 
     const payment = await paymentService.processPayment(
       orderId,
       userId,
       paymentMethod,
-      amount
+      amount,
+      walletPin
     );
 
     res.status(200).json({
@@ -89,6 +90,18 @@ const paymentController = {
     res.status(200).json({
       success: true,
       data: { hasPin }
+    });
+  }),
+
+  clearWalletPin: asyncHandler(async (req, res) => {
+    const userId = req.user.id;
+    const { accountPassword } = req.body;
+
+    await paymentService.clearWalletPin(userId, accountPassword);
+
+    res.status(200).json({
+      success: true,
+      message: 'Wallet PIN disabled successfully'
     });
   })
 };

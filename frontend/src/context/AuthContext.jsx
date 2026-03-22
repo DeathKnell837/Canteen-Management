@@ -10,9 +10,28 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     const savedUser = localStorage.getItem('user');
     const savedToken = localStorage.getItem('token');
+
+    const syncUser = async () => {
+      try {
+        const res = await api.get('/auth/profile');
+        const userData = res.data.data;
+        const base = savedUser ? JSON.parse(savedUser) : {};
+        const merged = { ...base, ...userData };
+        localStorage.setItem('user', JSON.stringify(merged));
+        setUser(merged);
+      } catch {
+        // ignore bootstrap sync errors
+      } finally {
+        setLoading(false);
+      }
+    };
+
     if (savedUser && savedToken) {
       setUser(JSON.parse(savedUser));
+      syncUser();
+      return;
     }
+
     setLoading(false);
   }, []);
 

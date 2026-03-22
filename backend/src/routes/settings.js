@@ -20,6 +20,9 @@ router.put('/password', validateSettingsPassword, settingsController.changePassw
 router.put('/email', validateSettingsEmail, settingsController.updateEmail);
 router.post('/profile/picture', profileUpload.single('picture'), settingsController.uploadProfilePicture);
 
+// Delete account
+router.delete('/account', settingsController.deleteAccount);
+
 // Admin management (admin only)
 router.get('/admins', authorize('ADMIN'), settingsController.listAdmins);
 router.post('/admins', authorize('ADMIN'), validateCreateAdmin, settingsController.createAdmin);

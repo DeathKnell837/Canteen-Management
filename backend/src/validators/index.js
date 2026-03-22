@@ -59,7 +59,8 @@ const schemas = {
   processPayment: Joi.object({
     orderId: Joi.number().positive().required(),
     paymentMethod: Joi.string().valid('ONLINE_PAYMENT', 'ONLINE_TRANSACTION', 'DIRECT_CASH', 'WALLET', 'CARD', 'MOBILE_PAYMENT', 'CASH').required(),
-    amount: Joi.number().positive().required()
+    amount: Joi.number().positive().required(),
+    walletPin: Joi.string().pattern(/^[0-9]{4,6}$/).allow('', null)
   }),
 
   topupWallet: Joi.object({
@@ -166,7 +167,7 @@ const schemas = {
     email: Joi.string().email({ tlds: false }).required(),
     fullName: Joi.string().trim().min(2).max(120).required(),
     password: Joi.string().min(8).max(72).required(),
-    role: Joi.string().valid('ADMIN', 'STAFF').default('ADMIN')
+    role: Joi.string().valid('ADMIN').default('ADMIN')
   })
 };
 

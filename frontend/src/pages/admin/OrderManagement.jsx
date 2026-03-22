@@ -33,18 +33,43 @@ const StatusIcon = {
 
 // What's the next action for each status?
 const NEXT_ACTION = {
+  PENDING: { label: 'Confirm Payment', icon: Wallet, next: 'CONFIRMED', color: 'bg-blue-500 hover:bg-blue-600' },
   CONFIRMED: { label: 'Start Preparing', icon: ChefHat, next: 'PREPARING', color: 'bg-orange-500 hover:bg-orange-600' },
   PREPARING: { label: 'Mark Ready', icon: Package, next: 'READY', color: 'bg-green-500 hover:bg-green-600' },
   READY: { label: 'Mark Completed', icon: CheckCircle2, next: 'PICKED_UP', color: 'bg-emerald-500 hover:bg-emerald-600' },
 };
 
-const FILTER_TABS = ['all', 'CONFIRMED', 'PREPARING', 'READY', 'PICKED_UP', 'CANCELLED'];
+const FILTER_TABS = ['PENDING', 'CONFIRMED', 'PREPARING', 'READY', 'PICKED_UP', 'CANCELLED', 'all'];
+
+const getOrderStatusLabel = (order) => {
+  if (getEffectiveOrderStatus(order) === 'PENDING' && order?.payment_method === 'CASH') {
+    return 'Awaiting Cash Payment';
+  }
+  const status = getEffectiveOrderStatus(order);
+  return STATUS_LABELS[status] || status;
+};
+
+const getEffectiveOrderStatus = (order) => {
+  if (!order) return order?.status;
+  if (order.payment_method === 'CASH' && order.payment_status !== 'SUCCESS' && ['PENDING', 'CONFIRMED'].includes(order.status)) {
+    return 'PENDING';
+  }
+  return order.status;
+};
+
+const getNextAction = (order) => {
+  const status = getEffectiveOrderStatus(order);
+  if (status === 'PENDING') {
+    return order?.payment_method === 'CASH' ? NEXT_ACTION.PENDING : null;
+  }
+  return NEXT_ACTION[status] || null;
+};
 
 export default function OrderManagement() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [filter, setFilter] = useState('all');
+  const [filter, setFilter] = useState('PENDING');
   const [search, setSearch] = useState('');
   const [receiptOrder, setReceiptOrder] = useState(null);
   const [datePeriod, setDatePeriod] = useState('all');
@@ -114,14 +139,20 @@ export default function OrderManagement() {
   };
 
   const filtered = orders.filter((o) => {
-    if (filter !== 'all' && o.status !== filter) return false;
+    const effectiveStatus = getEffectiveOrderStatus(o);
+    if (filter !== 'all' && effectiveStatus !== filter) return false;
     if (search && !String(o.order_id).includes(search) && !(o.customer_name || '').toLowerCase().includes(search.toLowerCase())) return false;
     return true;
   });
 
   // Count by status for filter tabs
   const counts = {};
-  orders.forEach(o => { counts[o.status] = (counts[o.status] || 0) + 1; });
+  orders.forEach(o => {
+    const effectiveStatus = getEffectiveOrderStatus(o);
+    counts[effectiveStatus] = (counts[effectiveStatus] || 0) + 1;
+  });
+
+  // Removed aggressive tab-switching effect so user can stay on empty tabs like PENDING.
 
   if (loading) {
     return (
@@ -240,8 +271,9 @@ export default function OrderManagement() {
             </thead>
             <tbody className="divide-y divide-gray-50 dark:divide-gray-800">
               {filtered.map((o) => {
-                const action = NEXT_ACTION[o.status];
+                const action = getNextAction(o);
                 const ActionIcon = action?.icon;
+                const effectiveStatus = getEffectiveOrderStatus(o);
                 return (
                   <tr key={o.order_id} className="hover:bg-brand-50/30 dark:hover:bg-white/5 transition-colors group">
                     <td className="px-5 py-3.5">
@@ -258,9 +290,9 @@ export default function OrderManagement() {
                       })}
                     </td>
                     <td className="px-5 py-3.5">
-                      {(() => { const SIcon = StatusIcon[o.status]; return (
-                        <span className={`inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full ${statusColor[o.status] || 'bg-gray-100 text-gray-600'}`}>
-                          {SIcon && <SIcon className="w-3 h-3" />} {STATUS_LABELS[o.status] || o.status}
+                      {(() => { const SIcon = StatusIcon[effectiveStatus]; return (
+                        <span className={`inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full ${statusColor[effectiveStatus] || 'bg-gray-100 text-gray-600'}`}>
+                          {SIcon && <SIcon className="w-3 h-3" />} {getOrderStatusLabel(o)}
                         </span>
                       ); })()}
                     </td>
@@ -277,7 +309,7 @@ export default function OrderManagement() {
                           </button>
                         )}
                         {/* Cancel button for non-preparing orders */}
-                        {(o.status === 'PENDING' || o.status === 'CONFIRMED') && (
+                        {(effectiveStatus === 'PENDING' || effectiveStatus === 'CONFIRMED') && (
                           <button
                             onClick={() => cancelOrder(o.order_id)}
                             className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all"
@@ -287,7 +319,7 @@ export default function OrderManagement() {
                           </button>
                         )}
                         {/* Receipt button for paid/completed orders */}
-                        {o.status !== 'PENDING' && o.status !== 'CANCELLED' && (
+                        {effectiveStatus !== 'PENDING' && effectiveStatus !== 'CANCELLED' && (
                           <button
                             onClick={() => setReceiptOrder(o)}
                             className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all"
@@ -297,8 +329,8 @@ export default function OrderManagement() {
                           </button>
                         )}
                         {/* Done label */}
-                        {(o.status === 'PICKED_UP' || o.status === 'CANCELLED') && !action && (
-                          <span className="text-xs text-gray-300 dark:text-gray-600 font-medium">{o.status === 'PICKED_UP' ? 'Done' : 'Cancelled'}</span>
+                        {(effectiveStatus === 'PICKED_UP' || effectiveStatus === 'CANCELLED') && !action && (
+                          <span className="text-xs text-gray-300 dark:text-gray-600 font-medium">{effectiveStatus === 'PICKED_UP' ? 'Done' : 'Cancelled'}</span>
                         )}
                       </div>
                     </td>
@@ -381,7 +413,7 @@ function ReceiptModal({ order, onClose }) {
         </div>
 
         {/* Receipt content */}
-        <div className="p-5" id="receipt-content">
+        <div className="p-5 text-gray-900 dark:text-gray-100" id="receipt-content">
           <div className="center">
             <UtensilsCrossed className="w-6 h-6 mx-auto mb-1 text-gray-700 dark:text-gray-300" />
             <h2 className="bold">R&R Cafeteria</h2>
@@ -436,7 +468,9 @@ function ReceiptModal({ order, onClose }) {
 
               <div className="line" />
               <p className="center" style={{fontSize: 11, color: '#999'}}>Thank you for your order!</p>
-              <p className="center" style={{fontSize: 11, color: '#999'}}>Paid via Wallet</p>
+              <p className="center" style={{fontSize: 11, color: '#999'}}>
+                Payment: {order.payment_method === 'CASH' ? 'Direct Cash' : (order.payment_method || 'Wallet')} ({order.payment_status || 'PENDING'})
+              </p>
             </>
           )}
         </div>

@@ -3,7 +3,7 @@ const { pool } = require('../config/database');
 const { AppError } = require('../utils/errorHandler');
 
 class PaymentService {
-  async processPayment(orderId, userId, paymentMethod, amount) {
+  async processPayment(orderId, userId, paymentMethod, amount, walletPin = null) {
     const methodMap = {
       ONLINE_PAYMENT: 'WALLET',
       ONLINE_TRANSACTION: 'WALLET',
@@ -25,8 +25,27 @@ class PaymentService {
       throw new AppError('Payment amount mismatch', 400);
     }
 
+    // Verify wallet PIN if user has one set and paying with wallet
+    if (normalizedMethod === 'WALLET') {
+      const hasPin = await User.hasWalletPin(userId);
+      if (hasPin) {
+        if (!walletPin) {
+          throw new AppError('Wallet PIN is required', 400);
+        }
+        const pinValid = await User.verifyWalletPin(userId, walletPin);
+        if (!pinValid) {
+          throw new AppError('Invalid wallet PIN', 400);
+        }
+      }
+    }
+
     // Create payment record
     const payment = await Payment.create(orderId, userId, normalizedMethod, amount);
+
+    // Direct cash should stay pending until admin confirms payment at counter.
+    if (normalizedMethod === 'CASH') {
+      return await Payment.getById(payment.payment_id);
+    }
 
     // Process based on payment method
     let isSuccessful = false;
@@ -34,9 +53,6 @@ class PaymentService {
     switch (normalizedMethod) {
       case 'WALLET':
         isSuccessful = await this.processWalletPayment(userId, amount, orderId);
-        break;
-      case 'CASH':
-        isSuccessful = true; // Cash payment marked as success (will be verified at counter)
         break;
       case 'CARD':
       case 'MOBILE_PAYMENT':
@@ -162,8 +178,37 @@ class PaymentService {
     const parsedLimit = Math.min(Math.max(parseInt(limit) || 50, 1), 200);
     const result = await pool.query(
       `SELECT transaction_id, amount, transaction_type, reference_id, description, balance_after, created_at
-       FROM wallet_transactions
-       WHERE user_id = $1
+       FROM (
+         SELECT
+           CONCAT('WALLET-', wt.transaction_id) AS transaction_id,
+           wt.amount,
+           wt.transaction_type,
+           wt.reference_id,
+           wt.description,
+           wt.balance_after,
+           wt.created_at
+         FROM wallet_transactions wt
+         WHERE wt.user_id = $1
+
+         UNION ALL
+
+         SELECT
+           CONCAT('PAYMENT-', p.payment_id) AS transaction_id,
+           -ABS(p.amount)::DECIMAL(10,2) AS amount,
+           'DIRECT_CASH' AS transaction_type,
+           COALESCE(p.transaction_id, CONCAT('PAY-', p.payment_id)) AS reference_id,
+           COALESCE(
+             CONCAT('Direct cash payment for order ', o.order_number),
+             CONCAT('Direct cash payment for order #', p.order_id)
+           ) AS description,
+           NULL::DECIMAL(10,2) AS balance_after,
+           p.created_at
+         FROM payments p
+         LEFT JOIN orders o ON p.order_id = o.order_id
+         WHERE p.user_id = $1
+           AND p.payment_method = 'CASH'
+           AND p.status IN ('PENDING', 'SUCCESS')
+       ) tx
        ORDER BY created_at DESC
        LIMIT $2`,
       [userId, parsedLimit]
@@ -191,6 +236,14 @@ class PaymentService {
 
   async getWalletPinStatus(userId) {
     return User.hasWalletPin(userId);
+  }
+
+  async clearWalletPin(userId, accountPassword) {
+    const passwordValid = await User.verifyPassword(userId, accountPassword || '');
+    if (!passwordValid) {
+      throw new AppError('Invalid account password', 400);
+    }
+    await User.clearWalletPin(userId);
   }
 }
 

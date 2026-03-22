@@ -33,4 +33,7 @@ router.post('/wallet/pin', validateSetWalletPin, paymentController.setWalletPin)
 // Get wallet PIN status
 router.get('/wallet/pin/status', paymentController.getWalletPinStatus);
 
+// Clear/disable wallet PIN
+router.delete('/wallet/pin', paymentController.clearWalletPin);
+
 module.exports = router;

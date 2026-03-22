@@ -1,15 +1,12 @@
 import { useEffect, useState, useRef } from 'react';
-import { Moon, Sun, Shield, KeyRound, Mail, User, Camera, UserPlus, Users, Loader2, CheckCircle2, XCircle, Eye, EyeOff } from 'lucide-react';
-import { useTheme } from '../context/ThemeContext';
+import { Shield, KeyRound, Mail, User, Camera, UserPlus, Users, Loader2, CheckCircle2, XCircle, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/axios';
 import toast from 'react-hot-toast';
 
 export default function Settings() {
-  const { dark, toggle } = useTheme();
-  const { user } = useAuth();
+  const { user, refreshUser, logout } = useAuth();
   const isAdmin = user?.role === 'ADMIN';
-  const isCustomer = user?.role === 'CUSTOMER';
 
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -62,20 +59,17 @@ export default function Settings() {
         })}
       </div>
 
-      {activeTab === 'profile' && <ProfileTab profile={profile} setProfile={setProfile} loading={loading} dark={dark} toggle={toggle} />}
-      {activeTab === 'security' && <SecurityTab isCustomer={isCustomer} />}
+      {activeTab === 'profile' && <ProfileTab profile={profile} setProfile={setProfile} loading={loading} refreshUser={refreshUser} />}
+      {activeTab === 'security' && <SecurityTab />}
       {activeTab === 'admins' && isAdmin && <AdminManagementTab />}
     </div>
   );
 }
 
-function ProfileTab({ profile, setProfile, loading, dark, toggle }) {
+function ProfileTab({ profile, setProfile, loading, refreshUser }) {
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
   const [saving, setSaving] = useState(false);
-  const [newEmail, setNewEmail] = useState('');
-  const [emailPassword, setEmailPassword] = useState('');
-  const [savingEmail, setSavingEmail] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [errors, setErrors] = useState({});
   const fileRef = useRef(null);
@@ -103,36 +97,11 @@ function ProfileTab({ profile, setProfile, loading, dark, toggle }) {
       const res = await api.put('/settings/profile', { fullName: fullName.trim(), phone: phone.trim() });
       toast.success('Profile updated');
       setProfile(p => ({ ...p, full_name: res.data.data.full_name, phone: res.data.data.phone }));
+      if (refreshUser) await refreshUser(); // Update AuthContext so Sidebar syncs
     } catch (err) {
       setErrors(prev => ({ ...prev, profile: err.response?.data?.error?.message || 'Update failed' }));
     } finally {
       setSaving(false);
-    }
-  };
-
-  const handleSaveEmail = async (e) => {
-    e.preventDefault();
-    setErrors(prev => ({ ...prev, emailSubmit: null, newEmail: null, emailPassword: null }));
-    let newErrors = {};
-    if (!newEmail) newErrors.newEmail = 'New email is required';
-    else if (!/\S+@\S+\.\S+/.test(newEmail)) newErrors.newEmail = 'Valid email is required';
-    if (!emailPassword) newErrors.emailPassword = 'Password confirmation is required';
-
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(prev => ({ ...prev, ...newErrors }));
-      return;
-    }
-    setSavingEmail(true);
-    try {
-      await api.put('/settings/email', { newEmail, password: emailPassword });
-      toast.success('Email updated');
-      setProfile(p => ({ ...p, email: newEmail }));
-      setNewEmail('');
-      setEmailPassword('');
-    } catch (err) {
-      setErrors(prev => ({ ...prev, emailSubmit: err.response?.data?.error?.message || 'Update failed' }));
-    } finally {
-      setSavingEmail(false);
     }
   };
 
@@ -152,6 +121,7 @@ function ProfileTab({ profile, setProfile, loading, dark, toggle }) {
       });
       toast.success('Profile picture updated');
       setProfile(p => ({ ...p, profile_picture_url: res.data.data.profile_picture_url }));
+      if (refreshUser) await refreshUser(); // Update AuthContext so Sidebar syncs
     } catch (err) {
       toast.error(err.response?.data?.error?.message || 'Upload failed');
     } finally {
@@ -164,7 +134,7 @@ function ProfileTab({ profile, setProfile, loading, dark, toggle }) {
   if (loading) return <div className="skeleton h-60 rounded-2xl" />;
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div className="max-w-2xl">
       {/* Profile Info */}
       <div className="card-glass rounded-2xl p-5">
         <h2 className="font-bold text-gray-900 dark:text-white text-lg mb-4 flex items-center gap-2">
@@ -224,100 +194,44 @@ function ProfileTab({ profile, setProfile, loading, dark, toggle }) {
           </button>
         </form>
       </div>
-
-      {/* Right column */}
-      <div className="space-y-6">
-        {/* Email Change */}
-        <form onSubmit={handleSaveEmail} className="card-glass rounded-2xl p-5">
-          <h2 className="font-bold text-gray-900 dark:text-white text-lg mb-4 flex items-center gap-2">
-            <Mail className="w-5 h-5 text-brand-500" />
-            Change Email
-          </h2>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">Current: <strong>{profile?.email}</strong></p>
-          
-          {errors.emailSubmit && <div className="p-3 bg-red-50 text-red-600 border border-red-100 rounded-xl text-sm mb-3">{errors.emailSubmit}</div>}
-          
-          <div className="space-y-3">
-            <div>
-              <input
-                type="email"
-                value={newEmail}
-                onChange={(e) => { setNewEmail(e.target.value); if(errors.newEmail) setErrors(p => ({...p, newEmail: null})); }}
-                placeholder="New email address"
-                className={`${inputClass} ${errors.newEmail ? 'border-red-500' : ''}`}
-              />
-              {errors.newEmail && <p className="mt-1 px-1 text-xs text-red-500">{errors.newEmail}</p>}
-            </div>
-            <div>
-              <input
-                type="password"
-                value={emailPassword}
-                onChange={(e) => { setEmailPassword(e.target.value); if(errors.emailPassword) setErrors(p => ({...p, emailPassword: null})); }}
-                placeholder="Password confirmation to change email"
-                className={`${inputClass} ${errors.emailPassword ? 'border-red-500' : ''}`}
-              />
-              {errors.emailPassword && <p className="mt-1 px-1 text-xs text-red-500">{errors.emailPassword}</p>}
-            </div>
-          </div>
-          <button
-            type="submit"
-            disabled={savingEmail}
-            className="mt-4 px-4 py-2.5 rounded-xl bg-brand-500 text-white text-sm font-semibold hover:bg-brand-600 disabled:opacity-50"
-          >
-            {savingEmail ? 'Updating...' : 'Update Email'}
-          </button>
-        </form>
-
-        {/* Appearance */}
-        <div className="card-glass rounded-2xl p-5">
-          <h2 className="font-bold text-gray-900 dark:text-white text-lg mb-4 flex items-center gap-2">
-            <Shield className="w-5 h-5 text-brand-500" />
-            Appearance
-          </h2>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-semibold text-gray-900 dark:text-white">Theme</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Switch between light and dark mode</p>
-            </div>
-            <button
-              onClick={toggle}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 text-sm font-semibold text-gray-700 dark:text-gray-300"
-            >
-              {dark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-              {dark ? 'Light mode' : 'Dark mode'}
-            </button>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }
 
-function SecurityTab({ isCustomer }) {
+function SecurityTab() {
+  const { user, logout } = useAuth();
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [saving, setSaving] = useState(false);
   const [showCurrent, setShowCurrent] = useState(false);
   const [showNew, setShowNew] = useState(false);
+  const [newEmail, setNewEmail] = useState('');
+  const [emailPassword, setEmailPassword] = useState('');
+  const [savingEmail, setSavingEmail] = useState(false);
 
-  // Wallet PIN (customers only)
-  const [hasPin, setHasPin] = useState(false);
-  const [pin, setPin] = useState('');
-  const [confirmPin, setConfirmPin] = useState('');
-  const [accountPassword, setAccountPassword] = useState('');
+  // Wallet PIN state
+  const [hasPin, setHasPin] = useState(null);
+  const [pinValue, setPinValue] = useState('');
+  const [pinConfirm, setPinConfirm] = useState('');
+  const [pinPassword, setPinPassword] = useState('');
   const [savingPin, setSavingPin] = useState(false);
+  const [disablingPin, setDisablingPin] = useState(false);
+  const [disablePassword, setDisablePassword] = useState('');
+  const [showDisablePrompt, setShowDisablePrompt] = useState(false);
+  const isAdmin = user?.role === 'ADMIN';
 
   useEffect(() => {
-    if (!isCustomer) return;
-    const load = async () => {
+    const checkPin = async () => {
       try {
         const res = await api.get('/payments/wallet/pin/status');
-        setHasPin(!!res.data?.data?.hasPin);
-      } catch { /* ignore */ }
+        setHasPin(res.data.data.hasPin);
+      } catch {
+        setHasPin(false);
+      }
     };
-    load();
-  }, [isCustomer]);
+    checkPin();
+  }, []);
 
   const handleChangePassword = async (e) => {
     e.preventDefault();
@@ -343,32 +257,86 @@ function SecurityTab({ isCustomer }) {
     }
   };
 
-  const handleSavePin = async (e) => {
+  const handleSaveEmail = async (e) => {
     e.preventDefault();
-    if (!/^[0-9]{4,6}$/.test(pin)) {
+    if (!newEmail || !emailPassword) {
+      toast.error('Email and password are required');
+      return;
+    }
+    if (!/\S+@\S+\.\S+/.test(newEmail)) {
+      toast.error('Please enter a valid email');
+      return;
+    }
+
+    setSavingEmail(true);
+    try {
+      await api.put('/settings/email', { newEmail, password: emailPassword });
+      toast.success('Email updated successfully');
+      setNewEmail('');
+      setEmailPassword('');
+    } catch (err) {
+      toast.error(err.response?.data?.error?.message || 'Failed to update email');
+    } finally {
+      setSavingEmail(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (window.prompt('Type "DELETE" to permanently delete your account:') !== 'DELETE') return;
+
+    try {
+      await api.delete('/settings/account');
+      toast.success('Account deleted successfully');
+      if (logout) logout();
+    } catch (err) {
+      toast.error(err.response?.data?.error?.message || 'Failed to delete account');
+    }
+  };
+
+  const handleSetPin = async (e) => {
+    e.preventDefault();
+    if (!/^[0-9]{4,6}$/.test(pinValue)) {
       toast.error('PIN must be 4 to 6 digits');
       return;
     }
-    if (pin !== confirmPin) {
-      toast.error('PIN confirmation does not match');
+    if (pinValue !== pinConfirm) {
+      toast.error('PINs do not match');
       return;
     }
-    if (!accountPassword || accountPassword.length < 8) {
-      toast.error('Enter your account password');
+    if (!pinPassword || pinPassword.length < 8) {
+      toast.error('Account password is required');
       return;
     }
     setSavingPin(true);
     try {
-      await api.post('/payments/wallet/pin', { pin, accountPassword });
-      toast.success(hasPin ? 'Wallet PIN updated' : 'Wallet PIN set');
+      await api.post('/payments/wallet/pin', { pin: pinValue, accountPassword: pinPassword });
+      toast.success(hasPin ? 'Wallet PIN changed successfully' : 'Wallet PIN set successfully');
       setHasPin(true);
-      setPin('');
-      setConfirmPin('');
-      setAccountPassword('');
+      setPinValue('');
+      setPinConfirm('');
+      setPinPassword('');
     } catch (err) {
-      toast.error(err.response?.data?.error?.message || 'Failed');
+      toast.error(err.response?.data?.error?.message || 'Failed to set PIN');
     } finally {
       setSavingPin(false);
+    }
+  };
+
+  const handleDisablePin = async () => {
+    if (!disablePassword) {
+      toast.error('Account password is required to disable PIN');
+      return;
+    }
+    setDisablingPin(true);
+    try {
+      await api.delete('/payments/wallet/pin', { data: { accountPassword: disablePassword } });
+      toast.success('Wallet PIN disabled');
+      setHasPin(false);
+      setDisablePassword('');
+    } catch (err) {
+      toast.error(err.response?.data?.error?.message || 'Failed to disable PIN');
+    } finally {
+      setDisablingPin(false);
     }
   };
 
@@ -426,61 +394,160 @@ function SecurityTab({ isCustomer }) {
         </button>
       </form>
 
-      {/* Wallet PIN (customer only) */}
-      {isCustomer && (
-        <form onSubmit={handleSavePin} className="card-glass rounded-2xl p-5">
+      <div className="space-y-6">
+        <form onSubmit={handleSaveEmail} className="card-glass rounded-2xl p-5">
           <h2 className="font-bold text-gray-900 dark:text-white text-lg mb-4 flex items-center gap-2">
-            <KeyRound className="w-5 h-5 text-brand-500" />
-            Wallet PIN
+            <Mail className="w-5 h-5 text-brand-500" />
+            Change Email
           </h2>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
-            {hasPin ? 'Your wallet PIN is set. Update it below.' : 'Set your wallet PIN to secure payments.'}
-          </p>
           <div className="space-y-3">
             <input
-              type="password"
-              value={pin}
-              onChange={(e) => setPin(e.target.value)}
-              placeholder="New PIN (4 to 6 digits)"
-              maxLength={6}
+              type="email"
+              value={newEmail}
+              onChange={(e) => setNewEmail(e.target.value)}
+              placeholder="New email address"
               className={inputClass}
             />
             <input
               type="password"
-              value={confirmPin}
-              onChange={(e) => setConfirmPin(e.target.value)}
-              placeholder="Confirm PIN"
-              maxLength={6}
-              className={inputClass}
-            />
-            <input
-              type="password"
-              value={accountPassword}
-              onChange={(e) => setAccountPassword(e.target.value)}
-              placeholder="Account password confirmation"
+              value={emailPassword}
+              onChange={(e) => setEmailPassword(e.target.value)}
+              placeholder="Current password"
               className={inputClass}
             />
           </div>
           <button
             type="submit"
-            disabled={savingPin}
+            disabled={savingEmail}
             className="mt-4 px-4 py-2.5 rounded-xl bg-brand-500 text-white text-sm font-semibold hover:bg-brand-600 disabled:opacity-50"
           >
-            {savingPin ? 'Saving...' : hasPin ? 'Update PIN' : 'Set PIN'}
+            {savingEmail ? 'Updating...' : 'Update Email'}
           </button>
         </form>
-      )}
+
+        {/* Wallet PIN — only for customers */}
+        {!isAdmin && (
+          <div className="card-glass rounded-2xl p-5">
+            <div className="flex items-center justify-between mb-1">
+              <h2 className="font-bold text-gray-900 dark:text-white text-lg flex items-center gap-2">
+                <Shield className="w-5 h-5 text-brand-500" />
+                Wallet PIN
+              </h2>
+              {hasPin !== null && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (hasPin) {
+                      setShowDisablePrompt(!showDisablePrompt);
+                      setDisablePassword('');
+                    }
+                  }}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 flex-shrink-0 ${
+                    hasPin ? 'bg-brand-500' : 'bg-gray-300 dark:bg-gray-600'
+                  }`}
+                  title={hasPin ? 'Click to disable' : 'Set a PIN below to enable'}
+                >
+                  <span className={`inline-block h-4 w-4 rounded-full bg-white shadow-sm transform transition-transform duration-200 ${
+                    hasPin ? 'translate-x-6' : 'translate-x-1'
+                  }`} />
+                </button>
+              )}
+            </div>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
+              {hasPin === null
+                ? 'Checking...'
+                : hasPin
+                  ? 'PIN is enabled. You\'ll be asked for it when paying online.'
+                  : 'Enable by setting a 4-6 digit PIN. This adds security to online payments.'}
+            </p>
+
+            {/* If PIN is ON — show change form + disable option */}
+            {hasPin && (
+              <div className="space-y-4">
+                <form onSubmit={handleSetPin} className="space-y-3">
+                  <input type="password" inputMode="numeric" maxLength={6} value={pinValue}
+                    onChange={(e) => setPinValue(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                    placeholder="New PIN (4-6 digits)" className={inputClass} />
+                  <input type="password" inputMode="numeric" maxLength={6} value={pinConfirm}
+                    onChange={(e) => setPinConfirm(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                    placeholder="Confirm PIN" className={inputClass} />
+                  <input type="password" value={pinPassword}
+                    onChange={(e) => setPinPassword(e.target.value)}
+                    placeholder="Account password" className={inputClass} />
+                  <button type="submit" disabled={savingPin}
+                    className="px-4 py-2.5 rounded-xl bg-brand-500 text-white text-sm font-semibold hover:bg-brand-600 disabled:opacity-50">
+                    {savingPin ? 'Saving...' : 'Change PIN'}
+                  </button>
+                </form>
+                {showDisablePrompt && (
+                  <div className="border-t border-gray-100 dark:border-gray-700 pt-4">
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Enter your account password to disable wallet PIN:</p>
+                    <div className="flex gap-2">
+                      <input type="password" value={disablePassword}
+                        onChange={(e) => setDisablePassword(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && handleDisablePin()}
+                        placeholder="Account password" className={`${inputClass} flex-1`} />
+                      <button onClick={handleDisablePin} disabled={disablingPin}
+                        className="px-4 py-2.5 rounded-xl bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400 text-sm font-semibold hover:bg-red-100 dark:hover:bg-red-500/20 disabled:opacity-50 whitespace-nowrap">
+                        {disablingPin ? 'Disabling...' : 'Disable PIN'}
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* If PIN is OFF — show set form */}
+            {hasPin === false && (
+              <form onSubmit={handleSetPin} className="space-y-3">
+                <input type="password" inputMode="numeric" maxLength={6} value={pinValue}
+                  onChange={(e) => setPinValue(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                  placeholder="Set PIN (4-6 digits)" className={inputClass} />
+                <input type="password" inputMode="numeric" maxLength={6} value={pinConfirm}
+                  onChange={(e) => setPinConfirm(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                  placeholder="Confirm PIN" className={inputClass} />
+                <input type="password" value={pinPassword}
+                  onChange={(e) => setPinPassword(e.target.value)}
+                  placeholder="Account password" className={inputClass} />
+                <button type="submit" disabled={savingPin}
+                  className="px-4 py-2.5 rounded-xl bg-brand-500 text-white text-sm font-semibold hover:bg-brand-600 disabled:opacity-50">
+                  {savingPin ? 'Saving...' : 'Set PIN'}
+                </button>
+              </form>
+            )}
+          </div>
+        )}
+
+        {!isAdmin && (
+          <div className="card-glass rounded-2xl p-5 border border-red-100 dark:border-red-900/30">
+            <h2 className="font-bold text-red-600 dark:text-red-400 text-lg mb-2">Danger Zone</h2>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
+              Once you delete your account, there is no going back. Please be certain.
+            </p>
+            <button
+              onClick={handleDeleteAccount}
+              className="w-full px-4 py-2.5 rounded-xl bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400 text-sm font-semibold hover:bg-red-100 dark:hover:bg-red-500/20 transition-colors"
+            >
+              Delete Account
+            </button>
+          </div>
+        )}
+      </div>
+
     </div>
   );
 }
 
 function AdminManagementTab() {
+  const { user } = useAuth();
   const [admins, setAdmins] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
-  const [form, setForm] = useState({ email: '', fullName: '', password: '', role: 'ADMIN' });
+  const [form, setForm] = useState({ email: '', fullName: '', password: '' });
   const [creating, setCreating] = useState(false);
   const [errors, setErrors] = useState({});
+
+  const isOriginalAdmin = admins.find(a => a.user_id === user?.user_id)?.is_original;
 
   const loadAdmins = async () => {
     try {
@@ -512,7 +579,7 @@ function AdminManagementTab() {
     try {
       await api.post('/settings/admins', form);
       toast.success('Admin account created');
-      setForm({ email: '', fullName: '', password: '', role: 'ADMIN' });
+      setForm({ email: '', fullName: '', password: '' });
       setShowCreate(false);
       loadAdmins();
     } catch (err) {
@@ -541,12 +608,14 @@ function AdminManagementTab() {
           <Users className="w-5 h-5 text-brand-500" />
           Admin Accounts
         </h2>
-        <button
-          onClick={() => setShowCreate(!showCreate)}
-          className="inline-flex items-center gap-2 bg-gradient-to-r from-brand-500 to-brand-600 text-white px-4 py-2.5 rounded-xl font-semibold text-sm hover:from-brand-600 hover:to-brand-700 transition-all shadow-lg shadow-brand-500/20"
-        >
-          <UserPlus className="w-4 h-4" /> New Admin
-        </button>
+        {isOriginalAdmin && (
+          <button
+            onClick={() => setShowCreate(!showCreate)}
+            className="inline-flex items-center gap-2 bg-gradient-to-r from-brand-500 to-brand-600 text-white px-4 py-2.5 rounded-xl font-semibold text-sm hover:from-brand-600 hover:to-brand-700 transition-all shadow-lg shadow-brand-500/20"
+          >
+            <UserPlus className="w-4 h-4" /> New Admin
+          </button>
+        )}
       </div>
 
       {/* Create Form */}
@@ -569,13 +638,6 @@ function AdminManagementTab() {
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Password</label>
               <input type="password" value={form.password} onChange={(e) => { setForm({ ...form, password: e.target.value }); if(errors.password) setErrors({...errors, password: null}); }} className={`${inputClass} ${errors.password ? 'border-red-500' : ''}`} placeholder="Min 8 characters" />
               {errors.password && <p className="mt-1 text-xs text-red-500">{errors.password}</p>}
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Role</label>
-              <select value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })} className={`${inputClass} bg-white dark:bg-gray-800`}>
-                <option value="ADMIN">Admin</option>
-                <option value="STAFF">Staff</option>
-              </select>
             </div>
           </div>
           <div className="flex gap-3 mt-4">
@@ -620,6 +682,11 @@ function AdminManagementTab() {
                     <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-brand-100 text-brand-700 border border-brand-200 capitalize">
                       {a.role.toLowerCase()}
                     </span>
+                    {a.is_original && (
+                      <span className="ml-1.5 text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 border border-amber-200">
+                        OWNER
+                      </span>
+                    )}
                   </td>
                   <td className="px-5 py-3.5">
                     <span className={`inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full ${
@@ -633,16 +700,21 @@ function AdminManagementTab() {
                     {new Date(a.created_at).toLocaleDateString('en-PH', { day: 'numeric', month: 'short', year: 'numeric' })}
                   </td>
                   <td className="px-5 py-3.5">
-                    <button
-                      onClick={() => handleToggle(a.user_id)}
-                      className={`text-xs font-semibold px-3 py-1.5 rounded-lg transition-all ${
-                        a.status === 'ACTIVE'
-                          ? 'text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20'
-                          : 'text-green-500 hover:bg-green-50 dark:hover:bg-green-900/20'
-                      }`}
-                    >
-                      {a.status === 'ACTIVE' ? 'Deactivate' : 'Activate'}
-                    </button>
+                    {!a.is_original && isOriginalAdmin && (
+                      <button
+                        onClick={() => handleToggle(a.user_id)}
+                        className={`text-xs font-semibold px-3 py-1.5 rounded-lg transition-all ${
+                          a.status === 'ACTIVE'
+                            ? 'text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20'
+                            : 'text-green-500 hover:bg-green-50 dark:hover:bg-green-900/20'
+                        }`}
+                      >
+                        {a.status === 'ACTIVE' ? 'Deactivate' : 'Activate'}
+                      </button>
+                    )}
+                    {a.is_original && (
+                      <span className="text-xs text-gray-400 dark:text-gray-500 italic">Protected</span>
+                    )}
                   </td>
                 </tr>
               ))}

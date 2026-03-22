@@ -25,7 +25,8 @@ class AuthService {
         user_id: user.user_id,
         email: user.email,
         full_name: user.full_name,
-        role: user.role
+        role: user.role,
+        profile_picture_url: user.profile_picture_url || null
       },
       token
     };
@@ -53,7 +54,8 @@ class AuthService {
         email: user.email,
         full_name: user.full_name,
         role: user.role,
-        wallet_balance: user.wallet_balance
+        wallet_balance: user.wallet_balance,
+        profile_picture_url: user.profile_picture_url || null
       },
       token
     };

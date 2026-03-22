@@ -95,10 +95,25 @@ const orderController = {
     const { limit = 50, offset = 0, startDate, endDate, status } = req.query;
     const { pool } = require('../config/database');
 
-    let query = `SELECT o.order_id, o.order_number, o.status, o.delivery_type, o.total_amount, o.created_at, o.user_id,
-              u.full_name AS customer_name
+    let query = `SELECT o.order_id, o.order_number,
+              CASE
+                WHEN p.payment_method = 'CASH' AND COALESCE(p.status, 'PENDING') <> 'SUCCESS' AND o.status IN ('PENDING', 'CONFIRMED')
+                  THEN 'PENDING'
+                ELSE o.status
+              END AS status,
+              o.delivery_type, o.total_amount, o.created_at, o.user_id,
+              u.full_name AS customer_name,
+              p.payment_method,
+              p.status AS payment_status
        FROM orders o
-       LEFT JOIN users u ON o.user_id = u.user_id`;
+       LEFT JOIN users u ON o.user_id = u.user_id
+       LEFT JOIN LATERAL (
+         SELECT payment_method, status
+         FROM payments
+         WHERE order_id = o.order_id
+         ORDER BY created_at DESC
+         LIMIT 1
+       ) p ON true`;
     const params = [];
     const conditions = [];
 

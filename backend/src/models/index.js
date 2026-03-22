@@ -5,7 +5,7 @@ const bcrypt = require('bcryptjs');
 const User = {
   async findById(userId) {
     const result = await pool.query(
-      'SELECT user_id, email, full_name, role, status, wallet_balance, created_at FROM users WHERE user_id = $1',
+      'SELECT user_id, email, full_name, phone, role, status, wallet_balance, profile_picture_url, created_at FROM users WHERE user_id = $1',
       [userId]
     );
     return result.rows[0];
@@ -102,6 +102,13 @@ const User = {
     const row = result.rows[0];
     if (!row || !row.wallet_pin_hash) return false;
     return bcrypt.compare(pin, row.wallet_pin_hash);
+  },
+
+  async clearWalletPin(userId) {
+    await pool.query(
+      'UPDATE users SET wallet_pin_hash = NULL, updated_at = CURRENT_TIMESTAMP WHERE user_id = $1',
+      [userId]
+    );
   }
 };
 
@@ -265,9 +272,18 @@ const Order = {
 
   async getById(orderId) {
     const result = await pool.query(
-      `SELECT o.*, u.full_name, u.email
+      `SELECT o.*, u.full_name, u.email,
+              p.payment_method,
+              p.status AS payment_status
        FROM orders o
        JOIN users u ON o.user_id = u.user_id
+       LEFT JOIN LATERAL (
+         SELECT payment_method, status
+         FROM payments
+         WHERE order_id = o.order_id
+         ORDER BY created_at DESC
+         LIMIT 1
+       ) p ON true
        WHERE o.order_id = $1`,
       [orderId]
     );
@@ -276,9 +292,27 @@ const Order = {
 
   async getByUser(userId, limit = 20, offset = 0) {
     const result = await pool.query(
-      `SELECT order_id, order_number, status, delivery_type, total_amount, created_at
-       FROM orders
-       WHERE user_id = $1
+      `SELECT o.order_id,
+              o.order_number,
+              CASE
+                WHEN p.payment_method = 'CASH' AND COALESCE(p.status, 'PENDING') <> 'SUCCESS' AND o.status IN ('PENDING', 'CONFIRMED')
+                  THEN 'PENDING'
+                ELSE o.status
+              END AS status,
+              o.delivery_type,
+              o.total_amount,
+              o.created_at,
+              p.payment_method,
+              p.status AS payment_status
+       FROM orders o
+       LEFT JOIN LATERAL (
+         SELECT payment_method, status
+         FROM payments
+         WHERE order_id = o.order_id
+         ORDER BY created_at DESC
+         LIMIT 1
+       ) p ON true
+       WHERE o.user_id = $1
        ORDER BY created_at DESC
        LIMIT $2 OFFSET $3`,
       [userId, limit, offset]
@@ -344,7 +378,7 @@ const Payment = {
 
   async getByOrder(orderId) {
     const result = await pool.query(
-      'SELECT * FROM payments WHERE order_id = $1',
+      'SELECT * FROM payments WHERE order_id = $1 ORDER BY created_at DESC LIMIT 1',
       [orderId]
     );
     return result.rows[0];
@@ -353,9 +387,34 @@ const Payment = {
 
 // Inventory Model
 const Inventory = {
+  async getAllActive() {
+    const result = await pool.query(
+      `SELECT i.inventory_id, i.item_id, m.name AS item_name, i.quantity_available AS quantity, i.reorder_level, i.updated_at AS last_updated
+       FROM inventory i
+       JOIN menu_items m ON i.item_id = m.item_id
+       WHERE m.is_active = true
+       ORDER BY m.name`
+    );
+    return result.rows;
+  },
+
   async getByItem(itemId) {
     const result = await pool.query(
-      'SELECT * FROM inventory WHERE item_id = $1',
+      `SELECT i.*
+       FROM inventory i
+       JOIN menu_items m ON i.item_id = m.item_id
+       WHERE i.item_id = $1 AND m.is_active = true`,
+      [itemId]
+    );
+    return result.rows[0];
+  },
+
+  async getByItemAny(itemId) {
+    const result = await pool.query(
+      `SELECT i.*, m.is_active, m.name AS item_name
+       FROM inventory i
+       JOIN menu_items m ON i.item_id = m.item_id
+       WHERE i.item_id = $1`,
       [itemId]
     );
     return result.rows[0];
@@ -366,7 +425,7 @@ const Inventory = {
       `SELECT i.inventory_id, i.item_id, m.name AS item_name, i.quantity_available AS quantity, i.reorder_level, i.updated_at AS last_updated
        FROM inventory i
        JOIN menu_items m ON i.item_id = m.item_id
-       WHERE i.quantity_available <= $1
+       WHERE i.quantity_available <= $1 AND m.is_active = true
        ORDER BY i.quantity_available`,
       [threshold]
     );
@@ -397,6 +456,22 @@ const Inventory = {
     const result = await pool.query(
       'UPDATE inventory SET quantity_available = quantity_available - $1, updated_at = CURRENT_TIMESTAMP WHERE item_id = $2 RETURNING *',
       [quantity, itemId]
+    );
+    return result.rows[0];
+  },
+
+  async deleteByItem(itemId) {
+    const result = await pool.query(
+      'DELETE FROM inventory WHERE item_id = $1 RETURNING item_id',
+      [itemId]
+    );
+    return result.rows[0];
+  },
+
+  async deactivateMenuItem(itemId) {
+    const result = await pool.query(
+      'UPDATE menu_items SET is_active = false, updated_at = CURRENT_TIMESTAMP WHERE item_id = $1 RETURNING item_id',
+      [itemId]
     );
     return result.rows[0];
   }

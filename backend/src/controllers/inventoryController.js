@@ -65,6 +65,17 @@ const inventoryController = {
       success: true,
       data: inventory
     });
+  }),
+
+  deleteInventoryItem: asyncHandler(async (req, res) => {
+    const { itemId } = req.params;
+
+    await inventoryService.deleteInventoryItem(parseInt(itemId));
+
+    res.status(200).json({
+      success: true,
+      message: 'Inventory item deleted successfully'
+    });
   })
 };
 
